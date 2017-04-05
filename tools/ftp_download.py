@@ -1,15 +1,16 @@
 """ Functions to download VIIRS or MODIS product from ftp
 """
+import os
 import argparse
 import logging
+from datetime import datetime as dt
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
 FTP = 'ftp://ladsweb.nascom.nasa.gov/allData/'
 
-
-def locate_data(url, sensor, platform, collection, product, h, v, year, day):
+def locate_data(ftp, sensor, platform, collection, product, tile, year, day):
     """ Locate the data file on ftp based on download criteria
 
     Args:
@@ -30,7 +31,7 @@ def locate_data(url, sensor, platform, collection, product, h, v, year, day):
     return 0
 
 
-def download(url, des):
+def download(url, des, check):
     """ Download and save a file from Internet
 
     Args:
@@ -46,7 +47,7 @@ def download(url, des):
 
 
 # main function
-def download_data(url, sensor, platform, collection, product, h, v, year):
+def download_data(ftp, des, sensor, platform, collection, product, tile, year):
     """ Download a set of MODIS or VIIRS data from FTP
 
     Args:
@@ -63,6 +64,15 @@ def download_data(url, sensor, platform, collection, product, h, v, year):
 
     """
 
+    print(ftp)
+    print(des)
+    print(sensor)
+    print(platform)
+    print(collection)
+    print(product)
+    print(tile)
+    print(year)
+
     return 0
 
 
@@ -70,18 +80,22 @@ def download_data(url, sensor, platform, collection, product, h, v, year):
 if __name__ == '__main__':
     # parse options
     parser = argparse.ArgumentParser()
-    parser.add_argument('-s', '--sensor', action='store', dest='sensor',
-                        default='V',help='V for VIIRS, M for MODIS')
-    parser.add_argument('-p', '--platform', action='store', dest='platform',
-                        default='B',
+    parser.add_argument('-s', '--sensor', action='store', type=str,
+                        dest='sensor', default='V',
+                        help='V for VIIRS, M for MODIS')
+    parser.add_argument('-p', '--platform', action='store', type=str,
+                        dest='platform', default='B',
                         help='T:Terra, A:Aqua, or B:Both (use B for VIIRS)')
     parser.add_argument('-c', '--collection', action='store', type=int,
                         dest='collection', default=1,
                         help='5 or 6 for MODIS, 1 for VIIRS')
-    parser.add_argument('-d', '--product', action='store', dest='product',
-                        default='VNP09GA', help='which product (e.g. MOD09GA)')
-    parser.add_argument('-t', '--tile', action='store', type='int', dest='h',
-                        default=[12,9], help='tile, h and v')
+    parser.add_argument('-d', '--product', action='store', type=str,
+                        dest='product', default='VNP09GA',
+                        help='which product (e.g. MOD09GA)')
+    parser.add_argument('-t', '--tile', action='store', type=int, nargs=2,
+                        dest='tile', default=[12,9], help='tile, h and v')
+    parser.add_argument('-y','--year', action='store', type=int, dest='year',
+                        default=dt.now().year, help='which year')
     parser.add_argument('des', default='./', help='destination')
     args = parser.parse_args()
 
@@ -102,10 +116,11 @@ if __name__ == '__main__':
             parser.error('Invalid product.')
     else:
         parser.error('Invalid sensor, use M for MODIS V for VIIRS.')
-    if not 0 <= args.t[0] <= 35:
+    if not 0 <= args.tile[0] <= 35:
         parser.error('Invalid tile h, must be between 0 and 35.')
-    if not 0 <= option.t[1] <= 35:
+    if not 0 <= args.tile[1] <= 35:
         parser.error('Invalid tile v, must be between 0 and 35.')
 
     # run function to download data
-    print(arg)
+    download_data(FTP, args.des, args.sensor, args.platform, args.collection,
+                    args.product, args.tile, args.year)
