@@ -7,6 +7,7 @@ from datetime import datetime as dt
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
+log.info('asd')
 
 FTP = 'ftp://ladsweb.nascom.nasa.gov/allData/'
 
@@ -31,17 +32,21 @@ def locate_data(ftp, sensor, platform, collection, product, tile, year, day):
     return 0
 
 
-def download(url, des, check):
+def download(url, des, overwrite):
     """ Download and save a file from Internet
 
     Args:
       url (str): the link to the file
       des (str): destination to save the file
+      overwrite (bool): overwrite or not
 
     Returns:
       0: successful
 
     """
+
+    if (not overwrite) and os.path.isfile(des):
+        log.info()
 
     return 0
 
@@ -122,5 +127,6 @@ if __name__ == '__main__':
         parser.error('Invalid tile v, must be between 0 and 35.')
 
     # run function to download data
+    log.warning('nimalaobi')
     download_data(FTP, args.des, args.sensor, args.platform, args.collection,
                     args.product, args.tile, args.year)
