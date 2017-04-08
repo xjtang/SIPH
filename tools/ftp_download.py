@@ -1,4 +1,4 @@
-""" Functions to download VIIRS or MODIS product from ftp
+""" Module for downloading VIIRS or MODIS product from ftp
 """
 import os
 import argparse
