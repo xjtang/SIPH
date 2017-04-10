@@ -1,15 +1,26 @@
 """ Module for downloading VIIRS or MODIS product from ftp
 """
 import os
+import sys
 import argparse
-import logging
+from ftplib import FTP
 from datetime import datetime as dt
 
-log = logging.getLogger(__name__)
-log.setLevel(logging.INFO)
-log.info('asd')
+try:
+    from ..common.logger import log
+except:
+    import logging
+    log_format = '|%(asctime)s|%(levelname)s|%(module)s|%(lineno)s|%(message)s'
+    log_formatter = logging.Formatter(log_format,'%Y-%m-%d %H:%M:%S')
+    log_handler = logging.StreamHandler()
+    log_handler.setFormatter(log_formatter)
+    log_handler.setLevel(logging.INFO)
+    log = logging.getLogger(__name__)
+    log.addHandler(log_handler)
+    log.setLevel(logging.INFO)
 
-FTP = 'ftp://ladsweb.nascom.nasa.gov/allData/'
+_FTP = 'ftp://ladsweb.nascom.nasa.gov/allData/'
+
 
 def locate_data(ftp, sensor, platform, collection, product, tile, year, day):
     """ Locate the data file on ftp based on download criteria
@@ -45,8 +56,14 @@ def download(url, des, overwrite):
 
     """
 
+    # check if file already exists
     if (not overwrite) and os.path.isfile(des):
-        log.info()
+        log.error('{} already exists.'.format(des))
+        sys.exit(1)
+
+    # parse url
+
+
 
     return 0
 
@@ -69,14 +86,7 @@ def download_data(ftp, des, sensor, platform, collection, product, tile, year):
 
     """
 
-    print(ftp)
-    print(des)
-    print(sensor)
-    print(platform)
-    print(collection)
-    print(product)
-    print(tile)
-    print(year)
+    print('download_data')
 
     return 0
 
@@ -107,26 +117,40 @@ if __name__ == '__main__':
     # check if arguments and options are valid
     if args.sensor == 'V':
         if args.platform != 'B':
-            parser.error('Invalid platform, use B for VIIRS.')
+            log.error('Invalid platform, use B for VIIRS.')
+            sys.exit(1)
         if args.collection != 1:
-            parser.error('Invalid collection, use 1 for VIIRS.')
+            log.error('Invalid collection, use 1 for VIIRS.')
+            sys.exit(1)
         if args.product not in ['VNP09GA']:
-            parser.error('Invalid product.')
+            log.error('Invalid product.')
+            sys.exit(1)
     elif args.sensor == 'M':
         if args.platform not in ['T', 'A']:
-            parser.error('Invalid platform, use T for Terra, A for Aqua.')
+            log.error('Invalid platform, use T for Terra, A for Aqua.')
+            sys.exit(1)
         if args.platform not in [5, 6]:
-            parser.error('Invalid collection, use 5 or 6 for MODIS.')
+            log.error('Invalid collection, use 5 or 6 for MODIS.')
+            sys.exit(1)
         if args.product not in ['MOD09GA']:
-            parser.error('Invalid product.')
+            log.error('Invalid product.')
+            sys.exit(1)
     else:
-        parser.error('Invalid sensor, use M for MODIS V for VIIRS.')
+        log.error('Invalid sensor, use M for MODIS V for VIIRS.')
+        sys.exit(1)
     if not 0 <= args.tile[0] <= 35:
-        parser.error('Invalid tile h, must be between 0 and 35.')
+        log.error('Invalid tile h, must be between 0 and 35.')
+        sys.exit(1)
     if not 0 <= args.tile[1] <= 35:
-        parser.error('Invalid tile v, must be between 0 and 35.')
+        log.error('Invalid tile v, must be between 0 and 35.')
+        sys.exit(1)
 
     # run function to download data
-    log.warning('nimalaobi')
-    download_data(FTP, args.des, args.sensor, args.platform, args.collection,
+    log.info('Starting to download data...')
+    log.info('Searching for {}.{}.{}.{}.h{}v{}.{}'.format(args.sensor,
+                args.platform,args.collection,args.product,args.tile[0],
+                args.tile[1],args.year))
+    log.info('From {}'.format(FTP))
+    log.info('Saving in {}'.format(args.des))
+    download_data(_FTP, args.des, args.sensor, args.platform, args.collection,
                     args.product, args.tile, args.year)
