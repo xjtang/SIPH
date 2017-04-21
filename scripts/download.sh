@@ -71,6 +71,7 @@ while [[ $# > 0 ]]; do
 done
 
 # run python script
-module load python/3.6.0
+module purge
+module load python/3.6.1
 cd /usr3/graduate/xjtang/Documents/
 python -m VNRT.tools.ftp_download -s $sensor -c $collection -p $product -t $h $v -y $year -d $dstart $dend $des
