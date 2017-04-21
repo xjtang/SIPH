@@ -51,7 +51,7 @@ def get_ftp(url):
     # move to folder
     n = len(url_split)
     if n > 1:
-        for i in xrange(1,n):
+        for i in range(1,n):
             try:
                 ftp.cwd(url_split[i])
             except:
@@ -97,7 +97,7 @@ def locate_data(ftp, sensor, collection, product, tile, year, day):
 
     # search for files
     url_list = []
-    for i in xrange(day[0], day[1]+1):
+    for i in range(day[0], day[1]+1):
         file_list = ftp.nlst('./{:03}'.format(i))
         pattern = re.compile('{}\.A{}{:03}\.h{:02}v{:02}\.{:03}.*\.h5'.format(
                                 product, year, i, tile[0], tile[1], collection))
