@@ -185,6 +185,7 @@ def download_data(url, des, sensor, collection, product, tile, year, day):
       0: successful
       1: connecting error
       2: cannot locate files
+      3: cannot create output
 
     """
     # connect to ftp
@@ -203,6 +204,14 @@ def download_data(url, des, sensor, collection, product, tile, year, day):
     else:
         return 2
 
+    # check output location
+    if not os.path.exists(des):
+        try:
+            os.makedirs(des)
+        except:
+            log.error('Cannot create output folder {}'.format(des))
+            return 3
+    
     # download files
     if not des[-1] == '/':
         des = des + '/'
