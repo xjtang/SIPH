@@ -43,7 +43,7 @@ def get_ftp(url):
     # connect to ftp
     try:
         ftp = FTP(url_split[0])
-        ftp.login()
+        ftp.login('anonymous','xjtang@bu.edu')
     except:
         log.error('Cannot connect to ftp://{}/'.format(url_split[0]))
         return 1
