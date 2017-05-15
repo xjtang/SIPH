@@ -8,7 +8,9 @@
 #   -p product e.g. VNP09GA
 #   -t tile h v
 #   -y year
-#   -d day start stop
+#   -d day, start stop
+# 	-l login, username password
+# 	-m method, ftp or http
 #   des destination
 
 # Settings:
@@ -26,6 +28,9 @@ v=9
 year=2017
 dstart=0
 dend=0
+username=NA
+password=NA
+method=ftp
 
 # parse input arguments
 while [[ $# > 0 ]]; do
@@ -61,6 +66,14 @@ while [[ $# > 0 ]]; do
 			shift
 			shift
 			;;
+		-l)
+			username=$2
+			password=$3
+			shift
+			shift
+		-m)
+			method=$2
+			shift
 		*)
 			des=$1
 			break
@@ -74,4 +87,10 @@ done
 module purge
 module load python/3.6.1
 cd /usr3/graduate/xjtang/Documents/
-python -m VNRT.tools.ftp_download -s $sensor -c $collection -p $product -t $h $v -y $year -d $dstart $dend $des
+if [ $method = "ftp" ]; then
+	python -m VNRT.tools.ftp_download -s $sensor -c $collection -p $product -t $h $v -y $year -d $dstart $dend $des
+elif [ $method = "http" ]; then
+	python -m VNRT.tools.http_download -u $username -w $password -s $sensor -c $collection -p $product -t $h $v -y $year -d $dstart $dend $des
+else
+	echo 'unknown method'
+fi
