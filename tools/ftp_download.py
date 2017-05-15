@@ -4,22 +4,12 @@ import os
 import sys
 import re
 import argparse
+import glob
 from calendar import isleap
 from ftplib import FTP
 from datetime import datetime as dt
+from ..common import log
 
-try:
-    from ..common.logger import log
-except:
-    import logging
-    log_format = '|%(asctime)s|%(levelname)s|%(module)s|%(lineno)s||%(message)s'
-    log_formatter = logging.Formatter(log_format,'%Y-%m-%d %H:%M:%S')
-    log_handler = logging.StreamHandler()
-    log_handler.setFormatter(log_formatter)
-    log_handler.setLevel(logging.INFO)
-    log = logging.getLogger(__name__)
-    log.addHandler(log_handler)
-    log.setLevel(logging.INFO)
 
 _FTP = 'ftp://ladsweb.nascom.nasa.gov/'
 
@@ -93,7 +83,7 @@ def locate_data(ftp, sensor, collection, product, tile, year, day):
         url = '{}allData/5000/{}/{}/'.format(url, product, year)
     else:
         ftp.cwd('/allData/{}/{}/{}'.format(collection, product, year))
-        url = '{}allData/{}/{}/{}/'.format(url.collection, product, year)
+        url = '{}allData/{}/{}/{}/'.format(url, collection, product, year)
 
     # search for files
     url_list = []
@@ -106,7 +96,7 @@ def locate_data(ftp, sensor, collection, product, tile, year, day):
 
     # done
     if len(url_list) == 0:
-        log.info('Found nothing.')
+        log.warning('Found nothing.')
         return 1
     else:
         return url_list
@@ -131,7 +121,7 @@ def download(url, des, overwrite=False,ftp='NA'):
 
     # check if file already exists
     if (not overwrite) and os.path.isfile(des):
-        log.error('{} already exists.'.format(des.split('/')[-1]))
+        log.warning('{} already exists.'.format(des.split('/')[-1]))
         return 1
 
     # parse url
@@ -168,8 +158,8 @@ def download(url, des, overwrite=False,ftp='NA'):
     return 0
 
 
-# main function
-def download_data(url, des, sensor, collection, product, tile, year, day):
+def download_data(url, des, sensor, collection, product, tile, year, day,
+                    update):
     """ Download a set of MODIS or VIIRS data from FTP
 
     Args:
@@ -180,6 +170,7 @@ def download_data(url, des, sensor, collection, product, tile, year, day):
       tile (list, int): tile, [h, v]
       year (int): which year
       day (list, int): which day, 0 for all yea, [start, stop] for range
+      update (bool): update existing image or not
 
     Returns:
       0: successful
@@ -218,8 +209,20 @@ def download_data(url, des, sensor, collection, product, tile, year, day):
     log.info('Downloading files.')
     count = 0
     for f in file_list:
-        if download(f,(des+f.split('/')[-1]),False,ftp) == 0:
-            count = count + 1
+        # check if old file already exists
+        fn = f.split('/')[-1]
+        true_fn = fn.split('.')
+        del true_fn[-2:]
+        true_fn = '.'.join(true_fn)
+        old_file = glob.glob('{}{}*.h5'.format(des, true_fn))
+        if old_file and not update:
+            log.warning('{} old file already exists.'.format(true_fn))
+        else:
+            if download(f, (des+fn), False, ftp) == 0:
+                count += 1
+                if old_file and update:
+                    for f2 in old_file:
+                        os.remove(f2)
 
     # done
     log.info('Download completed.')
@@ -247,6 +250,8 @@ if __name__ == '__main__':
     parser.add_argument('-d','--day', action='store', type=int, nargs=2,
                         dest='day', default=[0,0],
                         help='which days, give start and stop')
+    parser.add_argument('--update', action='store_true',
+                        help='update existing image')
     parser.add_argument('des', default='./', help='destination')
     args = parser.parse_args()
 
@@ -289,4 +294,4 @@ if __name__ == '__main__':
     log.info('From {}'.format(_FTP))
     log.info('Saving in {}'.format(args.des))
     download_data(_FTP, args.des, args.sensor, args.collection, args.product,
-                    args.tile, args.year, args.day)
+                    args.tile, args.year, args.day, args.update)
