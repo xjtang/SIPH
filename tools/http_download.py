@@ -5,8 +5,14 @@ import sys
 import re
 import argparse
 import glob
-import urllib.request as urllib
-from http.cookiejar import CookieJar as cj
+try:
+    import urllib.request as urllib
+except:
+    import urllib2 as urllib
+try:
+    from http.cookiejar import CookieJar as cj
+except:
+    from cookielib import CookieJar as cj
 from calendar import isleap
 from datetime import datetime as dt
 from ..common import *
@@ -148,6 +154,7 @@ def download_data(url, username, password, des, sensor, collection, product,
     Returns:
       0: successful
       1: cannot locate files
+      2: cannot create output folder
 
     """
     # locate files
@@ -158,6 +165,15 @@ def download_data(url, username, password, des, sensor, collection, product,
         log.info('Found {} files.'.format(n))
     else:
         return 1
+
+    # check output location
+    if not os.path.exists(des):
+        log.warning('{} does not exist, trying to create one.'.format(des))
+        try:
+            os.makedirs(des)
+        except:
+            log.error('Cannot create output folder {}'.format(des))
+            return 2
 
     # download files
     if not des[-1] == '/':
