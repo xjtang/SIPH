@@ -197,12 +197,13 @@ def download_data(url, des, sensor, collection, product, tile, year, day,
 
     # check output location
     if not os.path.exists(des):
+        log.warning('{} does not exist, trying to create one.'.format(des))
         try:
             os.makedirs(des)
         except:
             log.error('Cannot create output folder {}'.format(des))
             return 3
-    
+
     # download files
     if not des[-1] == '/':
         des = des + '/'
