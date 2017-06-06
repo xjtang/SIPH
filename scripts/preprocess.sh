@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# Submit job to preprocess viirs data
+# bash script to preprocess viirs data
 
 # Input Arguments:
 #   -p searching pattern
 #   -b batch jobs, [thisjob, totaljob]
 #   --overwrite overwrite
-#   ori origin
-#   des destination
+#   ori: origin
+#   des: destination
 
 # Settings:
 #$ -S /bin/bash
@@ -23,9 +23,7 @@ overwrite=0
 
 # parse input arguments
 while [[ $# > 0 ]]; do
-
 	InArg="$1"
-
 	case $InArg in
 		-p)
 			pattern=$2
@@ -39,16 +37,13 @@ while [[ $# > 0 ]]; do
 			;;
 		--overwrite)
 			overwrite=1
-			shift
 			;;
 		*)
       ori=$1
 			des=$2
 			break
 	esac
-
 	shift
-
 done
 
 # load environment
