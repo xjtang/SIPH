@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Submit job to download data
+# bash script to download data
 
 # Input Arguments:
 #   -s sensor V for VIIRS, M for MODIS
@@ -11,7 +11,7 @@
 #   -d day, start stop
 # 	-l login, username password
 # 	-m method, ftp or http
-#   des destination
+#   des: destination
 
 # Settings:
 #$ -S /bin/bash
