@@ -71,9 +71,11 @@ while [[ $# > 0 ]]; do
 			password=$3
 			shift
 			shift
+			;;
 		-m)
 			method=$2
 			shift
+			;;
 		*)
 			des=$1
 			break
