@@ -94,11 +94,16 @@ def viirs2gtif(img, des, overwrite=False, verbose=False):
         if verbose:
             log.info('Generating mask band...')
         try:
-            mask = enlarge(viirsQA(vs_img), 2)
-            _total = np.sum(mask)
-            _size = np.shape(mask)
-            if verbose:
-                log.info('{}% masked'.format(_total/(_size[0]*_size[1])*100))
+            # mask = enlarge(viirsQA(vs_img), 2)
+            # _total = np.sum(mask)
+            # _size = np.shape(mask)
+            # if verbose:
+            #     log.info('{}% masked'.format(_total/(_size[0]*_size[1])*100))
+            mask1 = enlarge(viirsQA(vs_img, 1), 2)
+            mask2 = enlarge(viirsQA(vs_img, 2), 2)
+            mask4 = enlarge(viirsQA(vs_img, 4), 2)
+            mask6 = enlarge(viirsQA(vs_img, 6), 2)
+            mask7 = enlarge(viirsQA(vs_img, 7), 2)
         except:
             _error = 3
             log.error('Failed to generate mask band.')
@@ -126,7 +131,7 @@ def viirs2gtif(img, des, overwrite=False, verbose=False):
             # initialize output
             _driver = gdal.GetDriverByName('GTiff')
             output = _driver.Create(des, vs_i1.RasterYSize, vs_i1.RasterXSize,
-                                    6, gdal.GDT_Int16)
+                                    10, gdal.GDT_Int16)
             output.SetProjection(vs_geo['proj'])
             output.SetGeoTransform(vs_geo['geotrans'])
             output.GetRasterBand(1).SetNoDataValue(NODATA)
@@ -136,14 +141,22 @@ def viirs2gtif(img, des, overwrite=False, verbose=False):
             output.GetRasterBand(3).WriteArray(swir)
             output.GetRasterBand(4).WriteArray(ndvi)
             output.GetRasterBand(5).WriteArray(vza)
-            output.GetRasterBand(6).WriteArray(mask)
+            output.GetRasterBand(6).WriteArray(mask1)
+            output.GetRasterBand(7).WriteArray(mask2)
+            output.GetRasterBand(8).WriteArray(mask4)
+            output.GetRasterBand(9).WriteArray(mask6)
+            output.GetRasterBand(10).WriteArray(mask7)
             # assign band name
             output.GetRasterBand(1).SetDescription('VIIRS 500m I1 Red')
             output.GetRasterBand(2).SetDescription('VIIRS 500m I2 NIR')
             output.GetRasterBand(3).SetDescription('VIIRS 500m I3 SWIR')
             output.GetRasterBand(4).SetDescription('VIIRS 500m NDVI')
             output.GetRasterBand(5).SetDescription('VIIRS 500m VZA')
-            output.GetRasterBand(6).SetDescription('VIIRS 500m Mask')
+            output.GetRasterBand(6).SetDescription('VIIRS 500m Mask 1')
+            output.GetRasterBand(7).SetDescription('VIIRS 500m Mask 2')
+            output.GetRasterBand(8).SetDescription('VIIRS 500m Mask 4')
+            output.GetRasterBand(9).SetDescription('VIIRS 500m Mask 6')
+            output.GetRasterBand(10).SetDescription('VIIRS 500m Mask 7')
         except:
             _error = 5
             log.error('Failed to write output to {}'.format(des))
@@ -169,11 +182,12 @@ def viirs2gtif(img, des, overwrite=False, verbose=False):
     return _error
 
 
-def viirsQA(vs_img, verbose=False):
+def viirsQA(vs_img, mask_which=0, verbose=False):
     """ intepret VIIRS QA and return a mask array
 
     Args:
       img (obj): gdal image object
+      mask_which (int): which mask band to use, 0 for all
       verbose (bool): verbose or not
 
     Returns:
@@ -227,7 +241,18 @@ def viirsQA(vs_img, verbose=False):
     # prepare outputs
     if verbose:
         log.info('Combining mask bands...')
-    mask = (mask_qf1 | mask_qf2 | mask_qf4 | mask_qf6 | mask_qf7) > 0
+    if mask_which == 0:
+        mask = (mask_qf1 | mask_qf2 | mask_qf4 | mask_qf6 | mask_qf7) > 0
+    elif mask_which == 1:
+        mask = mask_qf1 > 0
+    elif mask_which == 2:
+        mask = mask_qf2 > 0
+    elif mask_which == 4:
+        mask = mask_qf4 > 0
+    elif mask_which == 6:
+        mask = mask_qf6 > 0
+    elif mask_which == 7:
+        mask = mask_qf7 > 0
 
     # close files
     if verbose:
