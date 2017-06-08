@@ -186,8 +186,8 @@ def viirsQA(vs_img, verbose=False):
     vs_sub = vs_img.GetSubDatasets()
     vs_qf1 = gdal.Open(vs_sub[QA_BANDS[0]][0], gdal.GA_ReadOnly)
     vs_qf2 = gdal.Open(vs_sub[QA_BANDS[1]][0], gdal.GA_ReadOnly)
-    vs_qf4 = gdal.Open(vs_sub[QA_BANDS[2]][0], gdal.GA_ReadOnly)
-    vs_qf6 = gdal.Open(vs_sub[QA_BANDS[3]][0], gdal.GA_ReadOnly)
+    # vs_qf4 = gdal.Open(vs_sub[QA_BANDS[2]][0], gdal.GA_ReadOnly)
+    # vs_qf6 = gdal.Open(vs_sub[QA_BANDS[3]][0], gdal.GA_ReadOnly)
     vs_qf7 = gdal.Open(vs_sub[QA_BANDS[4]][0], gdal.GA_ReadOnly)
 
     # read actual data
@@ -195,8 +195,8 @@ def viirsQA(vs_img, verbose=False):
         log.info('Reading actual data...')
     qf1 = vs_qf1.GetRasterBand(1).ReadAsArray()
     qf2 = vs_qf2.GetRasterBand(1).ReadAsArray()
-    qf4 = vs_qf4.GetRasterBand(1).ReadAsArray()
-    qf6 = vs_qf6.GetRasterBand(1).ReadAsArray()
+    # qf4 = vs_qf4.GetRasterBand(1).ReadAsArray()
+    # qf6 = vs_qf6.GetRasterBand(1).ReadAsArray()
     qf7 = vs_qf7.GetRasterBand(1).ReadAsArray()
 
     # process
@@ -205,12 +205,12 @@ def viirsQA(vs_img, verbose=False):
     mask_qf1 = (np.mod(np.right_shift(qf1, 1) + 1, 2) |
                 np.mod(np.right_shift(qf1, 3), 2))
     # mask_qf2 = ((np.mod(qf2, 4) // 3) | np.right_shift(qf2, 3)) # sea water
-    mask_qf2 = np.right_shift(qf2, 3)
-    mask_qf4 = np.mod(np.right_shift(qf4, 1), 16)
+    # mask_qf2 = np.right_shift(qf2, 3) # unsure
+    # mask_qf4 = np.mod(np.right_shift(qf4, 1), 16) # unsure
     mask_qf6 = np.mod(np.right_shift(qf6, 3), 8)
-    mask_qf7 = (np.mod(qf7, 4) |
-                (np.mod(np.right_shift(qf7, 2), 4) // 3) |
-                np.mod(np.right_shift(qf7, 4), 2))
+    mask_qf7 = (np.mod(qf7, 4) | np.mod(np.right_shift(qf7, 4), 2))
+                # (np.mod(np.right_shift(qf7, 2), 4) // 3) | # unsure
+
 
     # just to double check
     # mask2_qf1 = (~get_bits(qf1, 1)) | get_bits(qf1, 2)
@@ -227,15 +227,16 @@ def viirsQA(vs_img, verbose=False):
     # prepare outputs
     if verbose:
         log.info('Combining mask bands...')
-    mask = (mask_qf1 | mask_qf2 | mask_qf4 | mask_qf6 | mask_qf7) > 0
+    # mask = (mask_qf1 | mask_qf2 | mask_qf4 | mask_qf6 | mask_qf7) > 0
+    mask = (mask_qf1 | mask_qf2 | mask_qf7) > 0
 
     # close files
     if verbose:
         log.info('Closing files...')
     vs_qf1 = None
     vs_qf2 = None
-    vs_qf4 = None
-    vs_qf6 = None
+    # vs_qf4 = None
+    # vs_qf6 = None
     vs_qf7 = None
 
     # done
