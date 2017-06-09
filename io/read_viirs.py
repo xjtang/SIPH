@@ -205,9 +205,9 @@ def viirsQA(vs_img, verbose=False):
     mask_qf1 = (np.mod(np.right_shift(qf1, 1) + 1, 2) |
                 np.mod(np.right_shift(qf1, 3), 2))
     # mask_qf2 = ((np.mod(qf2, 4) // 3) | np.right_shift(qf2, 3)) # sea water
-    # mask_qf2 = np.right_shift(qf2, 3) # unsure
+    mask_qf2 = np.right_shift(qf2, 3)
     # mask_qf4 = np.mod(np.right_shift(qf4, 1), 16) # unsure
-    mask_qf6 = np.mod(np.right_shift(qf6, 3), 8)
+    # mask_qf6 = np.mod(np.right_shift(qf6, 3), 8) # unsure
     mask_qf7 = (np.mod(qf7, 4) | np.mod(np.right_shift(qf7, 4), 2))
                 # (np.mod(np.right_shift(qf7, 2), 4) // 3) | # unsure
 
