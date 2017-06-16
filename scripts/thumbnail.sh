@@ -32,7 +32,6 @@ s2=5000
 mask=0
 combo=0
 
-
 # parse input arguments
 while [[ $# > 0 ]]; do
 	InArg="$1"
