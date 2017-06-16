@@ -136,7 +136,7 @@ def locate_data(url, sensor, collection, product, tile, year, day):
 
 
 def download_data(url, username, password, des, sensor, collection, product,
-                    tile, year, day, update):
+                    tile, year, day, update=False):
     """ Download a set of MODIS or VIIRS data from FTP
 
     Args:
@@ -268,13 +268,17 @@ if __name__ == '__main__':
         log.error('Invalid day range.')
         sys.exit(1)
 
-    # run function to download data
+    # print logs
     log.info('Starting to download data...')
     log.info('Searching for {}.{}.{}.h{:02}v{:02}.{}.{}.{}'.format(args.sensor,
-                args.collection,args.product,args.tile[0], args.tile[1],
-                args.year,args.day[0],args.day[1]))
+                args.collection, args.product, args.tile[0], args.tile[1],
+                args.year, args.day[0], args.day[1]))
     log.info('From {}'.format(_HTTP))
     log.info('Saving in {}'.format(args.des))
+    if args.update:
+        log.info('Updating existing files.')
+
+    # run function to download data
     download_data(_HTTP, args.username, args.password, args.des, args.sensor,
                     args.collection, args.product, args.tile, args.year,
                     args.day, args.update)
