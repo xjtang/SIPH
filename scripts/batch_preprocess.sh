@@ -8,7 +8,6 @@
 #   --overwrite overwrite
 #   ori: origin
 #   des: destination
-#   n: number of jobs
 
 # default values
 njob=1
@@ -48,5 +47,3 @@ for i in $(seq 1 $njob); do
       qsub -N VNRT_$i ./preprocess.sh --overwrite -p $pattern -b $i $njob $ori $des
     fi
 done
-
-# end
