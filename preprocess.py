@@ -1,7 +1,8 @@
 """ Module for preprocess VIIRS data
 """
-import argparse
 import os
+import sys
+import argparse
 from .common import log, get_files, manage_batch
 from .io import viirs2gtif, vn2ln
 
@@ -93,11 +94,15 @@ if __name__ == '__main__':
                     args.batch[1]))
         sys.exit(1)
 
-    # run function to download data
+    # print logs
     log.info('Start preprocessing...')
     log.info('Running job {}/{}'.format(args.batch[0], args.batch[1]))
     log.info('Looking for {}'.format(args.pattern))
     log.info('In {}'.format(args.ori))
     log.info('Saving in {}'.format(args.des))
+    if args.overwrite:
+        log.info('Overwriting old files.')
+
+    # run function to download data
     viirs_preprocess(args.pattern, args.ori, args.des, args.overwrite,
                         args.batch)
