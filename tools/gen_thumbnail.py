@@ -1,4 +1,16 @@
 """ Module for generating thumbnail for gtif files
+
+    Args:
+        -p (pattern): searching pattern
+        -b (batch): batch process, thisjob and totaljob
+        -c (comp): band composite
+        -s (stretch): image stretch
+        -m (mask): mask band, 0 for no mask
+        --overwrite: overwrite or not
+        --combo: combine mask image with original image
+        ori: origin
+        des: destination
+
 """
 from __future__ import division
 
@@ -208,15 +220,15 @@ if __name__ == '__main__':
                         help='searching pattern')
     parser.add_argument('-b', '--batch', action='store', type=int, nargs=2,
                         dest='batch', default=[1,1],
-                        help='batch process, [thisjob, totaljob]')
-    parser.add_argument('--overwrite', action='store_true',
-                        help='overwrite or not')
+                        help='batch process, thisjob and totaljob')
     parser.add_argument('-c', '--comp', action='store', type=int, nargs=3,
                         dest='comp', default=[3,2,1], help='band composite')
     parser.add_argument('-s', '--stretch', action='store', type=int, nargs=2,
                         dest='stretch', default=[0,5000], help='image stretch')
     parser.add_argument('-m', '--mask', action='store', type=int, dest='mask',
                         default=0, help='mask band, 0 for no mask')
+    parser.add_argument('--overwrite', action='store_true',
+                        help='overwrite or not')
     parser.add_argument('--combo', action='store_true',
                         help='combine mask image with original image')
     parser.add_argument('ori', default='./', help='origin')

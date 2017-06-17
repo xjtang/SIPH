@@ -1,4 +1,15 @@
 """ Module for downloading VIIRS or MODIS product from ftp
+
+    Args:
+        -s (sensor): V for VIIRS, M for MODIS
+        -c (collection): 5 or 6 for MODIS, 1 for VIIRS
+        -p (product): which product (e.g. MOD09GA)
+        -t (tile): tile, h and v
+        -y (year): which year
+        -d (day): which days, start and stop
+        --update: update existing image or not
+        des: destination
+
 """
 import os
 import sys

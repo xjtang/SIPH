@@ -1,4 +1,17 @@
 """ Module for downloading VIIRS or MODIS product from https server
+
+    Args:
+        -u (username): username, required
+        -w (password): password, required
+        -s (sensor): V for VIIRS, M for MODIS
+        -c (collection): 5 or 6 for MODIS, 1 for VIIRS
+        -p (product): which product (e.g. MOD09GA)
+        -t (tile): tile, h and v
+        -y (year): which year
+        -d (day): which days, start and stop
+        --update: update existing image or not
+        des: destination
+
 """
 import os
 import sys
@@ -209,9 +222,9 @@ if __name__ == '__main__':
     # parse options
     parser = argparse.ArgumentParser()
     parser.add_argument('-u', '--username', action='store', type=str,
-                        dest='username', help='Username, required.')
+                        dest='username', help='username, required')
     parser.add_argument('-w', '--password', action='store', type=str,
-                        dest='password', help='Password, required.')
+                        dest='password', help='password, required')
     parser.add_argument('-s', '--sensor', action='store', type=str,
                         dest='sensor', default='V',
                         help='V for VIIRS, M for MODIS')

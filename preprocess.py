@@ -1,4 +1,12 @@
 """ Module for preprocess VIIRS data
+
+    Args:
+        -p (pattern): searching pattern
+        -b (batch): batch process, thisjob and totaljob
+        --overwrite: overwrite or not
+        ori: origin
+        des: destination
+
 """
 import os
 import sys
