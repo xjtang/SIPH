@@ -1,12 +1,15 @@
 """ Module for generating thumbnail for gtif files
 """
 from __future__ import division
+
 import os
 import sys
 import argparse
 import numpy as np
+
 from osgeo import gdal
 from PIL import Image
+
 from ..common import log, get_files, manage_batch
 
 
@@ -197,7 +200,6 @@ def batch_gen_tn(pattern, ori, des, overwrite=False, batch=[1,1], comp=[3,2,1],
     return 0
 
 
-# generating thumbnails
 if __name__ == '__main__':
     # parse options
     parser = argparse.ArgumentParser()

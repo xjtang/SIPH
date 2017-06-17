@@ -1,10 +1,13 @@
 """ Module for reading VIIRS data
 """
 from __future__ import division
+
 import os
 import numpy as np
 import h5py
+
 from osgeo import gdal
+
 from ..common import log, enlarge
 
 

@@ -1,8 +1,10 @@
 """ Module for a set of small functions frequently used by other modules
 """
 from __future__ import division
+
 import os
 import fnmatch
+
 from calendar import isleap
 
 

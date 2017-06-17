@@ -3,6 +3,7 @@
 import os
 import sys
 import argparse
+
 from .common import log, get_files, manage_batch
 from .io import viirs2gtif, vn2ln
 
@@ -72,7 +73,6 @@ def viirs_preprocess(pattern, ori, des, overwrite=False, batch=[1,1]):
     return 0
 
 
-# preprocessing
 if __name__ == '__main__':
     # parse options
     parser = argparse.ArgumentParser()

@@ -5,6 +5,7 @@ import sys
 import re
 import argparse
 import glob
+
 try:
     import urllib.request as urllib
 except:
@@ -13,8 +14,10 @@ try:
     from http.cookiejar import CookieJar as cj
 except:
     from cookielib import CookieJar as cj
+    
 from calendar import isleap
 from datetime import datetime as dt
+
 from ..common import *
 
 
@@ -202,7 +205,6 @@ def download_data(url, username, password, des, sensor, collection, product,
     return 0
 
 
-# download data
 if __name__ == '__main__':
     # parse options
     parser = argparse.ArgumentParser()

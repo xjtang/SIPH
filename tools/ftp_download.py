@@ -5,9 +5,11 @@ import sys
 import re
 import argparse
 import glob
+
 from calendar import isleap
 from ftplib import FTP
 from datetime import datetime as dt
+
 from ..common import log
 
 
@@ -231,7 +233,6 @@ def download_data(url, des, sensor, collection, product, tile, year, day,
     return 0
 
 
-# download data
 if __name__ == '__main__':
     # parse options
     parser = argparse.ArgumentParser()
