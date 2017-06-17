@@ -8,11 +8,11 @@ def enlarge(array, scaling):
         by Chris Holden
 
     Args:
-      array (ndarray): array to be scaled
-      scaling (int): amount of scaling
+        array (ndarray): array to be scaled
+        scaling (int): amount of scaling
 
     Returns:
-      scaled (ndarray): scaled array
+        scaled (ndarray): scaled array
 
     """
     return np.kron(array, np.ones((scaling, scaling)))

@@ -20,12 +20,12 @@ def get_ftp(url):
     """ connect to ftp given address
 
     Args:
-      url (str): ftp address
+        url (str): ftp address
 
     Returns:
-      ftp (FTP): ftp object
-      1: ftp connect error
-      2: error while moving to folder
+        ftp (FTP): ftp object
+        1: ftp connect error
+        2: error while moving to folder
 
     """
 
@@ -58,18 +58,18 @@ def locate_data(ftp, sensor, collection, product, tile, year, day):
     """ Locate the data file on ftp based on download criteria
 
     Args:
-      ftp (str or FTP): FTP address or FTP object
-      sensor (str): V for VIIRS, M for MODIS
-      collection (int): 5 or 6 for MODIS, 1 for VIIRS
-      product (str): which product (e.g. MOD09GA)
-      tile (list, int): tile, [h, v]
-      year (int): which year
-      day (list, int): which day, 0 for all year, [start, stop] for range
+        ftp (str or FTP): FTP address or FTP object
+        sensor (str): V for VIIRS, M for MODIS
+        collection (int): 5 or 6 for MODIS, 1 for VIIRS
+        product (str): which product (e.g. MOD09GA)
+        tile (list, int): tile, [h, v]
+        year (int): which year
+        day (list, int): which day, 0 for all year, [start, stop] for range
 
     Returns:
-      list: list of links to the files
-      1: found nothing
-      2: error due to ftp connection
+        list: list of links to the files
+        1: found nothing
+        2: error due to ftp connection
 
     """
     # connect to ftp
@@ -108,15 +108,15 @@ def download(url, des, overwrite=False,ftp='NA'):
     """ Download and save a file from ftp
 
     Args:
-      url (str): the link to the file
-      des (str): destination to save the file
-      overwrite (bool): overwrite or not
-      ftp (FTP): an FTP object
+        url (str): the link to the file
+        des (str): destination to save the file
+        overwrite (bool): overwrite or not
+        ftp (FTP): an FTP object
 
     Returns:
-      0: successful
-      1: error due to des
-      2: error due to url or ftp
+        0: successful
+        1: error due to des
+        2: error due to url or ftp
 
     """
     do_not_quit = True
@@ -165,20 +165,20 @@ def download_data(url, des, sensor, collection, product, tile, year, day,
     """ Download a set of MODIS or VIIRS data from FTP
 
     Args:
-      url (str): ftp address
-      sensor (str): V for VIIRS, M for MODIS
-      collection (int): 5 or 6 for MODIS, 1 for VIIRS
-      product (str): which product (e.g. MOD09GA)
-      tile (list, int): tile, [h, v]
-      year (int): which year
-      day (list, int): which day, 0 for all yea, [start, stop] for range
-      update (bool): update existing image or not
+        url (str): ftp address
+        sensor (str): V for VIIRS, M for MODIS
+        collection (int): 5 or 6 for MODIS, 1 for VIIRS
+        product (str): which product (e.g. MOD09GA)
+        tile (list, int): tile, [h, v]
+        year (int): which year
+        day (list, int): which day, 0 for all yea, [start, stop] for range
+        update (bool): update existing image or not
 
     Returns:
-      0: successful
-      1: connecting error
-      2: cannot locate files
-      3: cannot create output
+        0: successful
+        1: connecting error
+        2: cannot locate files
+        3: cannot create output
 
     """
     # connect to ftp

@@ -12,18 +12,18 @@ def viirs_preprocess(pattern, ori, des, overwrite=False, batch=[1,1]):
     """ preprocess VIIRS data
 
     Args:
-      pattern (str): searching pattern, e.g. VNP*h5
-      ori (str): place to look for imputs
-      des (str): place to save outputs
-      overwrite (bool): overwrite or not
-      batch (list, int): batch processing, [thisjob, totaljob]
+        pattern (str): searching pattern, e.g. VNP*h5
+        ori (str): place to look for imputs
+        des (str): place to save outputs
+        overwrite (bool): overwrite or not
+        batch (list, int): batch processing, [thisjob, totaljob]
 
     Returns:
-      0: successful
-      1: error due to des
-      2: error when searching files
-      3: found no file
-      4: error during processing
+        0: successful
+        1: error due to des
+        2: error when searching files
+        3: found no file
+        4: error during processing
 
     """
     # check if output exists, if not try to create one

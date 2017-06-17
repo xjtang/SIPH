@@ -23,18 +23,18 @@ def viirs2gtif(img, des, overwrite=False, verbose=False):
         selected bands
 
     Args:
-      img (str): path to input VIIRS file
-      des (str): path to output
-      overwrite (bool): overwrite or not
-      verbose (bool): verbose or not
+        img (str): path to input VIIRS file
+        des (str): path to output
+        overwrite (bool): overwrite or not
+        verbose (bool): verbose or not
 
     Returns:
-      0: successful
-      1: error due to des
-      2: error in reading input
-      3: error in calculation
-      4: error in cleaning up data
-      5: error in writing output
+        0: successful
+        1: error due to des
+        2: error in reading input
+        3: error in calculation
+        4: error in cleaning up data
+        5: error in writing output
 
     """
     _error = 0
@@ -176,11 +176,11 @@ def viirsQA(vs_img, verbose=False):
     """ intepret VIIRS QA and return a mask array
 
     Args:
-      img (obj): gdal image object
-      verbose (bool): verbose or not
+        img (obj): gdal image object
+        verbose (bool): verbose or not
 
     Returns:
-      mask (ndarray): mask array
+        mask (ndarray): mask array
 
     """
     # read QA bands
@@ -255,10 +255,10 @@ def vn2ln(vn):
              to VNP0120092014001109GA (VNP 0hh 0vv yyyyddd c pppp)
 
     Args:
-      vn (str): VIIRS style file name
+        vn (str): VIIRS style file name
 
     Returns:
-      ln (str): Landsat style file name
+        ln (str): Landsat style file name
 
     """
     vn = vn.split('.')
@@ -271,11 +271,11 @@ def viirsGeo(img, res):
         modified from the sample code from NASA
 
     Args:
-      img (obj): gdal image object
-      res (int): resolution, 500 or 1000
+        img (obj): gdal image object
+        res (int): resolution, 500 or 1000
 
     Returns:
-      geo (dic): spatial reference information
+        geo (dic): spatial reference information
 
     """
     # projection

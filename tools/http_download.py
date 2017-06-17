@@ -14,7 +14,7 @@ try:
     from http.cookiejar import CookieJar as cj
 except:
     from cookielib import CookieJar as cj
-    
+
 from calendar import isleap
 from datetime import datetime as dt
 
@@ -29,16 +29,16 @@ def download(url, des, overwrite=False, username='NA', password='NA'):
     """ Download and save a file from ftp
 
     Args:
-      url (str): the link to the file
-      des (str): destination to save the file
-      overwrite (bool): overwrite or not
-      username (str): username
-      password (str): password
+        url (str): the link to the file
+        des (str): destination to save the file
+        overwrite (bool): overwrite or not
+        username (str): username
+        password (str): password
 
     Returns:
-      0: successful
-      1: error due to des
-      2: error due to url
+        0: successful
+        1: error due to des
+        2: error due to url
 
     """
     # check if file already exists
@@ -82,17 +82,17 @@ def locate_data(url, sensor, collection, product, tile, year, day):
     """ Locate the data file on ftp based on download criteria
 
     Args:
-      url (str): url address for https server
-      sensor (str): V for VIIRS, M for MODIS
-      collection (int): 5 or 6 for MODIS, 1 for VIIRS
-      product (str): which product (e.g. MOD09GA)
-      tile (list, int): tile, [h, v]
-      year (int): which year
-      day (list, int): which day, 0 for all year, [start, stop] for range
+        url (str): url address for https server
+        sensor (str): V for VIIRS, M for MODIS
+        collection (int): 5 or 6 for MODIS, 1 for VIIRS
+        product (str): which product (e.g. MOD09GA)
+        tile (list, int): tile, [h, v]
+        year (int): which year
+        day (list, int): which day, 0 for all year, [start, stop] for range
 
     Returns:
-      list: list of links to the files
-      1: found nothing
+        list: list of links to the files
+        1: found nothing
 
     """
     # handle sensor, collection, product and yaer
@@ -143,21 +143,21 @@ def download_data(url, username, password, des, sensor, collection, product,
     """ Download a set of MODIS or VIIRS data from FTP
 
     Args:
-      url (str): url address for https server
-      username (str): username
-      password (str): password
-      sensor (str): V for VIIRS, M for MODIS
-      collection (int): 5 or 6 for MODIS, 1 for VIIRS
-      product (str): which product (e.g. MOD09GA)
-      tile (list, int): tile, [h, v]
-      year (int): which year
-      day (list, int): which day, 0 for all yea, [start, stop] for range
-      update (bool): update existing image or not
+        url (str): url address for https server
+        username (str): username
+        password (str): password
+        sensor (str): V for VIIRS, M for MODIS
+        collection (int): 5 or 6 for MODIS, 1 for VIIRS
+        product (str): which product (e.g. MOD09GA)
+        tile (list, int): tile, [h, v]
+        year (int): which year
+        day (list, int): which day, 0 for all yea, [start, stop] for range
+        update (bool): update existing image or not
 
     Returns:
-      0: successful
-      1: cannot locate files
-      2: cannot create output folder
+        0: successful
+        1: cannot locate files
+        2: cannot create output folder
 
     """
     # locate files

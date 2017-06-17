@@ -22,20 +22,20 @@ def gen_tn(img, des, comp=[3,2,1], stretch=[0,5000], mask=0,
     """ Generage thumbnail for gtif image files
 
     Args:
-      img (str): the link to the gtif image file
-      des (str): destination to save the output preview image
-      comp (list, int): band composite, [red, green, blue]
-      stretch (list, int): stretch, [min, max]
-      mask (int): mask band, 0 for no mask
-      overwrite (bool): overwrite or not
-      verbose (bool): verbose or not
-      combo (bool): combine image and mask
+        img (str): the link to the gtif image file
+        des (str): destination to save the output preview image
+        comp (list, int): band composite, [red, green, blue]
+        stretch (list, int): stretch, [min, max]
+        mask (int): mask band, 0 for no mask
+        overwrite (bool): overwrite or not
+        verbose (bool): verbose or not
+        combo (bool): combine image and mask
 
     Returns:
-      0: successful
-      1: error due to des
-      2: error due to generation of thumbnail
-      3: error due to writing output
+        0: successful
+        1: error due to des
+        2: error due to generation of thumbnail
+        3: error due to writing output
 
     """
     _error = 0
@@ -133,24 +133,24 @@ def batch_gen_tn(pattern, ori, des, overwrite=False, batch=[1,1], comp=[3,2,1],
     """ Generage thumbnail for gtif image files
 
     Args:
-      pattern (str): searching pattern, e.g. VNP*gtif
-      ori (str): place to look for imputs
-      des (str): place to save outputs
-      overwrite (bool): overwrite or not
-      batch (list, int): batch processing, [thisjob, totaljob]
-      comp (list, int): band composite, [red, green, blue]
-      stretch (list, int): stretch, [min, max]
-      mask (int): mask band, 0 for no mask
-      overwrite (bool): overwrite or not
-      verbose (bool): verbose or not
-      combo (bool): combine image and mask
+        pattern (str): searching pattern, e.g. VNP*gtif
+        ori (str): place to look for imputs
+        des (str): place to save outputs
+        overwrite (bool): overwrite or not
+        batch (list, int): batch processing, [thisjob, totaljob]
+        comp (list, int): band composite, [red, green, blue]
+        stretch (list, int): stretch, [min, max]
+        mask (int): mask band, 0 for no mask
+        overwrite (bool): overwrite or not
+        verbose (bool): verbose or not
+        combo (bool): combine image and mask
 
     Returns:
-      0: successful
-      1: error due to des
-      2: error when searching files
-      3: found no file
-      4: error during processing
+        0: successful
+        1: error due to des
+        2: error when searching files
+        3: found no file
+        4: error during processing
 
     """
     # check if output exists, if not try to create one
