@@ -1,7 +1,17 @@
 """ Module for preprocess VIIRS data
+
+    Args:
+        -p (pattern): searching pattern
+        -b (batch): batch process, thisjob and totaljob
+        --overwrite: overwrite or not
+        ori: origin
+        des: destination
+
 """
-import argparse
 import os
+import sys
+import argparse
+
 from .common import log, get_files, manage_batch
 from .io import viirs2gtif, vn2ln
 
@@ -10,18 +20,18 @@ def viirs_preprocess(pattern, ori, des, overwrite=False, batch=[1,1]):
     """ preprocess VIIRS data
 
     Args:
-      pattern (str): searching pattern, e.g. VNP*h5
-      ori (str): place to look for imputs
-      des (str): place to save outputs
-      overwrite (bool): overwrite or not
-      batch (list, int): batch processing, [thisjob, totaljob]
+        pattern (str): searching pattern, e.g. VNP*h5
+        ori (str): place to look for imputs
+        des (str): place to save outputs
+        overwrite (bool): overwrite or not
+        batch (list, int): batch processing, [thisjob, totaljob]
 
     Returns:
-      0: successful
-      1: error due to des
-      2: error when searching files
-      3: found no file
-      4: error during processing
+        0: successful
+        1: error due to des
+        2: error when searching files
+        3: found no file
+        4: error during processing
 
     """
     # check if output exists, if not try to create one
@@ -71,7 +81,6 @@ def viirs_preprocess(pattern, ori, des, overwrite=False, batch=[1,1]):
     return 0
 
 
-# preprocessing
 if __name__ == '__main__':
     # parse options
     parser = argparse.ArgumentParser()
@@ -93,11 +102,15 @@ if __name__ == '__main__':
                     args.batch[1]))
         sys.exit(1)
 
-    # run function to download data
+    # print logs
     log.info('Start preprocessing...')
     log.info('Running job {}/{}'.format(args.batch[0], args.batch[1]))
     log.info('Looking for {}'.format(args.pattern))
     log.info('In {}'.format(args.ori))
     log.info('Saving in {}'.format(args.des))
+    if args.overwrite:
+        log.info('Overwriting old files.')
+
+    # run function to download data
     viirs_preprocess(args.pattern, args.ori, args.des, args.overwrite,
                         args.batch)

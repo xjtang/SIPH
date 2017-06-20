@@ -1,10 +1,24 @@
 """ Module for downloading VIIRS or MODIS product from https server
+
+    Args:
+        -u (username): username, required
+        -w (password): password, required
+        -s (sensor): V for VIIRS, M for MODIS
+        -c (collection): 5 or 6 for MODIS, 1 for VIIRS
+        -p (product): which product (e.g. MOD09GA)
+        -t (tile): tile, h and v
+        -y (year): which year
+        -d (day): which days, start and stop
+        --update: update existing image or not
+        des: destination
+
 """
 import os
 import sys
 import re
 import argparse
 import glob
+
 try:
     import urllib.request as urllib
 except:
@@ -13,8 +27,10 @@ try:
     from http.cookiejar import CookieJar as cj
 except:
     from cookielib import CookieJar as cj
+
 from calendar import isleap
 from datetime import datetime as dt
+
 from ..common import *
 
 
@@ -26,16 +42,16 @@ def download(url, des, overwrite=False, username='NA', password='NA'):
     """ Download and save a file from ftp
 
     Args:
-      url (str): the link to the file
-      des (str): destination to save the file
-      overwrite (bool): overwrite or not
-      username (str): username
-      password (str): password
+        url (str): the link to the file
+        des (str): destination to save the file
+        overwrite (bool): overwrite or not
+        username (str): username
+        password (str): password
 
     Returns:
-      0: successful
-      1: error due to des
-      2: error due to url
+        0: successful
+        1: error due to des
+        2: error due to url
 
     """
     # check if file already exists
@@ -79,17 +95,17 @@ def locate_data(url, sensor, collection, product, tile, year, day):
     """ Locate the data file on ftp based on download criteria
 
     Args:
-      url (str): url address for https server
-      sensor (str): V for VIIRS, M for MODIS
-      collection (int): 5 or 6 for MODIS, 1 for VIIRS
-      product (str): which product (e.g. MOD09GA)
-      tile (list, int): tile, [h, v]
-      year (int): which year
-      day (list, int): which day, 0 for all year, [start, stop] for range
+        url (str): url address for https server
+        sensor (str): V for VIIRS, M for MODIS
+        collection (int): 5 or 6 for MODIS, 1 for VIIRS
+        product (str): which product (e.g. MOD09GA)
+        tile (list, int): tile, [h, v]
+        year (int): which year
+        day (list, int): which day, 0 for all year, [start, stop] for range
 
     Returns:
-      list: list of links to the files
-      1: found nothing
+        list: list of links to the files
+        1: found nothing
 
     """
     # handle sensor, collection, product and yaer
@@ -136,25 +152,25 @@ def locate_data(url, sensor, collection, product, tile, year, day):
 
 
 def download_data(url, username, password, des, sensor, collection, product,
-                    tile, year, day, update):
+                    tile, year, day, update=False):
     """ Download a set of MODIS or VIIRS data from FTP
 
     Args:
-      url (str): url address for https server
-      username (str): username
-      password (str): password
-      sensor (str): V for VIIRS, M for MODIS
-      collection (int): 5 or 6 for MODIS, 1 for VIIRS
-      product (str): which product (e.g. MOD09GA)
-      tile (list, int): tile, [h, v]
-      year (int): which year
-      day (list, int): which day, 0 for all yea, [start, stop] for range
-      update (bool): update existing image or not
+        url (str): url address for https server
+        username (str): username
+        password (str): password
+        sensor (str): V for VIIRS, M for MODIS
+        collection (int): 5 or 6 for MODIS, 1 for VIIRS
+        product (str): which product (e.g. MOD09GA)
+        tile (list, int): tile, [h, v]
+        year (int): which year
+        day (list, int): which day, 0 for all yea, [start, stop] for range
+        update (bool): update existing image or not
 
     Returns:
-      0: successful
-      1: cannot locate files
-      2: cannot create output folder
+        0: successful
+        1: cannot locate files
+        2: cannot create output folder
 
     """
     # locate files
@@ -202,14 +218,13 @@ def download_data(url, username, password, des, sensor, collection, product,
     return 0
 
 
-# download data
 if __name__ == '__main__':
     # parse options
     parser = argparse.ArgumentParser()
     parser.add_argument('-u', '--username', action='store', type=str,
-                        dest='username', help='Username, required.')
+                        dest='username', help='username, required')
     parser.add_argument('-w', '--password', action='store', type=str,
-                        dest='password', help='Password, required.')
+                        dest='password', help='password, required')
     parser.add_argument('-s', '--sensor', action='store', type=str,
                         dest='sensor', default='V',
                         help='V for VIIRS, M for MODIS')
@@ -268,13 +283,17 @@ if __name__ == '__main__':
         log.error('Invalid day range.')
         sys.exit(1)
 
-    # run function to download data
+    # print logs
     log.info('Starting to download data...')
     log.info('Searching for {}.{}.{}.h{:02}v{:02}.{}.{}.{}'.format(args.sensor,
-                args.collection,args.product,args.tile[0], args.tile[1],
-                args.year,args.day[0],args.day[1]))
+                args.collection, args.product, args.tile[0], args.tile[1],
+                args.year, args.day[0], args.day[1]))
     log.info('From {}'.format(_HTTP))
     log.info('Saving in {}'.format(args.des))
+    if args.update:
+        log.info('Updating existing files.')
+
+    # run function to download data
     download_data(_HTTP, args.username, args.password, args.des, args.sensor,
                     args.collection, args.product, args.tile, args.year,
                     args.day, args.update)

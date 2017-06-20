@@ -1,13 +1,26 @@
 """ Module for downloading VIIRS or MODIS product from ftp
+
+    Args:
+        -s (sensor): V for VIIRS, M for MODIS
+        -c (collection): 5 or 6 for MODIS, 1 for VIIRS
+        -p (product): which product (e.g. MOD09GA)
+        -t (tile): tile, h and v
+        -y (year): which year
+        -d (day): which days, start and stop
+        --update: update existing image or not
+        des: destination
+
 """
 import os
 import sys
 import re
 import argparse
 import glob
+
 from calendar import isleap
 from ftplib import FTP
 from datetime import datetime as dt
+
 from ..common import log
 
 
@@ -18,12 +31,12 @@ def get_ftp(url):
     """ connect to ftp given address
 
     Args:
-      url (str): ftp address
+        url (str): ftp address
 
     Returns:
-      ftp (FTP): ftp object
-      1: ftp connect error
-      2: error while moving to folder
+        ftp (FTP): ftp object
+        1: ftp connect error
+        2: error while moving to folder
 
     """
 
@@ -56,18 +69,18 @@ def locate_data(ftp, sensor, collection, product, tile, year, day):
     """ Locate the data file on ftp based on download criteria
 
     Args:
-      ftp (str or FTP): FTP address or FTP object
-      sensor (str): V for VIIRS, M for MODIS
-      collection (int): 5 or 6 for MODIS, 1 for VIIRS
-      product (str): which product (e.g. MOD09GA)
-      tile (list, int): tile, [h, v]
-      year (int): which year
-      day (list, int): which day, 0 for all year, [start, stop] for range
+        ftp (str or FTP): FTP address or FTP object
+        sensor (str): V for VIIRS, M for MODIS
+        collection (int): 5 or 6 for MODIS, 1 for VIIRS
+        product (str): which product (e.g. MOD09GA)
+        tile (list, int): tile, [h, v]
+        year (int): which year
+        day (list, int): which day, 0 for all year, [start, stop] for range
 
     Returns:
-      list: list of links to the files
-      1: found nothing
-      2: error due to ftp connection
+        list: list of links to the files
+        1: found nothing
+        2: error due to ftp connection
 
     """
     # connect to ftp
@@ -106,15 +119,15 @@ def download(url, des, overwrite=False,ftp='NA'):
     """ Download and save a file from ftp
 
     Args:
-      url (str): the link to the file
-      des (str): destination to save the file
-      overwrite (bool): overwrite or not
-      ftp (FTP): an FTP object
+        url (str): the link to the file
+        des (str): destination to save the file
+        overwrite (bool): overwrite or not
+        ftp (FTP): an FTP object
 
     Returns:
-      0: successful
-      1: error due to des
-      2: error due to url or ftp
+        0: successful
+        1: error due to des
+        2: error due to url or ftp
 
     """
     do_not_quit = True
@@ -159,24 +172,24 @@ def download(url, des, overwrite=False,ftp='NA'):
 
 
 def download_data(url, des, sensor, collection, product, tile, year, day,
-                    update):
+                    update=False):
     """ Download a set of MODIS or VIIRS data from FTP
 
     Args:
-      url (str): ftp address
-      sensor (str): V for VIIRS, M for MODIS
-      collection (int): 5 or 6 for MODIS, 1 for VIIRS
-      product (str): which product (e.g. MOD09GA)
-      tile (list, int): tile, [h, v]
-      year (int): which year
-      day (list, int): which day, 0 for all yea, [start, stop] for range
-      update (bool): update existing image or not
+        url (str): ftp address
+        sensor (str): V for VIIRS, M for MODIS
+        collection (int): 5 or 6 for MODIS, 1 for VIIRS
+        product (str): which product (e.g. MOD09GA)
+        tile (list, int): tile, [h, v]
+        year (int): which year
+        day (list, int): which day, 0 for all yea, [start, stop] for range
+        update (bool): update existing image or not
 
     Returns:
-      0: successful
-      1: connecting error
-      2: cannot locate files
-      3: cannot create output
+        0: successful
+        1: connecting error
+        2: cannot locate files
+        3: cannot create output
 
     """
     # connect to ftp
@@ -231,7 +244,6 @@ def download_data(url, des, sensor, collection, product, tile, year, day,
     return 0
 
 
-# download data
 if __name__ == '__main__':
     # parse options
     parser = argparse.ArgumentParser()
@@ -287,12 +299,16 @@ if __name__ == '__main__':
         log.error('Invalid day range.')
         sys.exit(1)
 
-    # run function to download data
+    # print logs
     log.info('Starting to download data...')
     log.info('Searching for {}.{}.{}.h{:02}v{:02}.{}.{}.{}'.format(args.sensor,
-                args.collection,args.product,args.tile[0], args.tile[1],
-                args.year,args.day[0],args.day[1]))
+                args.collection, args.product, args.tile[0], args.tile[1],
+                args.year, args.day[0], args.day[1]))
     log.info('From {}'.format(_FTP))
     log.info('Saving in {}'.format(args.des))
+    if args.update:
+        log.info('Updating existing files.')
+
+    # run function to download data
     download_data(_FTP, args.des, args.sensor, args.collection, args.product,
                     args.tile, args.year, args.day, args.update)
