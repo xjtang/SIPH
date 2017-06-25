@@ -39,7 +39,7 @@ def nob_per_month(_file, verbose=False):
     for img in img_list:
         if verbose:
             log.info('Extracting nob from {}'.format(img[2].split('/')[-1]))
-        nobpm[d2d(img[0])[1], 1] += pcloud(img[2], 6)
+        nobpm[d2d(img[0])[1], 1] += 1 - pcloud(img[2], 6)
 
     # done
     if verbose:
