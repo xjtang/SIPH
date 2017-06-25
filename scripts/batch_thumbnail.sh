@@ -13,12 +13,6 @@
 #   ori: origin
 #   des: destination
 
-# Settings:
-#$ -S /bin/bash
-#$ -l h_rt=24:00:00
-#$ -V
-#$ -N Preprocess
-
 # default values
 pattern=VNP*tif
 njob=1
