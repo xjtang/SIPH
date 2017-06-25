@@ -44,6 +44,7 @@ def viirs2gtif(img, des, overwrite=False, verbose=False):
         log.error('{} already exists.'.format(des.split('/')[-1]))
         return 1
 
+    # flow control
     while True:
         # read input image
         if verbose:
