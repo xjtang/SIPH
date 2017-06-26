@@ -23,7 +23,7 @@ def nob_per_month(_file, verbose=False):
     try:
         if verbose:
             log.info('Reading image list...')
-        img_list = csv2list(_file)
+        img_list = csv2list(_file, True)
     except:
         log.error('Failed to read image list.')
         return -1
