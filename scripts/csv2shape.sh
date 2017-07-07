@@ -54,8 +54,6 @@ while [[ $# > 0 ]]; do
 done
 
 # run python script
-module purge
-module load python/2.7.13
 cd /usr3/graduate/xjtang/Documents/
 if [ $overwrite = 0 ]; then
   python -m VNRT.tools.swath_footprint -p $pattern -b $thisjob $totaljob -e $epsg $ori $des
