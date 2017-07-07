@@ -201,9 +201,9 @@ def batch_gen_tn(pattern, ori, des, overwrite=False, batch=[1,1], comp=[3,2,1],
     log.info('Start generating thumbnails...')
     for img in img_list:
         log.info('Processing {}'.format(img[1]))
-        if gen_tn('{}/{}'.format(img[0], img[1]), '{}/{}.jpg'.format(des,
-                    img[1].split('.')[0]), comp, stretch, mask, overwrite,
-                    False, combo) == 0:
+        if gen_tn('{}/{}'.format(img[0], img[1]),
+                    '{}/{}.jpg'.format(des, img[1].split('.')[0]), comp,
+                    stretch, mask, overwrite, False, combo) == 0:
             count += 1
 
     # done
