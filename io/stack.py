@@ -1,4 +1,4 @@
-""" Module for reading stacked images
+""" Module for IO of stacked images
 """
 from __future__ import division
 

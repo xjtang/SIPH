@@ -1,4 +1,4 @@
-""" Module for reading VIIRS data
+""" Module for IO of VIIRS data
 """
 from __future__ import division
 
