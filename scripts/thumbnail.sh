@@ -17,7 +17,7 @@
 #$ -S /bin/bash
 #$ -l h_rt=24:00:00
 #$ -V
-#$ -N Preprocess
+#$ -N Thumbnail
 
 # default values
 pattern=VNP*tif
