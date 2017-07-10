@@ -56,7 +56,7 @@ def csv2shape(ori, des, shp, epsg=3857, overwrite=False, verbose=False):
             for i, row in enumerate(shp_list):
                 if shp == 'ellipse':
                     _shape = draw_ellipse(row['x'], row['y'], row['a'],
-                                            row['b'], row['r'] + 90)
+                                            row['b'], 90 - row['r'])
                 elif shp == 'point':
                     _shape = geo.Point(row['x'], row['y'])
                 elif shp == 'circle':
