@@ -2,8 +2,9 @@
 """
 from .logger import log
 from .utility import (date_to_doy, doy_to_date, get_files, show_progress,
-                        manage_batch)
-from .data_processing import enlarge
+                        manage_batch, get_date)
+from .data_processing import enlarge, crop, mirror, sidebyside
+from .image_processing import apply_mask, result2mask, apply_stretch
 
 
 __all__ = [
@@ -13,5 +14,12 @@ __all__ = [
     'enlarge',
     'get_files',
     'show_progress',
-    'manage_batch'
+    'manage_batch',
+    'crop',
+    'mirror',
+    'sidebyside',
+    'apply_mask',
+    'apply_stretch',
+    'get_date',
+    'result2mask'
 ]
