@@ -36,6 +36,7 @@ def csv2list(_file, header=False, fixType=True):
     # done
     return table
 
+
 def csv2dict(_file, fixType=True):
     """ read a csv file based table to a dictionary
 
