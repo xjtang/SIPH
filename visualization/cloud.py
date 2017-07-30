@@ -3,9 +3,9 @@
 import os
 
 from ..common import log
-from ..io import csv2list
+from ..io import csv2list, stack2array
 from ..common import doy_to_date as d2d
-from ..io import percent_cloudy as pcloud
+
 
 def nob_per_month(_file, verbose=False):
     """ read list of images and calculate number of clear observation per month
@@ -39,9 +39,24 @@ def nob_per_month(_file, verbose=False):
     for img in img_list:
         if verbose:
             log.info('Extracting nob from {}'.format(img[2].split('/')[-1]))
-        nobpm[d2d(img[0])[1], 1] += 1 - pcloud(img[2], 6)
+        nobpm[d2d(img[0])[1], 1] += 1 - percent_cloudy(img[2], 6)
 
     # done
     if verbose:
         log.info('Successfully generated nobpm.')
     return nobpm
+
+
+def percent_cloudy(img, mask):
+    """ read mask band of stacked image and return percent cloudy
+
+    Args:
+        img (str): path to input image
+        des (str): index of mask band from 1
+
+    Returns:
+        pct (float): percent cloudy
+
+    """
+    mask2 = stack2array(img, mask, np.uint8)
+    return float((mask2.sum()) / (mask2.shape[0] * mask2.shape[1]) * 100)
