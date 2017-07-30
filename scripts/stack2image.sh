@@ -5,11 +5,13 @@
 # Input Arguments:
 #   -p searching pattern
 #   -b batch jobs, [thisjob, totaljob]
-#   --overwrite overwrite
 #   -c band composite
 #   -s image stretch
+#		-f output image format (e.g. rgb)
 #   -m mask band
-#   --combo combine masked and original image
+#		-r result image
+#		-w crop window
+#   --overwrite overwrite
 #   ori: origin
 #   des: destination
 
@@ -17,7 +19,7 @@
 #$ -S /bin/bash
 #$ -l h_rt=24:00:00
 #$ -V
-#$ -N Thumbnail
+#$ -N stack2image
 
 # default values
 pattern=VNP*tif
@@ -29,8 +31,10 @@ g=2
 b=1
 s1=0
 s2=5000
+format=rgb
 mask=0
-combo=0
+result=NA
+w=0
 
 # parse input arguments
 while [[ $# > 0 ]]; do
@@ -64,8 +68,24 @@ while [[ $# > 0 ]]; do
       mask=$2
       shift
       ;;
-    --combo)
-			combo=1
+    -r)
+			result=$2
+			shift
+			;;
+		-f)
+			format=$2
+			shift
+			;;
+		-w)
+			w=1
+			w1=$2
+			w2=$3
+			w3=$4
+			w4=$5
+			shift
+			shift
+			shift
+			shift
 			;;
 		--overwrite)
 			overwrite=1
@@ -104,15 +124,15 @@ module load gdal/2.1.3
 # run python script
 cd /usr3/graduate/xjtang/Documents/
 if [ $overwrite = 0 ]; then
-  if [ $combo = 0 ]; then
-    python -m VNRT.tools.gen_thumbnail -p $pattern -b $thisjob $totaljob -c $r $g $b -s $s1 $s2 -m $mask $ori $des
-  elif [ $combo = 1 ]; then
-    python -m VNRT.tools.gen_thumbnail --combo -p $pattern -b $thisjob $totaljob -c $r $g $b -s $s1 $s2 -m $mask $ori $des
-  fi
+	if [ $w = 0 ]; then
+    python -m VNRT.tools.export_image -p $pattern -b $thisjob $totaljob -c $r $g $b -s $s1 $s2 -m $mask -f $format -r $result $ori $des
+	elif [ $w = 1 ]; then
+		python -m VNRT.tools.export_image -p $pattern -b $thisjob $totaljob -c $r $g $b -s $s1 $s2 -m $mask -f $format -r $result -w $w1 $w2 $w3 $w4 $ori $des
+	fi
 elif [ $overwrite = 1 ]; then
-  if [ $combo = 0 ]; then
-    python -m VNRT.tools.gen_thumbnail --overwrite -p $pattern -b $thisjob $totaljob -c $r $g $b -s $s1 $s2 -m $mask $ori $des
-  elif [ $combo = 1 ]; then
-    python -m VNRT.tools.gen_thumbnail --overwrite --combo -p $pattern -b $thisjob $totaljob -c $r $g $b -s $s1 $s2 -m $mask $ori $des
-  fi
+	if [ $w = 0 ]; then
+		python -m VNRT.tools.export_image --overwrite -p $pattern -b $thisjob $totaljob -c $r $g $b -s $s1 $s2 -m $mask -f $format -r $result $ori $des
+	elif [ $w = 1 ]; then
+		python -m VNRT.tools.export_image --overwrite -p $pattern -b $thisjob $totaljob -c $r $g $b -s $s1 $s2 -m $mask -f $format -r $result -w $w1 $w2 $w3 $w4 $ori $des
+	fi
 fi
