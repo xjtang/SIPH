@@ -1,4 +1,4 @@
-""" Module for a set of small functions frequently used by other modules
+""" Module for common functions frequently used by other modules
 """
 from __future__ import division
 
@@ -115,3 +115,18 @@ def show_progress(i, n, step):
         return int(i / n * 100)
     else:
         return -1
+
+
+def get_date(x, start=9, _format='YYYYDDD'):
+    """ extract date from filename
+
+    Args:
+        x (str): filename
+        start (int): date starting index
+        _format (str): format of the date, e.g. YYYYDDD
+
+    Returns:
+        date (int): date
+
+    """
+    return int(x[start:(start + len(_format))])
