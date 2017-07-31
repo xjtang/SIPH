@@ -69,7 +69,7 @@ def doy_to_date(doy):
     return (year, month, day)
 
 
-def get_files(path, pattern):
+def get_files(path, pattern, recursive=False):
     """ search files with pattern
 
     Args:
@@ -80,7 +80,11 @@ def get_files(path, pattern):
         file_list (list): list of files, [path, name]
 
     """
-    return [[path, f] for f in fnmatch.filter(os.listdir(path), pattern)]
+    if recursive:
+        return [[x[0], x[1]] for x in [[pn, f] for pn, dn, fn in os.walk(path)
+                for f in fn] if fnmatch.fnmatch(x[1],pattern)]
+    else:
+        return [[path, f] for f in fnmatch.filter(os.listdir(path), pattern)]
 
 
 def manage_batch(works, job, n_job):
