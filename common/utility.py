@@ -69,7 +69,7 @@ def doy_to_date(doy):
     return (year, month, day)
 
 
-def get_files(path, pattern, recursive=False):
+def get_files(path, pattern, recursive=True):
     """ search files with pattern
 
     Args:
