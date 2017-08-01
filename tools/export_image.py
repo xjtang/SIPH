@@ -9,6 +9,7 @@
         -m (mask): mask band, 0 for no mask
         -r (result): result file, 'NA' for no result
         -w (window): chop window
+        -R (recursive): recursive when seaching files
         --overwrite: overwrite or not
         ori: origin
         des: destination
@@ -24,7 +25,8 @@ from ..common import log, get_files, manage_batch
 
 def batch_stack2image(pattern, ori, des, bands=[3,2,1], stretch=[0,5000],
                         _format='rgb', mask=0, result='NA', window=0,
-                        overwrite=False, batch=[1,1], verbose=False):
+                        overwrite=False, recursive=True, batch=[1,1],
+                        verbose=False):
     """ Generage regular image file from stack image
 
     Args:
@@ -38,6 +40,7 @@ def batch_stack2image(pattern, ori, des, bands=[3,2,1], stretch=[0,5000],
         result (str): path to result image
         window (list, int): chop image, [xmin, ymin, xmax, ymax], 0 for no chop
         overwrite (bool): overwrite or not
+        recursive (bool): recursive when searching file, or not
         batch (list, int): batch processing, [thisjob, totaljob]
         verbose (bool): verbose or not
 
@@ -61,7 +64,7 @@ def batch_stack2image(pattern, ori, des, bands=[3,2,1], stretch=[0,5000],
     # locate files
     log.info('Locating files...'.format(ori))
     try:
-        img_list = get_files(ori, pattern)
+        img_list = get_files(ori, pattern, recursive)
         n = len(img_list)
     except:
         log.error('Failed to search for {}'.format(pattern))
@@ -118,6 +121,8 @@ if __name__ == '__main__':
                         dest='result', default='NA', help='result file')
     parser.add_argument('-w', '--window', action='store', type=int, nargs=4,
                         dest='window', default=0, help='chop window')
+    parser.add_argument('-R', '--recursive', action='store_true',
+                        help='recursive or not')
     parser.add_argument('--overwrite', action='store_true',
                         help='overwrite or not')
     parser.add_argument('ori', default='./', help='origin')
@@ -148,10 +153,12 @@ if __name__ == '__main__':
         log.info('Mask band: {}'.format(args.mask))
     else:
         log.info('No mask band.')
+    if args.recursive:
+        log.info('Recursive seaching.')
     if args.overwrite:
         log.info('Overwriting existing image.')
 
     # run function to download data
     batch_stack2image(args.pattern, args.ori, args.des, args.comp, args.stretch,
                         args.format, args.mask, args.result, args.window,
-                        args.overwrite, args.batch, True)
+                        args.overwrite, args.recursive, args.batch, True)

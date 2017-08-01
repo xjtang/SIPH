@@ -3,6 +3,7 @@
     Args:
         -p (pattern): searching pattern
         -b (batch): batch process, thisjob and totaljob
+        -R (recursive): recursive when seaching files
         --overwrite: overwrite or not
         ori: origin
         des: destination
@@ -16,7 +17,8 @@ from .common import log, get_files, manage_batch
 from .io import viirs2gtif, vn2ln
 
 
-def viirs_preprocess(pattern, ori, des, overwrite=False, batch=[1,1]):
+def viirs_preprocess(pattern, ori, des, overwrite=False, recursive=False,
+                        batch=[1,1]):
     """ preprocess VIIRS data
 
     Args:
@@ -24,6 +26,7 @@ def viirs_preprocess(pattern, ori, des, overwrite=False, batch=[1,1]):
         ori (str): place to look for imputs
         des (str): place to save outputs
         overwrite (bool): overwrite or not
+        recursive (bool): recursive when searching file, or not
         batch (list, int): batch processing, [thisjob, totaljob]
 
     Returns:
@@ -46,7 +49,7 @@ def viirs_preprocess(pattern, ori, des, overwrite=False, batch=[1,1]):
     # locate files
     log.info('Locating files...'.format(ori))
     try:
-        img_list = get_files(ori, pattern)
+        img_list = get_files(ori, pattern, recursive)
         n = len(img_list)
     except:
         log.error('Failed to search for {}'.format(pattern))
@@ -90,6 +93,8 @@ if __name__ == '__main__':
     parser.add_argument('-b', '--batch', action='store', type=int, nargs=2,
                         dest='batch', default=[1,1],
                         help='batch process, [thisjob, totaljob]')
+    parser.add_argument('-R', '--recursive', action='store_true',
+                        help='recursive or not')
     parser.add_argument('--overwrite', action='store_true',
                         help='overwrite or not')
     parser.add_argument('ori', default='./', help='origin')
@@ -108,9 +113,11 @@ if __name__ == '__main__':
     log.info('Looking for {}'.format(args.pattern))
     log.info('In {}'.format(args.ori))
     log.info('Saving in {}'.format(args.des))
+    if args.recursive:
+        log.info('Recursive seaching.')
     if args.overwrite:
         log.info('Overwriting old files.')
 
     # run function to download data
     viirs_preprocess(args.pattern, args.ori, args.des, args.overwrite,
-                        args.batch)
+                        args.recursive, args.batch)

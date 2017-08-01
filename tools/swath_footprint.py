@@ -4,7 +4,8 @@
     Args:
         -p (pattern): searching pattern
         -b (batch): batch process, thisjob and totaljob
-        -e (int): coordinate system in EPSG
+        -e (epsg): coordinate system in EPSG
+        -R (recursive): recursive when searching, or not
         --overwrite: overwrite or not
         ori: origin
         des: destination
@@ -18,7 +19,7 @@ from ..io import csv2shape
 
 
 def batch_swath_footprint(pattern, ori, des, epsg=3857, overwrite=False,
-                            batch=[1,1]):
+                            recursive=False, batch=[1,1]):
     """ Get observation footprint from swath data and save as shapefile
 
     Args:
@@ -26,6 +27,7 @@ def batch_swath_footprint(pattern, ori, des, epsg=3857, overwrite=False,
         ori (str): place to look for imputs
         des (str): place to save outputs
         epsg (int): coordinate system in EPSG
+        recursive (bool): recursive when searching file, or not
         overwrite (bool): overwrite or not
         batch (list, int): batch processing, [thisjob, totaljob]
 
@@ -49,7 +51,7 @@ def batch_swath_footprint(pattern, ori, des, epsg=3857, overwrite=False,
     # locate files
     log.info('Locating files...'.format(ori))
     try:
-        csv_list = get_files(ori, pattern)
+        csv_list = get_files(ori, pattern, recursive)
         n = len(csv_list)
     except:
         log.error('Failed to search for {}'.format(pattern))
@@ -95,6 +97,8 @@ if __name__ == '__main__':
                         help='batch process, thisjob and totaljob')
     parser.add_argument('-e', '--epsg', action='store', type=int, dest='epsg',
                         default=3857, help='coordinate system in EPSG')
+    parser.add_argument('-R', '--recursive', action='store_true',
+                        help='recursive or not')
     parser.add_argument('--overwrite', action='store_true',
                         help='overwrite or not')
     parser.add_argument('ori', default='./', help='origin')
@@ -114,7 +118,11 @@ if __name__ == '__main__':
     log.info('In {}'.format(args.ori))
     log.info('Saving in {}'.format(args.des))
     log.info('EPSG:{}'.format(args.epsg))
+    if args.recursive:
+        log.info('Recursive seaching.')
+    if args.overwrite:
+        log.info('Overwriting old files.')
 
     # run function to download data
     batch_swath_footprint(args.pattern, args.ori, args.des, args.epsg,
-                            args.overwrite, args.batch)
+                            args.overwrite, args.recursive, args.batch)
