@@ -27,7 +27,7 @@ def stack2array(img, band=1, _type=np.int16):
     if type(band) == int:
         array = img2.GetRasterBand(band).ReadAsArray().astype(_type)
     else:
-        array = np.zeros((img2.RasterXSize, img2.RasterYSize,
+        array = np.zeros((img2.RasterYSize, img2.RasterXSize,
                             len(band))).astype(_type)
         for i, x in enumerate(band):
             array[:,:,i] = img2.GetRasterBand(x).ReadAsArray().astype(_type)
@@ -78,7 +78,7 @@ def stack2image(img, des, bands=[3,2,1], stretch=[0,5000], mask=0, result='NA',
             mask_array = 'NA'
         # read result layer
         if result != 'NA':
-            result_array = result2mask(stack2array(result, 1, np.uint8),
+            result_array = result2mask(stack2array(result, 1, np.int16),
                                         get_date(img.split('/')[-1]))
         else:
             result_array = 'NA'
