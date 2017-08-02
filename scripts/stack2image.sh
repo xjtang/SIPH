@@ -3,18 +3,18 @@
 # bash script to export stack image as refular image
 
 # Input Arguments:
-#   -n number of jobs
-#   -p searching pattern
-#   -c band composite
-#   -s image stretch
+#		-n number of jobs
+#		-p searching pattern
+#		-c band composite
+#		-s image stretch
 #		-f output image format (e.g. rgb)
-#   -m mask band
+#		-m mask band
 #		-r result image
 #		-w crop window
 #		-R recursive
-#   --overwrite overwrite
-#   ori: origin
-#   des: destination
+#		--overwrite overwrite
+#		ori: origin
+#		des: destination
 
 # default values
 njob=1
@@ -40,9 +40,7 @@ while [[ $# > 0 ]]; do
 			shift
 			;;
 		-b)
-			thisjob=$2
-			totaljob=$3
-			shift
+			njob=$2
 			shift
 			;;
     -c)
