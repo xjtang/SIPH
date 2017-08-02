@@ -1,31 +1,27 @@
 #!/bin/bash
 
-# bash script to preprocess viirs data
+# bash script to export stack image as refular image
 
 # Input Arguments:
+#   -n number of jobs
 #   -p searching pattern
-#   -b batch jobs, [thisjob, totaljob]
 #   -c band composite
 #   -s image stretch
 #		-f output image format (e.g. rgb)
 #   -m mask band
 #		-r result image
 #		-w crop window
+#		-R recursive
 #   --overwrite overwrite
 #   ori: origin
 #   des: destination
 
-# Settings:
-#$ -S /bin/bash
-#$ -l h_rt=24:00:00
-#$ -V
-#$ -N stack2image
-
 # default values
+njob=1
 pattern=VNP*tif
-thisjob=1
-totaljob=1
-overwrite=0
+overwrite=''
+recursive=''
+w=''
 r=3
 g=2
 b=1
@@ -34,7 +30,6 @@ s2=5000
 format=rgb
 mask=0
 result=NA
-w=0
 
 # parse input arguments
 while [[ $# > 0 ]]; do
@@ -77,18 +72,17 @@ while [[ $# > 0 ]]; do
 			shift
 			;;
 		-w)
-			w=1
-			w1=$2
-			w2=$3
-			w3=$4
-			w4=$5
+			w='-w $2 $3 $4 $5 '
 			shift
 			shift
 			shift
 			shift
 			;;
+		-R)
+			recursive='-R '
+      ;;
 		--overwrite)
-			overwrite=1
+			overwrite='--overwrite '
 			;;
 		*)
       ori=$1
@@ -98,18 +92,9 @@ while [[ $# > 0 ]]; do
 	shift
 done
 
-# run python script
-cd /usr3/graduate/xjtang/Documents/
-if [ $overwrite = 0 ]; then
-	if [ $w = 0 ]; then
-    python -m VNRT.tools.export_image -p $pattern -b $thisjob $totaljob -c $r $g $b -s $s1 $s2 -m $mask -f $format -r $result $ori $des
-	elif [ $w = 1 ]; then
-		python -m VNRT.tools.export_image -p $pattern -b $thisjob $totaljob -c $r $g $b -s $s1 $s2 -m $mask -f $format -r $result -w $w1 $w2 $w3 $w4 $ori $des
-	fi
-elif [ $overwrite = 1 ]; then
-	if [ $w = 0 ]; then
-		python -m VNRT.tools.export_image --overwrite -p $pattern -b $thisjob $totaljob -c $r $g $b -s $s1 $s2 -m $mask -f $format -r $result $ori $des
-	elif [ $w = 1 ]; then
-		python -m VNRT.tools.export_image --overwrite -p $pattern -b $thisjob $totaljob -c $r $g $b -s $s1 $s2 -m $mask -f $format -r $result -w $w1 $w2 $w3 $w4 $ori $des
-	fi
-fi
+# submit jobs
+echo 'Total jobs to submit is' $njob
+for i in $(seq 1 $njob); do
+  echo 'Submitting job no.' $i 'out of' $njob
+  qsub -N stack2image_$i -V -b y cd /usr3/graduate/xjtang/Documents/';' python -m VNRT.tools.export_image ${overwrite}${recursive}${w}-p $pattern -b $i $njob -c $r $g $b -s $s1 $s2 -m $mask -f $format -r $result $ori $des
+done

@@ -4,22 +4,17 @@
 
 # Input Arguments:
 #   -p searching pattern
-#   -b batch jobs, [thisjob, totaljob]
+#   -n number of jobs
+#		-R recursive
 #   --overwrite overwrite
 #   ori: origin
 #   des: destination
 
-# Settings:
-#$ -S /bin/bash
-#$ -l h_rt=24:00:00
-#$ -V
-#$ -N Preprocess
-
 # default values
 pattern=VNP09GA*h5
-thisjob=1
-totaljob=1
-overwrite=0
+njob=1
+overwrite=''
+recursive=''
 
 # parse input arguments
 while [[ $# > 0 ]]; do
@@ -30,13 +25,14 @@ while [[ $# > 0 ]]; do
 			shift
 			;;
 		-b)
-			thisjob=$2
-			totaljob=$3
-			shift
+			njob=$2
 			shift
 			;;
+		-R)
+			recursive='-R '
+			;;
 		--overwrite)
-			overwrite=1
+			overwrite='--overwrite '
 			;;
 		*)
       ori=$1
@@ -46,10 +42,9 @@ while [[ $# > 0 ]]; do
 	shift
 done
 
-# run python script
-cd /usr3/graduate/xjtang/Documents/
-if [ $overwrite = 0 ]; then
-	python -m VNRT.preprocess -p $pattern -b $thisjob $totaljob $ori $des
-elif [ $overwrite = 1 ]; then
-  python -m VNRT.preprocess --overwrite -p $pattern -b $thisjob $totaljob $ori $des
-fi
+# submit jobs
+echo 'Total jobs to submit is' $njob
+for i in $(seq 1 $njob); do
+    echo 'Submitting job no.' $i 'out of' $njob
+    qsub -N Preprocess_$i -V -b y cd /usr3/graduate/xjtang/Documents/';' python -m VNRT.preprocess ${overwrite}${recursive}-p $pattern -b $i $njob $ori $des
+done
