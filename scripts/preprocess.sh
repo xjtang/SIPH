@@ -24,7 +24,7 @@ while [[ $# > 0 ]]; do
 			pattern=$2
 			shift
 			;;
-		-b)
+		-n)
 			njob=$2
 			shift
 			;;
