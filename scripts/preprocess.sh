@@ -3,12 +3,12 @@
 # bash script to preprocess viirs data
 
 # Input Arguments:
-#   -p searching pattern
-#   -n number of jobs
+#		-p searching pattern
+#		-n number of jobs
 #		-R recursive
-#   --overwrite overwrite
-#   ori: origin
-#   des: destination
+#		--overwrite overwrite
+#		ori: origin
+#		des: destination
 
 # default values
 pattern=VNP09GA*h5

@@ -3,13 +3,13 @@
 # bash script to convert csv to shapefile
 
 # Input Arguments:
-#   -p searching pattern
-#   -n number of jobs
+#		-p searching pattern
+#		-n number of jobs
 #		-R recursive
-#   --overwrite overwrite
-#   -e EPSG
-#   ori: origin
-#   des: destination
+#		--overwrite overwrite
+#		-e EPSG
+#		ori: origin
+#		des: destination
 
 # default values
 pattern=M*csv

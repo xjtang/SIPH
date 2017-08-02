@@ -70,7 +70,7 @@ while [[ $# > 0 ]]; do
 			shift
 			;;
 		-w)
-			w='-w $2 $3 $4 $5 '
+			w='-w '$2' '$3' '$4' '$5' '
 			shift
 			shift
 			shift
