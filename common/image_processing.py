@@ -9,6 +9,7 @@ from . import sidebyside
 
 IMGBIT = 255
 MASK_COLOR = (IMGBIT, 0, 0)
+RESULT_MIN = 2012000
 
 
 def apply_stretch(array, stretch):
@@ -56,9 +57,10 @@ def result2mask(result, value):
         mask (ndarray): mask array
 
     """
-    if value == 0:
+    if value <= RESULT_MIN:
         return result * 0
     else:
-        result[result >= value] = value
-        result[result < value] = 0
+        result[result <= RESULT_MIN] = value + 1
+        result[result <= value] = value
+        result[result > value] = 0
         return result / value

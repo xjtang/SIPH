@@ -78,7 +78,7 @@ def stack2image(img, des, bands=[3,2,1], stretch=[0,5000], mask=0, result='NA',
             mask_array = 'NA'
         # read result layer
         if result != 'NA':
-            result_array = result2mask(stack2array(result, 1, np.int16),
+            result_array = result2mask(stack2array(result, 1, np.int32),
                                         get_date(img.split('/')[-1]))
         else:
             result_array = 'NA'
