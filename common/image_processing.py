@@ -64,3 +64,18 @@ def result2mask(result, value):
         result[result <= value] = value
         result[result > value] = 0
         return result / value
+
+
+def nodata_mask(array, nodata=-9999):
+    """ generate nodata mask from image array
+
+    Args:
+        array (ndarray): image array
+        nodata (int): nodata value
+
+    Returns:
+        mask (ndarray): nodata mask
+
+    """
+
+    return np.amax(array == -9999, 2).astype(np.uint8)

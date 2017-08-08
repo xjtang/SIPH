@@ -9,7 +9,7 @@ from osgeo import gdal
 from PIL import Image
 
 from ..common import (log, apply_mask, result2mask, crop, get_date,
-                        apply_stretch, sidebyside)
+                        apply_stretch, sidebyside, nodata_mask)
 
 
 def stack2array(img, band=1, _type=np.int16):
@@ -92,6 +92,7 @@ def stack2image(img, des, bands=[3,2,1], stretch=[0,5000], mask=0, result='NA',
             log.info('Chopping image...')
         try:
             array = crop(array, window)
+            nodata_array = nodata_mask(array)
             if type(mask_array) == np.ndarray:
                 mask_array = crop(mask_array, window)
             if type(result_array) == np.ndarray:
@@ -126,11 +127,13 @@ def stack2image(img, des, bands=[3,2,1], stretch=[0,5000], mask=0, result='NA',
             if type(result_array) == np.ndarray:
                 output = apply_mask(output, result_array)
         else:
-            log.error('Unkown format: {}'.format(_format))
+            log.error('Unknown format: {}'.format(_format))
             return 4
     except:
         log.error('Failed to generate output image: {}'.format(_format))
         return 4
+    else:
+        output = apply_mask(output, nodata_array, (0,0,0))
 
     # write output
     if verbose:
