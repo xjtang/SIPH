@@ -42,7 +42,7 @@ def apply_mask(array, mask, mask_color=MASK_COLOR):
         masked (ndarray): masked array
 
     """
-    array[mask > 0] = MASK_COLOR
+    array[mask > 0] = mask_color
     return array
 
 
