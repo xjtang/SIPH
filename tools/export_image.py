@@ -89,7 +89,7 @@ def batch_stack2image(pattern, ori, des, bands=[3,2,1], stretch=[0,5000],
     for img in img_list:
         log.info('Processing {}'.format(img[1]))
         if stack2image('{}/{}'.format(img[0], img[1]),
-                    '{}/{}.jpg'.format(des, img[1].split('.')[0]), bands,
+                    '{}/{}.png'.format(des, img[1].split('.')[0]), bands,
                     stretch, mask, result, _format, window, overwrite,
                     False) == 0:
             count += 1
