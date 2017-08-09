@@ -93,6 +93,7 @@ def stack2image(img, des, bands=[3,2,1], stretch=[0,5000], mask=0, result='NA',
         try:
             array = crop(array, window)
             nodata_array = nodata_mask(array)
+            array = apply_mask(array, nodata_array, (stretch[0], stretch[0], stretch[0]))
             if type(mask_array) == np.ndarray:
                 mask_array = crop(mask_array, window)
             if type(result_array) == np.ndarray:
@@ -132,8 +133,6 @@ def stack2image(img, des, bands=[3,2,1], stretch=[0,5000], mask=0, result='NA',
     except:
         log.error('Failed to generate output image: {}'.format(_format))
         return 4
-    else:
-        output = apply_mask(output, nodata_array, (0,0,0))
 
     # write output
     if verbose:
