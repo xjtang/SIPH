@@ -25,8 +25,7 @@ from ..common import log, get_files, manage_batch
 
 def batch_stack2image(pattern, ori, des, bands=[3,2,1], stretch=[0,5000],
                         _format='rgb', mask=0, result='NA', window=0,
-                        overwrite=False, recursive=True, batch=[1,1],
-                        verbose=False):
+                        overwrite=False, recursive=True, batch=[1,1]):
     """ Generage regular image file from stack image
 
     Args:
@@ -42,7 +41,6 @@ def batch_stack2image(pattern, ori, des, bands=[3,2,1], stretch=[0,5000],
         overwrite (bool): overwrite or not
         recursive (bool): recursive when searching file, or not
         batch (list, int): batch processing, [thisjob, totaljob]
-        verbose (bool): verbose or not
 
     Returns:
         0: successful
@@ -158,7 +156,7 @@ if __name__ == '__main__':
     if args.overwrite:
         log.info('Overwriting existing image.')
 
-    # run function to download data
+    # run function to export image files
     batch_stack2image(args.pattern, args.ori, args.des, args.comp, args.stretch,
                         args.format, args.mask, args.result, args.window,
-                        args.overwrite, args.recursive, args.batch, True)
+                        args.overwrite, args.recursive, args.batch)
