@@ -118,6 +118,6 @@ if __name__ == '__main__':
     if args.overwrite:
         log.info('Overwriting old files.')
 
-    # run function to download data
+    # run function to preprocess data
     viirs_preprocess(args.pattern, args.ori, args.des, args.overwrite,
                         args.recursive, args.batch)

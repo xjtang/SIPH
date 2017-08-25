@@ -123,6 +123,6 @@ if __name__ == '__main__':
     if args.overwrite:
         log.info('Overwriting old files.')
 
-    # run function to download data
+    # run function to generate footprint files
     batch_swath_footprint(args.pattern, args.ori, args.des, args.epsg,
                             args.overwrite, args.recursive, args.batch)
