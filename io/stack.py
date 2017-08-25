@@ -146,5 +146,6 @@ def stack2image(img, des, bands=[3,2,1], stretch=[0,5000], mask=0, result='NA',
         return 5
 
     # done
-    log.info('Process completed.')
+    if verbose:
+        log.info('Process completed.')
     return 0
