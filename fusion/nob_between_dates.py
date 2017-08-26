@@ -107,7 +107,7 @@ def get_nob_between_dates(img1, img2, ori, des, overwrite=False,
                     else:
                         result[i, j] = 0
     except:
-        log.error('Failed process line {}.'.format(i))
+        log.error('Failed process line {} sample {}.'.format(i + 1, j + 1))
         return 4
 
     # write output
