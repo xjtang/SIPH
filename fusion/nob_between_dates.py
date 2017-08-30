@@ -16,7 +16,7 @@ import scipy.io as sio
 
 from osgeo import gdal
 
-from ..io import stack2array
+from ..io import stack2array, stackGeo, array2stack
 from ..common import log, get_files
 
 
@@ -56,10 +56,7 @@ def get_nob_between_dates(img1, img2, ori, des, overwrite=False,
         array1 = stack2array(img1, 1, np.int32)
         array2 = stack2array(img2, 1, np.int32)
         # get spatial reference
-        img = gdal.Open(img1, gdal.GA_ReadOnly)
-        _proj = img.GetProjection()
-        _geotrans = img.GetGeoTransform()
-        img = None
+        geo = stackGeo(img1)
         (lines, samples) = array1.shape
     except:
         log.error('Failed to read input stack {} and {}'.format(img1, img2))
@@ -112,18 +109,8 @@ def get_nob_between_dates(img1, img2, ori, des, overwrite=False,
 
     # write output
     log.info('Writing output: {}'.format(des))
-    try:
-        # initialize output
-        _driver = gdal.GetDriverByName('GTiff')
-        output = _driver.Create(des, samples, lines, 1, gdal.GDT_Int16)
-        output.SetProjection(_proj)
-        output.SetGeoTransform(_geotrans)
-        output.GetRasterBand(1).SetNoDataValue(NODATA)
-        # write output
-        output.GetRasterBand(1).WriteArray(result)
-        # assign band name
-        output.GetRasterBand(1).SetDescription('Number of clear observations')
-    except:
+    if array2stack(result, geo, des, ['Number of clear observations'], NODATA,
+                    gdal.GDT_Int16, overwrite) > 0:
         log.error('Failed to write output to {}'.format(des))
         return 4
 
@@ -146,7 +133,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # print logs
-    log.info('Start exporting image...')
+    log.info('Start calculating nobs...')
     log.info('Cache in {}'.format(args.ori))
     log.info('Saving in {}'.format(args.des))
     log.info('Start image: {}'.format(args.img1))
