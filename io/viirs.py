@@ -129,7 +129,7 @@ def viirs2gtif(img, des, overwrite=False, verbose=False):
         try:
             # initialize output
             _driver = gdal.GetDriverByName('GTiff')
-            output = _driver.Create(des, vs_i1.RasterYSize, vs_i1.RasterXSize,
+            output = _driver.Create(des, vs_i1.RasterXSize, vs_i1.RasterYSize,
                                     6, gdal.GDT_Int16)
             output.SetProjection(vs_geo['proj'])
             output.SetGeoTransform(vs_geo['geotrans'])
