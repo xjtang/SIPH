@@ -3,6 +3,7 @@
 from __future__ import division
 
 import os
+import re
 import fnmatch
 
 from calendar import isleap
@@ -134,3 +135,16 @@ def get_date(x, start=9, _format='YYYYDDD'):
 
     """
     return int(x[start:(start + len(_format))])
+
+
+def get_int(x):
+    """ extract int from string
+
+    Args:
+        x (str): input string
+
+    Returns:
+        y (list, int): int in the string
+
+    """
+    return map(int, re.findall('\d+', x))
