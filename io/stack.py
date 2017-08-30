@@ -12,20 +12,103 @@ from ..common import (log, apply_mask, result2mask, crop, get_date,
                         apply_stretch, sidebyside, nodata_mask)
 
 
-def stack2array(img, band=1, _type=np.int16):
+def stackGeo(img):
+    """ grab spatial reference from image file
+
+    Args:
+        img (str): the link to the image stack file
+
+    Returns:
+        geo (dic): sptial reference
+
+    """
+    img2 = gdal.Open(img, gdal.GA_ReadOnly)
+    geo = {'proj': img2.GetProjection()}
+    geo['geotrans'] = img2.GetGeoTransform()
+    geo['lines'] = img2.RasterYSize
+    geo['samples'] = img2.RasterXSize
+    geo['bands'] = img2.RasterCount
+    img2 = None
+    return geo
+
+
+def array2stack(array, geo, des, bands='NA', nodata='NA', _type=gdal.GDT_Int16,
+                overwrite=False):
+    """ Save array as stack image
+
+    Args:
+        array (ndarray): array to be saved as stack image
+        geo (dic): spatial reference
+        des (str): destination to save the output stack image
+        bands (list, str): description of each band, NA for no description
+        overwrite (bool): overwrite or not
+
+    Returns:
+        0: successful
+        1: output already exists
+        2: error during process
+
+    """
+    # check if output already exists
+    if (not overwrite) and os.path.isfile(des):
+        log.error('{} already exists.'.format(des))
+        return 1
+
+    # get array dimensions
+    if len(array.shape) == 3:
+        (lines, samples, nband) = array.shape
+    else:
+        (lines, samples) = array.shape
+        nband = 1
+
+    # write output
+    try:
+        _driver = gdal.GetDriverByName('GTiff')
+        output = _driver.Create(des, samples, lines, nband, _type)
+        output.SetProjection(geo['proj'])
+        output.SetGeoTransform(geo['geotrans'])
+        for i in range(0, nband):
+            if nband > 1:
+                output.GetRasterBand(i+1).WriteArray(array[:,:,i])
+            else:
+                output.GetRasterBand(i+1).WriteArray(array)
+            if not nodata == 'NA':
+                output.GetRasterBand(i+1).SetNoDataValue(nodata)
+            if not bands == 'NA':
+                output.GetRasterBand(i+1).SetDescription(bands[i])
+    except:
+        log.error('Failed to write output to {}'.format(des))
+        return 2
+
+    # done
+    return 0
+
+
+def stack2array(img, band=0, _type=np.int16):
     """ Convert stacked image to rgb picture file (e.g. png)
 
     Args:
         img (str): the link to the image stack file
-        band (list, int): what band to read
+        band (list, int): what band to read, 0 for all bands
 
     Returns:
-        array: array of image data
+        array (ndarray): array of image data
 
     """
     img2 = gdal.Open(img, gdal.GA_ReadOnly)
     if type(band) == int:
-        array = img2.GetRasterBand(band).ReadAsArray().astype(_type)
+        if band == 0:
+            nband = img2.RasterCount
+            if nband == 1:
+                array = img2.GetRasterBand(1).ReadAsArray().astype(_type)
+            else:
+                array = np.zeros((img2.RasterYSize, img2.RasterXSize,
+                                    nband)).astype(_type)
+                for i in range(0, nband):
+                    array[:,:,i] = img2.GetRasterBand(i +
+                                    1).ReadAsArray().astype(_type)
+        else:
+            array = img2.GetRasterBand(band).ReadAsArray().astype(_type)
     else:
         array = np.zeros((img2.RasterYSize, img2.RasterXSize,
                             len(band))).astype(_type)
