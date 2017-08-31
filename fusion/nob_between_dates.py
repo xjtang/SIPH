@@ -76,7 +76,7 @@ def get_nob_between_dates(img1, img2, ori, des, overwrite=False,
     try:
         for i in range(0, lines):
             # locate line cache file
-            cache_file = get_files(ori, 'ts*r{}.*'.format(i + 1), recursive)
+            cache_file = get_files(ori, 'ts*r{}.*mat'.format(i + 1), recursive)
             # read line cache
             if len(cache_file) > 0:
                 cache = sio.loadmat(os.path.join(cache_file[0][0],
