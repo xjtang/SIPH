@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# bash script to export stack image as refular image
+# bash script to export stack image as regular image
 
 # Input Arguments:
 #		-n number of jobs
