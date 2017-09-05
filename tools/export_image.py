@@ -20,7 +20,7 @@ import sys
 import argparse
 
 from ..io import stack2image
-from ..common import log, get_files, manage_batch
+from ..common import log, get_files, manage_batch, get_date
 
 
 def batch_stack2image(pattern, ori, des, bands=[3,2,1], stretch=[0,5000],
@@ -87,9 +87,21 @@ def batch_stack2image(pattern, ori, des, bands=[3,2,1], stretch=[0,5000],
     log.info('Start exporting image...')
     for img in img_list:
         log.info('Processing {}'.format(img[1]))
+        # if result is a folder, find the result file that has the same date
+        if os.path.isdir(result):
+            # search for corresponding result file
+            d = get_date(img[1])
+            rfile = get_files(result,'*{}*.tif'.format(d))
+            if len(rfile) == 0:
+                log.warning('Found no result for date {}'.format(d))
+                result2 = 'NA'
+            else:
+                result2 = os.path.join(rfile[0][0], rfile[0],[1])
+        else:
+            result2 = result
         if stack2image('{}/{}'.format(img[0], img[1]),
                     '{}/{}.png'.format(des, img[1].split('.')[0]), bands,
-                    stretch, mask, result, rvalue, _format, window, overwrite,
+                    stretch, mask, result2, rvalue, _format, window, overwrite,
                     False) == 0:
             count += 1
 
