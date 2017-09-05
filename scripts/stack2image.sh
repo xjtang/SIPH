@@ -10,6 +10,7 @@
 #		-f output image format (e.g. rgb)
 #		-m mask band
 #		-r result image
+#		-v result value
 #		-w crop window
 #		-R recursive
 #		--overwrite overwrite
@@ -29,6 +30,7 @@ s1=0
 s2=5000
 format=rgb
 mask=0
+rvalue=0
 result=NA
 
 # parse input arguments
@@ -65,6 +67,10 @@ while [[ $# > 0 ]]; do
 			result=$2
 			shift
 			;;
+		-v)
+			rvalue=$2
+			shift
+			;;
 		-f)
 			format=$2
 			shift
@@ -94,5 +100,5 @@ done
 echo 'Total jobs to submit is' $njob
 for i in $(seq 1 $njob); do
   echo 'Submitting job no.' $i 'out of' $njob
-  qsub -N stack2image_$i -V -b y cd /usr3/graduate/xjtang/Documents/';' python -m VNRT.tools.export_image ${overwrite}${recursive}${w}-p $pattern -b $i $njob -c $r $g $b -s $s1 $s2 -m $mask -f $format -r $result $ori $des
+  qsub -N stack2image_$i -V -b y cd /usr3/graduate/xjtang/Documents/';' python -m VNRT.tools.export_image ${overwrite}${recursive}${w}-p $pattern -b $i $njob -c $r $g $b -s $s1 $s2 -m $mask -f $format -r $result -v $rvalue $ori $des
 done

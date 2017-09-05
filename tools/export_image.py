@@ -24,7 +24,7 @@ from ..common import log, get_files, manage_batch
 
 
 def batch_stack2image(pattern, ori, des, bands=[3,2,1], stretch=[0,5000],
-                        _format='rgb', mask=0, result='NA', window=0,
+                        _format='rgb', mask=0, result='NA', rvalue=0, window=0,
                         overwrite=False, recursive=True, batch=[1,1]):
     """ Generage regular image file from stack image
 
@@ -37,6 +37,7 @@ def batch_stack2image(pattern, ori, des, bands=[3,2,1], stretch=[0,5000],
         _format (str): output format, e.g. rgb
         mask (int): mask band, 0 for no mask
         result (str): path to result image
+        rvalue (int): result value, 0 to use date
         window (list, int): chop image, [xmin, ymin, xmax, ymax], 0 for no chop
         overwrite (bool): overwrite or not
         recursive (bool): recursive when searching file, or not
@@ -88,7 +89,7 @@ def batch_stack2image(pattern, ori, des, bands=[3,2,1], stretch=[0,5000],
         log.info('Processing {}'.format(img[1]))
         if stack2image('{}/{}'.format(img[0], img[1]),
                     '{}/{}.png'.format(des, img[1].split('.')[0]), bands,
-                    stretch, mask, result, _format, window, overwrite,
+                    stretch, mask, result, rvalue, _format, window, overwrite,
                     False) == 0:
             count += 1
 
@@ -117,6 +118,8 @@ if __name__ == '__main__':
                         default=0, help='mask band, 0 for no mask')
     parser.add_argument('-r', '--result', action='store', type=str,
                         dest='result', default='NA', help='result file')
+    parser.add_argument('-v', '--rvalue', action='store', type=int,
+                        dest='rvalue', default=0, help='result value')
     parser.add_argument('-w', '--window', action='store', type=int, nargs=4,
                         dest='window', default=0, help='chop window')
     parser.add_argument('-R', '--recursive', action='store_true',
@@ -144,6 +147,10 @@ if __name__ == '__main__':
     log.info('Image stretch: [{}, {}]'.format(args.stretch[0], args.stretch[1]))
     log.info('Output format: {}'.format(args.format))
     log.info('Result file: {}'.format(args.result))
+    if args.rvalue == 0:
+        log.info('Use date for result value.')
+    else:
+        log.info('Result Value: {}'.format(args.rvalue))
     if type(args.window) == list:
         log.info('Chop window: [{}, {}, {}, {}]'.format(args.window[0],
                     args.window[1], args.window[2], args.window[3]))
@@ -158,5 +165,5 @@ if __name__ == '__main__':
 
     # run function to export image files
     batch_stack2image(args.pattern, args.ori, args.des, args.comp, args.stretch,
-                        args.format, args.mask, args.result, args.window,
-                        args.overwrite, args.recursive, args.batch)
+                        args.format, args.mask, args.result, args.rvalue,
+                        args.window, args.overwrite, args.recursive, args.batch)

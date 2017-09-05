@@ -119,7 +119,8 @@ def stack2array(img, band=0, _type=np.int16):
 
 
 def stack2image(img, des, bands=[3,2,1], stretch=[0,5000], mask=0, result='NA',
-                _format='rgb', window=0, overwrite=False, verbose=False):
+                rvalue=0, _format='rgb', window=0, overwrite=False,
+                verbose=False):
     """ Convert stacked image to regular image file (e.g. png)
 
     Args:
@@ -129,6 +130,7 @@ def stack2image(img, des, bands=[3,2,1], stretch=[0,5000], mask=0, result='NA',
         stretch (list, int): stretch, [min, max]
         mask (int): mask band, 0 for no mask
         result (str): the link to result image if needed
+        rvalue (int): result value, 0 to use date
         _format (str): format of output image, e.g. rgb, grey, combo
         window(list, int): chop image, [xmin, ymin, xmax, ymax], 0 for no chop
         overwrite (bool): overwrite or not
@@ -161,8 +163,12 @@ def stack2image(img, des, bands=[3,2,1], stretch=[0,5000], mask=0, result='NA',
             mask_array = 'NA'
         # read result layer
         if result != 'NA':
-            result_array = result2mask(stack2array(result, 1, np.int32),
-                                        get_date(img.split('/')[-1]))
+            if rvalue == 0:
+                result_array = result2mask(stack2array(result, 1, np.int32),
+                                            get_date(img.split('/')[-1]))
+            else:
+                result_array = result2mask(stack2array(result, 1, np.int32),
+                                            rvalue)
         else:
             result_array = 'NA'
     except:
