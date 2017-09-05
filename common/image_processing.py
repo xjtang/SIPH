@@ -5,11 +5,7 @@ from __future__ import division
 import numpy as np
 
 from . import sidebyside
-
-
-IMGBIT = 255
-MASK_COLOR = (IMGBIT, 0, 0)
-RESULT_MIN = 2012000
+from . import constants as cons
 
 
 def apply_stretch(array, stretch):
@@ -27,11 +23,11 @@ def apply_stretch(array, stretch):
     array[array < stretch[0]] = stretch[0]
     array[array > stretch[1]] = stretch[1]
     array = ((array - stretch[0]) / (stretch[1] - stretch[0])
-                * IMGBIT).astype(np.uint8)
+                * cons.IMGBIT).astype(np.uint8)
     return array
 
 
-def apply_mask(array, mask, mask_color=MASK_COLOR):
+def apply_mask(array, mask, mask_color=cons.MASK_COLOR):
     """ apply mask to array
 
     Args:
@@ -57,10 +53,10 @@ def result2mask(result, value):
         mask (ndarray): mask array
 
     """
-    if value <= RESULT_MIN:
+    if value <= cons.RESULT_MIN:
         return result * 0
     else:
-        result[result <= RESULT_MIN] = value + 1
+        result[result <= cons.RESULT_MIN] = value + 1
         result[result <= value] = value
         result[result > value] = 0
         return result / value

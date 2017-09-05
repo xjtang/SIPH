@@ -19,9 +19,7 @@ from osgeo import gdal
 
 from ..io import stackGeo, array2stack
 from ..common import log, get_files, manage_batch, get_int
-
-
-NODATA = -9999
+from ..common import constants as cons
 
 
 def batch_area_over_threshold(pattern, ori, des, img, overwrite=False,
@@ -90,7 +88,7 @@ def batch_area_over_threshold(pattern, ori, des, img, overwrite=False,
         return 1
 
     # initialize output
-    result = np.zeros((geo['lines'], geo['samples']), np.int16) + NODATA
+    result = np.zeros((geo['lines'], geo['samples']), np.int16) + cons.NODATA
     count = 0
 
     # loop through image list
@@ -113,7 +111,7 @@ def batch_area_over_threshold(pattern, ori, des, img, overwrite=False,
                 continue
         # write output
         fn = os.path.join(des, 'AOSD_{}_{}.tif'.format(d[0], d[1]))
-        if array2stack(result, geo, fn, ['Area over SD threshold'], NODATA,
+        if array2stack(result, geo, fn, ['Area over SD threshold'], cons.NODATA,
                         gdal.GDT_Int16, overwrite) == 0:
             count += 1
         else:

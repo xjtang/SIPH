@@ -18,9 +18,7 @@ from osgeo import gdal
 
 from ..io import stack2array, stackGeo, array2stack
 from ..common import log, get_files
-
-
-NODATA = -9999
+from ..common import constants as cons
 
 
 def get_nob_between_dates(img1, img2, ori, des, overwrite=False,
@@ -65,7 +63,7 @@ def get_nob_between_dates(img1, img2, ori, des, overwrite=False,
     # initialize output
     log.info('Initializing output...')
     try:
-        result = np.zeros((lines, samples), np.int16) + NODATA
+        result = np.zeros((lines, samples), np.int16) + cons.NODATA
     except:
         log.error('Failed to initialize output of size {},{}.'.format(lines,
                     samples))
@@ -89,7 +87,7 @@ def get_nob_between_dates(img1, img2, ori, des, overwrite=False,
                 # see if calculation is necessar
                 date1 = array1[i][j]
                 date2 = array2[i][j]
-                if date1 > 1000000 and date2 > 1000000:
+                if date1 > cons.RESULT_MIN and date2 > cons.RESULT_MIN:
                     # calculate nob between the two dates
                     ts = cache['Data'][j,:]
                     dts = cache['Date'][:,0]
@@ -109,8 +107,8 @@ def get_nob_between_dates(img1, img2, ori, des, overwrite=False,
 
     # write output
     log.info('Writing output: {}'.format(des))
-    if array2stack(result, geo, des, ['Number of clear observations'], NODATA,
-                    gdal.GDT_Int16, overwrite) > 0:
+    if array2stack(result, geo, des, ['Number of clear observations'],
+                    cons.NODATA, gdal.GDT_Int16, overwrite) > 0:
         log.error('Failed to write output to {}'.format(des))
         return 4
 

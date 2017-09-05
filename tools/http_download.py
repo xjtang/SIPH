@@ -32,10 +32,7 @@ from calendar import isleap
 from datetime import datetime as dt
 
 from ..common import *
-
-
-_HTTP = 'https://e4ftl01.cr.usgs.gov/'
-CHUNK = 1024*1024
+from ..common import constants as cons
 
 
 def download(url, des, overwrite=False, username='NA', password='NA'):
@@ -78,7 +75,7 @@ def download(url, des, overwrite=False, username='NA', password='NA'):
     else:
         with open(des, 'wb') as f:
             while True:
-                data = response.read(CHUNK)
+                data = response.read(cons.CHUNK)
                 if not data:
                     break
                 else:
@@ -288,12 +285,12 @@ if __name__ == '__main__':
     log.info('Searching for {}.{}.{}.h{:02}v{:02}.{}.{}.{}'.format(args.sensor,
                 args.collection, args.product, args.tile[0], args.tile[1],
                 args.year, args.day[0], args.day[1]))
-    log.info('From {}'.format(_HTTP))
+    log.info('From {}'.format(cons._HTTP))
     log.info('Saving in {}'.format(args.des))
     if args.update:
         log.info('Updating existing files.')
 
     # run function to download data
-    download_data(_HTTP, args.username, args.password, args.des, args.sensor,
+    download_data(cons._HTTP, args.username, args.password, args.des, args.sensor,
                     args.collection, args.product, args.tile, args.year,
                     args.day, args.update)
