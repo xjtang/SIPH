@@ -96,7 +96,7 @@ def batch_stack2image(pattern, ori, des, bands=[3,2,1], stretch=[0,5000],
                 log.warning('Found no result for date {}'.format(d))
                 result2 = 'NA'
             else:
-                result2 = os.path.join(rfile[0][0], rfile[0],[1])
+                result2 = os.path.join(rfile[0][0], rfile[0][1])
         else:
             result2 = result
         if stack2image('{}/{}'.format(img[0], img[1]),
