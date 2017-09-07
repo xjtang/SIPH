@@ -42,24 +42,37 @@ def apply_mask(array, mask, mask_color=cons.MASK_COLOR):
     return array
 
 
-def result2mask(result, value):
+def result2mask(result, value, side=cons.RESULT_SIDE):
     """ convert result array to a mask array
 
     Args:
         result (ndarray): result array
         value (int): value that split result into masked and unmasked
+        side (int): which side to mask, 0 for =, 1 for >=, 2 for <=
 
     Returns:
         mask (ndarray): mask array
 
     """
-    if value <= cons.RESULT_MIN:
+    if value == 0:
         return result * 0
-    else:
-        result[result <= cons.RESULT_MIN] = value + 1
-        result[result <= value] = value
+    if side == 0:
+        result[result == value] = value
         result[result > value] = 0
-        return result / value
+        result[result < value] = 0
+    elif side == 1:
+        result[result >= value] = value
+        result[result < value] = 0
+    elif side == 2:
+        if value <= cons.RESULT_MIN:
+            return result * 0
+        else:
+            result[result <= cons.RESULT_MIN] = value + 1
+            result[result <= value] = value
+            result[result > value] = 0
+    else:
+        return result * 0
+    return result / value
 
 
 def nodata_mask(array, nodata=-9999):
