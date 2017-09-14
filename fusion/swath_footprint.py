@@ -24,7 +24,7 @@ def batch_swath_footprint(pattern, ori, des, epsg=3857, overwrite=False,
 
     Args:
         pattern (str): searching pattern, e.g. MOD*csv
-        ori (str): place to look for imputs
+        ori (str): place to look for inputs
         des (str): place to save outputs
         epsg (int): coordinate system in EPSG
         recursive (bool): recursive when searching file, or not

@@ -30,7 +30,7 @@ def batch_stack2image(pattern, ori, des, bands=[3,2,1], stretch=[0,5000],
 
     Args:
         pattern (str): searching pattern, e.g. VNP*gtif
-        ori (str): place to look for imputs
+        ori (str): place to look for inputs
         des (str): place to save outputs
         bands (list, int): band composite, [red, green, blue]
         stretch (list, int): stretch, [min, max]
