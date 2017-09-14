@@ -23,7 +23,7 @@ def viirs_preprocess(pattern, ori, des, overwrite=False, recursive=False,
 
     Args:
         pattern (str): searching pattern, e.g. VNP*h5
-        ori (str): place to look for imputs
+        ori (str): place to look for inputs
         des (str): place to save outputs
         overwrite (bool): overwrite or not
         recursive (bool): recursive when searching file, or not
@@ -73,8 +73,8 @@ def viirs_preprocess(pattern, ori, des, overwrite=False, recursive=False,
     log.info('Start processing files...')
     for img in img_list:
         log.info('Processing {}'.format(img[1]))
-        if viirs2gtif('{}/{}'.format(img[0], img[1]),
-                        '{}/{}.gtif'.format(des, vn2ln(img[1])),
+        if viirs2gtif(os.path.join(img[0], img[1]),
+                        '{}.gtif'.format(os.path.join(des, vn2ln(img[1]))),
                         overwrite) == 0:
             count += 1
 
