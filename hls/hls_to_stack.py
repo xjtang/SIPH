@@ -1,4 +1,4 @@
-""" Module for preprocess VIIRS data
+""" Module for converting HLS images to stacked images
 
     Args:
         -p (pattern): searching pattern
@@ -13,16 +13,16 @@ import os
 import sys
 import argparse
 
-from .common import log, get_files, manage_batch
-from .io import viirs2gtif, vn2ln
+from ..common import log, get_files, manage_batch
+from ..io import hls2stack, hn2ln
 
 
-def viirs_preprocess(pattern, ori, des, overwrite=False, recursive=False,
-                        batch=[1,1]):
-    """ preprocess VIIRS data
+def hls_to_stack(pattern, ori, des, overwrite=False, recursive=False,
+                    batch=[1,1]):
+    """ converting HLS images to stacked images
 
     Args:
-        pattern (str): searching pattern, e.g. VNP*h5
+        pattern (str): searching pattern, e.g. HLS*hdf
         ori (str): place to look for inputs
         des (str): place to save outputs
         overwrite (bool): overwrite or not
@@ -73,9 +73,9 @@ def viirs_preprocess(pattern, ori, des, overwrite=False, recursive=False,
     log.info('Start processing files...')
     for img in img_list:
         log.info('Processing {}'.format(img[1]))
-        if viirs2gtif(os.path.join(img[0], img[1]),
-                        '{}.gtif'.format(os.path.join(des, vn2ln(img[1]))),
-                        overwrite) == 0:
+        if hls2stack(os.path.join(img[0], img[1]),
+                        '{}.gtif'.format(os.path.join(des, hn2ln(img[1]))),
+                        hn2ln(img[1])[0:3], overwrite) == 0:
             count += 1
 
     # done
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     # parse options
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--pattern', action='store', type=str,
-                        dest='pattern', default='VNP09GA*h5',
+                        dest='pattern', default='HLS*hdf',
                         help='searching pattern')
     parser.add_argument('-b', '--batch', action='store', type=int, nargs=2,
                         dest='batch', default=[1,1],
@@ -119,5 +119,5 @@ if __name__ == '__main__':
         log.info('Overwriting old files.')
 
     # run function to preprocess data
-    viirs_preprocess(args.pattern, args.ori, args.des, args.overwrite,
+    hls_to_stack(args.pattern, args.ori, args.des, args.overwrite,
                         args.recursive, args.batch)

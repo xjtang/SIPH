@@ -1,0 +1,8 @@
+numpy>=1.12.1
+Pillow>=4.1.1
+gdal>=2.1.2
+shapely>=1.5.17
+fiona>=1.7.8
+h5py>=2.7.0
+scipy>=0.19.1
+python-hdf4>=0.9

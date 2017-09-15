@@ -1,22 +1,24 @@
 #!/bin/bash
 
-# bash script to preprocess viirs data
+# bash script to convert csv to shapefile
 
 # Input Arguments:
 #		-p searching pattern
 #		-n number of jobs
 #		-R recursive
 #		--overwrite overwrite
+#		-e EPSG
 #		ori: origin
 #		des: destination
 
 # default values
-pattern=VNP09GA*h5
+pattern=M*csv
 njob=1
 overwrite=''
 recursive=''
+epsg=3857
 
-# parse input arguments
+## parse input arguments
 while [[ $# > 0 ]]; do
 	InArg="$1"
 	case $InArg in
@@ -26,6 +28,10 @@ while [[ $# > 0 ]]; do
 			;;
 		-n)
 			njob=$2
+			shift
+			;;
+    -e)
+			epsg=$2
 			shift
 			;;
 		-R)
@@ -45,6 +51,6 @@ done
 # submit jobs
 echo 'Total jobs to submit is' $njob
 for i in $(seq 1 $njob); do
-    echo 'Submitting job no.' $i 'out of' $njob
-    qsub -N Preprocess_$i -V -b y cd /usr3/graduate/xjtang/Documents/';' python -m VNRT.preprocess ${overwrite}${recursive}-p $pattern -b $i $njob $ori $des
+  echo 'Submitting job no.' $i 'out of' $njob
+    qsub -N CSV2SHP_$i -V -b y cd /usr3/graduate/xjtang/Documents/';' python -m VNRT.fusion.swath_footprint ${overwrite}${recursive}-p $pattern -b $i $njob -e $epsg $ori $des
 done

@@ -1,4 +1,4 @@
-""" Module for reading VIIRS data
+""" Module for IO of VIIRS data
 """
 from __future__ import division
 
@@ -9,13 +9,7 @@ import h5py
 from osgeo import gdal
 
 from ..common import log, enlarge
-
-
-SR_BANDS = (23, 24, 25)
-QA_BANDS = (13, 14, 16, 18, 19)
-VZA_BAND = 1
-NODATA = -9999
-SCALE_FACTOR = 10000
+from ..common import constants as cons
 
 
 def viirs2gtif(img, des, overwrite=False, verbose=False):
@@ -52,10 +46,10 @@ def viirs2gtif(img, des, overwrite=False, verbose=False):
         try:
             vs_img = gdal.Open(img, gdal.GA_ReadOnly)
             vs_sub = vs_img.GetSubDatasets()
-            vs_i1 = gdal.Open(vs_sub[SR_BANDS[0]][0], gdal.GA_ReadOnly)
-            vs_i2 = gdal.Open(vs_sub[SR_BANDS[1]][0], gdal.GA_ReadOnly)
-            vs_i3 = gdal.Open(vs_sub[SR_BANDS[2]][0], gdal.GA_ReadOnly)
-            vs_vza = gdal.Open(vs_sub[VZA_BAND][0], gdal.GA_ReadOnly)
+            vs_i1 = gdal.Open(vs_sub[cons.SR_BANDS[0]][0], gdal.GA_ReadOnly)
+            vs_i2 = gdal.Open(vs_sub[cons.SR_BANDS[1]][0], gdal.GA_ReadOnly)
+            vs_i3 = gdal.Open(vs_sub[cons.SR_BANDS[2]][0], gdal.GA_ReadOnly)
+            vs_vza = gdal.Open(vs_sub[cons.VZA_BAND][0], gdal.GA_ReadOnly)
         except:
             _error = 2
             log.error('Failed to read input {}'.format(img))
@@ -88,7 +82,7 @@ def viirs2gtif(img, des, overwrite=False, verbose=False):
         if verbose:
             log.info('Calculating NDVI...')
         try:
-            ndvi = ((nir - red) / (nir + red) * SCALE_FACTOR).astype(np.int16)
+            ndvi = ((nir-red) / (nir+red) * cons.SCALE_FACTOR).astype(np.int16)
         except:
             _error = 3
             log.error('Failed to calculate NDVI.')
@@ -114,10 +108,10 @@ def viirs2gtif(img, des, overwrite=False, verbose=False):
         try:
             invalid = ~(((red >= 0) & (red <= 10000)) & ((nir >= 0) & (nir <= 10000)) &
                         ((swir >= 0) & (swir <= 10000)))
-            red[invalid] <- NODATA
-            nir[invalid] <- NODATA
-            swir[invalid] <- NODATA
-            vza[~((vza >= 0) & (vza <= 18000))] <- NODATA
+            red[invalid] <- cons.NODATA
+            nir[invalid] <- cons.NODATA
+            swir[invalid] <- cons.NODATA
+            vza[~((vza >= 0) & (vza <= 18000))] <- cons.NODATA
         except:
             _error = 4
             log.error('Failed to clean up data.')
@@ -129,11 +123,11 @@ def viirs2gtif(img, des, overwrite=False, verbose=False):
         try:
             # initialize output
             _driver = gdal.GetDriverByName('GTiff')
-            output = _driver.Create(des, vs_i1.RasterYSize, vs_i1.RasterXSize,
+            output = _driver.Create(des, vs_i1.RasterXSize, vs_i1.RasterYSize,
                                     6, gdal.GDT_Int16)
             output.SetProjection(vs_geo['proj'])
             output.SetGeoTransform(vs_geo['geotrans'])
-            output.GetRasterBand(1).SetNoDataValue(NODATA)
+            output.GetRasterBand(1).SetNoDataValue(cons.NODATA)
             # write output
             output.GetRasterBand(1).WriteArray(red)
             output.GetRasterBand(2).WriteArray(nir)
@@ -188,11 +182,11 @@ def viirsQA(vs_img, verbose=False):
     if verbose:
         log.info('Reading QA bands...')
     vs_sub = vs_img.GetSubDatasets()
-    vs_qf1 = gdal.Open(vs_sub[QA_BANDS[0]][0], gdal.GA_ReadOnly)
-    vs_qf2 = gdal.Open(vs_sub[QA_BANDS[1]][0], gdal.GA_ReadOnly)
-    # vs_qf4 = gdal.Open(vs_sub[QA_BANDS[2]][0], gdal.GA_ReadOnly)
-    # vs_qf6 = gdal.Open(vs_sub[QA_BANDS[3]][0], gdal.GA_ReadOnly)
-    vs_qf7 = gdal.Open(vs_sub[QA_BANDS[4]][0], gdal.GA_ReadOnly)
+    vs_qf1 = gdal.Open(vs_sub[cons.QA_BANDS[0]][0], gdal.GA_ReadOnly)
+    vs_qf2 = gdal.Open(vs_sub[cons.QA_BANDS[1]][0], gdal.GA_ReadOnly)
+    # vs_qf4 = gdal.Open(vs_sub[cons.QA_BANDS[2]][0], gdal.GA_ReadOnly)
+    # vs_qf6 = gdal.Open(vs_sub[cons.QA_BANDS[3]][0], gdal.GA_ReadOnly)
+    vs_qf7 = gdal.Open(vs_sub[cons.QA_BANDS[4]][0], gdal.GA_ReadOnly)
 
     # read actual data
     if verbose:

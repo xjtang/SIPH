@@ -1,10 +1,16 @@
 """ VNRT
 """
-__version__ = '0.1.0'
+from . import preprocess
+
+
+__version__ = '0.2.0'
 
 
 __all__ = [
     'common',
     'io',
-    'tools'
+    'tools',
+    'visualization',
+    'fusion',
+    'hls'
 ]

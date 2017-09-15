@@ -22,6 +22,7 @@ from ftplib import FTP
 from datetime import datetime as dt
 
 from ..common import log
+from ..common import constants as cons
 
 
 _FTP = 'ftp://ladsweb.nascom.nasa.gov/'
@@ -304,11 +305,11 @@ if __name__ == '__main__':
     log.info('Searching for {}.{}.{}.h{:02}v{:02}.{}.{}.{}'.format(args.sensor,
                 args.collection, args.product, args.tile[0], args.tile[1],
                 args.year, args.day[0], args.day[1]))
-    log.info('From {}'.format(_FTP))
+    log.info('From {}'.format(cons._FTP))
     log.info('Saving in {}'.format(args.des))
     if args.update:
         log.info('Updating existing files.')
 
     # run function to download data
-    download_data(_FTP, args.des, args.sensor, args.collection, args.product,
-                    args.tile, args.year, args.day, args.update)
+    download_data(cons._FTP, args.des, args.sensor, args.collection,
+                    args.product, args.tile, args.year, args.day, args.update)

@@ -1,4 +1,4 @@
-""" Module for reading stacked images
+""" Module for IO of stacked images
 """
 from __future__ import division
 
@@ -6,59 +6,235 @@ import os
 import numpy as np
 
 from osgeo import gdal
+from PIL import Image
 
-from ..common import log
+from ..common import (log, apply_mask, result2mask, crop, get_date,
+                        apply_stretch, sidebyside, nodata_mask)
 
 
-def percent_cloudy(img, mask, verbose=False):
-    """ read mask band of stacked image and return percent cloudy
+def stackGeo(img):
+    """ grab spatial reference from image file
 
     Args:
-        img (str): path to input image
-        des (str): index of mask band from 1
+        img (str): the link to the image stack file
+
+    Returns:
+        geo (dic): sptial reference
+
+    """
+    img2 = gdal.Open(img, gdal.GA_ReadOnly)
+    geo = {'proj': img2.GetProjection()}
+    geo['geotrans'] = img2.GetGeoTransform()
+    geo['lines'] = img2.RasterYSize
+    geo['samples'] = img2.RasterXSize
+    geo['bands'] = img2.RasterCount
+    img2 = None
+    return geo
+
+
+def array2stack(array, geo, des, bands='NA', nodata='NA', _type=gdal.GDT_Int16,
+                overwrite=False):
+    """ Save array as stack image
+
+    Args:
+        array (ndarray): array to be saved as stack image
+        geo (dic): spatial reference
+        des (str): destination to save the output stack image
+        bands (list, str): description of each band, NA for no description
+        overwrite (bool): overwrite or not
+
+    Returns:
+        0: successful
+        1: output already exists
+        2: error during process
+
+    """
+    # check if output already exists
+    if (not overwrite) and os.path.isfile(des):
+        log.error('{} already exists.'.format(des))
+        return 1
+
+    # get array dimensions
+    if len(array.shape) == 3:
+        (lines, samples, nband) = array.shape
+    else:
+        (lines, samples) = array.shape
+        nband = 1
+
+    # write output
+    try:
+        _driver = gdal.GetDriverByName('GTiff')
+        output = _driver.Create(des, samples, lines, nband, _type)
+        output.SetProjection(geo['proj'])
+        output.SetGeoTransform(geo['geotrans'])
+        for i in range(0, nband):
+            if nband > 1:
+                output.GetRasterBand(i+1).WriteArray(array[:,:,i])
+            else:
+                output.GetRasterBand(i+1).WriteArray(array)
+            if not nodata == 'NA':
+                output.GetRasterBand(i+1).SetNoDataValue(nodata)
+            if not bands == 'NA':
+                output.GetRasterBand(i+1).SetDescription(bands[i])
+    except:
+        log.error('Failed to write output to {}'.format(des))
+        return 2
+
+    # done
+    return 0
+
+
+def stack2array(img, band=0, _type=np.int16):
+    """ Convert stacked image to rgb picture file (e.g. png)
+
+    Args:
+        img (str): the link to the image stack file
+        band (list, int): what band to read, 0 for all bands
+
+    Returns:
+        array (ndarray): array of image data
+
+    """
+    img2 = gdal.Open(img, gdal.GA_ReadOnly)
+    if type(band) == int:
+        if band == 0:
+            nband = img2.RasterCount
+            if nband == 1:
+                array = img2.GetRasterBand(1).ReadAsArray().astype(_type)
+            else:
+                array = np.zeros((img2.RasterYSize, img2.RasterXSize,
+                                    nband)).astype(_type)
+                for i in range(0, nband):
+                    array[:,:,i] = img2.GetRasterBand(i +
+                                    1).ReadAsArray().astype(_type)
+        else:
+            array = img2.GetRasterBand(band).ReadAsArray().astype(_type)
+    else:
+        array = np.zeros((img2.RasterYSize, img2.RasterXSize,
+                            len(band))).astype(_type)
+        for i, x in enumerate(band):
+            array[:,:,i] = img2.GetRasterBand(x).ReadAsArray().astype(_type)
+    img2 = None
+    return array
+
+
+def stack2image(img, des, bands=[3,2,1], stretch=[0,5000], mask=0, result='NA',
+                rvalue=0, _format='rgb', window=0, overwrite=False,
+                verbose=False):
+    """ Convert stacked image to regular image file (e.g. png)
+
+    Args:
+        img (str): the link to the gtif image file
+        des (str): destination to save the output preview image
+        bands (list, int): band composite, [red, green, blue]
+        stretch (list, int): stretch, [min, max]
+        mask (int): mask band, 0 for no mask
+        result (str): the link to result image if needed
+        rvalue (int): result value, 0 to use date
+        _format (str): format of output image, e.g. rgb, grey, combo
+        window(list, int): chop image, [xmin, ymin, xmax, ymax], 0 for no chop
+        overwrite (bool): overwrite or not
         verbose (bool): verbose or not
 
     Returns:
-        pct (float): percent cloudy
-        -1: error
+        0: successful
+        1: error due to des
+        2: error in reading image
+        3: error due to chopping
+        4: error due to generation of output image
+        5: error due to writing output
 
     """
-    # flow control
-    while True:
-        # read image
+    # check if output already exists
+    if (not overwrite) and os.path.isfile(des):
+        log.error('{} already exists.'.format(des.split('/')[-1]))
+        return 1
+
+    # read iamge
+    if verbose:
+        log.info('Reading input image stack...')
+    try:
+        # read spectral image
+        array = stack2array(img, bands)
+        # read mask
+        if mask > 0:
+            mask_array = stack2array(img, mask, np.uint8)
+        else:
+            mask_array = 'NA'
+        # read result layer
+        if result != 'NA':
+            if rvalue == 0:
+                result_array = result2mask(stack2array(result, 1, np.int32),
+                                            get_date(img.split('/')[-1]))
+            else:
+                result_array = result2mask(stack2array(result, 1, np.int32),
+                                            rvalue)
+        else:
+            result_array = 'NA'
+    except:
+        log.error('Failed to read input stack {}'.format(img))
+        return 2
+
+    # chopping image
+    if type(window) == list:
         if verbose:
-            log.info('Reading input image: {}'.format(img))
+            log.info('Chopping image...')
         try:
-            img2 = gdal.Open(img, gdal.GA_ReadOnly)
+            array = crop(array, window)
+            nodata_array = nodata_mask(array)
+            array = apply_mask(array, nodata_array, (stretch[0], stretch[0], stretch[0]))
+            if type(mask_array) == np.ndarray:
+                mask_array = crop(mask_array, window)
+            if type(result_array) == np.ndarray:
+                result_array = crop(result_array, window)
         except:
-            log.error('Failed to read data from {}'.format(img))
-            pct = -1
-            break
+            log.error('Failed to chop image {}'.format(window))
+            return 3
 
-        # read mask band data
-        if verbose:
-            log.info('Reading mask band: {}'.format(mask))
-        try:
-            mask2 = img2.GetRasterBand(mask).ReadAsArray().astype(np.uint8)
-        except:
-            log.error('Failed to read mask band {}'.format(mask))
-            pct = -1
-            break
+    # generate output image
+    if verbose:
+        log.info('Generating output image...')
+    try:
+        if _format == 'rgb':
+            output = apply_stretch(array, stretch)
+            if type(mask_array) == np.ndarray:
+                output = apply_mask(output, mask_array)
+            if type(result_array) == np.ndarray:
+                output = apply_mask(output, result_array)
+        elif _format == 'combo':
+            array1 = apply_stretch(array, stretch)
+            array2 = np.array(array1)
+            if type(mask_array) == np.ndarray:
+                array2 = apply_mask(array2, mask_array)
+            if type(result_array) == np.ndarray:
+                array2 = apply_mask(array2, result_array)
+            output = sidebyside(array1, array2)
+        elif _format == 'abs':
+            array = abs(array)
+            output = apply_stretch(array, stretch)
+            if type(mask_array) == np.ndarray:
+                output = apply_mask(output, mask_array)
+            if type(result_array) == np.ndarray:
+                output = apply_mask(output, result_array)
+        else:
+            log.error('Unknown format: {}'.format(_format))
+            return 4
+    except:
+        log.error('Failed to generate output image: {}'.format(_format))
+        return 4
 
-        # calculate percentage
-        if verbose:
-            log.info('Calculating percentage...')
-        pct = float((mask2.sum()) / (mask2.shape[0] * mask2.shape[1]) * 100)
-
-        # continue next
-        break
-
-    # clean up
-    img2 = None
-    mask2 = None
+    # write output
+    if verbose:
+        log.info('Writing output...')
+    try:
+        img_out = Image.fromarray(output, 'RGB')
+        img_out.save(des)
+        img_out = None
+    except:
+        log.error('Failed to write output to {}'.format(des))
+        return 5
 
     # done
-    if pct >= 0:
-        if verbose:
-            log.info('Percetn cloudy: {:.2f}%'.format(pct))
-    return pct
+    if verbose:
+        log.info('Process completed.')
+    return 0

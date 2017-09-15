@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# bash script to preprocess viirs data
+# bash script to convert HLS images to stacked images
 
 # Input Arguments:
 #		-p searching pattern
@@ -11,7 +11,7 @@
 #		des: destination
 
 # default values
-pattern=VNP09GA*h5
+pattern=HLS*hdf
 njob=1
 overwrite=''
 recursive=''
@@ -46,5 +46,5 @@ done
 echo 'Total jobs to submit is' $njob
 for i in $(seq 1 $njob); do
     echo 'Submitting job no.' $i 'out of' $njob
-    qsub -N Preprocess_$i -V -b y cd /usr3/graduate/xjtang/Documents/';' python -m VNRT.preprocess ${overwrite}${recursive}-p $pattern -b $i $njob $ori $des
+    qsub -N HLS_$i -V -b y cd /usr3/graduate/xjtang/Documents/';' python -m VNRT.hls.hls_to_stack ${overwrite}${recursive}-p $pattern -b $i $njob $ori $des
 done

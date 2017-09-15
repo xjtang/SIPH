@@ -1,8 +1,9 @@
-""" Module for a set of small functions frequently used by other modules
+""" Module for common functions frequently used by other modules
 """
 from __future__ import division
 
 import os
+import re
 import fnmatch
 
 from calendar import isleap
@@ -69,7 +70,7 @@ def doy_to_date(doy):
     return (year, month, day)
 
 
-def get_files(path, pattern):
+def get_files(path, pattern, recursive=True):
     """ search files with pattern
 
     Args:
@@ -80,7 +81,11 @@ def get_files(path, pattern):
         file_list (list): list of files, [path, name]
 
     """
-    return [[path, f] for f in fnmatch.filter(os.listdir(path), pattern)]
+    if recursive:
+        return [[x[0], x[1]] for x in [[pn, f] for pn, dn, fn in os.walk(path)
+                for f in fn] if fnmatch.fnmatch(x[1],pattern)]
+    else:
+        return [[path, f] for f in fnmatch.filter(os.listdir(path), pattern)]
 
 
 def manage_batch(works, job, n_job):
@@ -115,3 +120,31 @@ def show_progress(i, n, step):
         return int(i / n * 100)
     else:
         return -1
+
+
+def get_date(x, start=9, _format='YYYYDDD'):
+    """ extract date from filename
+
+    Args:
+        x (str): filename
+        start (int): date starting index
+        _format (str): format of the date, e.g. YYYYDDD
+
+    Returns:
+        date (int): date
+
+    """
+    return int(x[start:(start + len(_format))])
+
+
+def get_int(x):
+    """ extract int from string
+
+    Args:
+        x (str): input string
+
+    Returns:
+        y (list, int): int in the string
+
+    """
+    return map(int, re.findall('\d+', x))
