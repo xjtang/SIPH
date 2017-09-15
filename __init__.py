@@ -10,5 +10,7 @@ __all__ = [
     'common',
     'io',
     'tools',
-    'visualization'
+    'visualization',
+    'fusion',
+    'hls'
 ]
