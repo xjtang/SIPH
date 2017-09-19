@@ -48,5 +48,5 @@ done
 echo 'Total jobs to submit is' $njob
 for i in $(seq 1 $njob); do
   echo 'Submitting job no.' $i 'out of' $njob
-  qsub -N sdt_$i -V -b y cd /usr3/graduate/xjtang/Documents/';' python -m VNRT.fusion.area_over_threshold ${overwrite}${recursive}-p $pattern -b $i $njob $ori $des $img
+  qsub -N sdt_$i -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m VNRT.fusion.area_over_threshold ${overwrite}${recursive}-p $pattern -b $i $njob $ori $des $img
 done
