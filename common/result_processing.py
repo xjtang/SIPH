@@ -68,7 +68,7 @@ def classify(ts):
     x2 = math.sqrt(ts['coef'][2, cons.TEST_BAND] ** 2 + ts['coef'][3,
                     cons.TEST_BAND] ** 2) * 2
     # calculate segment slope
-    x3 = ts['coef'][1, cons.TEST_BAND]
+    x3 = abs(ts['coef'][1, cons.TEST_BAND])
     # figure out class of current segment
     if ((x1 >= cons.MEAN_THRES) &
         (x2 < cons.AMP_THRES) &
