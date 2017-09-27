@@ -24,3 +24,12 @@ S30_BANDS = ('B02', 'B03', 'B04', 'B8A', 'B11', 'B12', 'B10', 'QA')
 _HTTP = 'https://e4ftl01.cr.usgs.gov/'
 _FTP = 'ftp://ladsweb.nascom.nasa.gov/'
 CHUNK = 1024*1024
+
+# classification
+FOREST = 0
+NF = 2
+CHANGE = 1
+TEST_BAND = 3
+MEAN_THRES = 7500
+AMP_THRES = 2000
+SLOPE_THRES = 500
