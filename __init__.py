@@ -2,6 +2,7 @@
 """
 from . import preprocess
 from . import classification
+from . import postprocess
 
 
 __version__ = '0.2.1'
