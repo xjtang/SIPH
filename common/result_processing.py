@@ -52,6 +52,28 @@ def ts2doc(ts, cdate):
     return cdate
 
 
+def ts2dod(ts, ddate):
+    """ read a csv file based table to a list
+
+    Args:
+        ts (ndarray): time series segment record
+        ddate (int): current detect date
+    Returns:
+        ddate2 (int): new detect date
+
+    """
+    _class = classify(ts)
+    if _class == cons.NF:
+        if ddate == cons.NODATA:
+            return cons.NF
+        elif ddate == cons.FOREST:
+            return ordinal_to_doy(int(ts['detect']))
+    else:
+        if ddate == cons.NODATA:
+            return cons.FOREST
+    return ddate
+
+
 def classify(ts):
     """ classify time series segment
 

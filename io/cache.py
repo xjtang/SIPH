@@ -42,7 +42,9 @@ def cache2map(_file, _type, samples, verbose=False):
         if _type == 'cls':
             line[px] = ts2class(ts, line[px])
         elif _type == 'doc':
-                line[px] = ts2doc(ts, line[px])
+            line[px] = ts2doc(ts, line[px])
+        elif _type == 'dod':
+            line[px] = ts2dod(ts, line[px])
         else:
             log.error('Unknown type: {}'.format(_type))
             return line
