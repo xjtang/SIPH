@@ -10,7 +10,6 @@
 
 """
 import os
-import sys
 import argparse
 import numpy as np
 
@@ -45,6 +44,7 @@ def classification(ori, des, img, _type='cls', overwrite=False, recursive=False)
         return 1
 
     # get image spatial reference
+    log.info('Reading spatial reference from: {}'.format(img))
     try:
         geo = stackGeo(img)
     except:
@@ -52,10 +52,12 @@ def classification(ori, des, img, _type='cls', overwrite=False, recursive=False)
         return 2
 
     # initialize output
+    log.info('Initializing output...')
     result = np.zeros((geo['lines'], geo['samples']), np.int16) + cons.NODATA
     count = 0
 
     # generate results
+    log.info('Start classification...')
     for i in range(0,geo['lines']):
         try:
             # locate line cache file
@@ -76,6 +78,7 @@ def classification(ori, des, img, _type='cls', overwrite=False, recursive=False)
             log.info('{}% done.'.format(progress))
 
     # write output
+    log.info('Writing output to: {}'.format(des))
     if _type == 'cls':
         output_type = gdal.GDT_Int16
     else:
