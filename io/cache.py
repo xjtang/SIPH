@@ -2,7 +2,7 @@
 """
 import numpy as np
 
-from ..common import log, show_progress, ts2class, ts2doc
+from ..common import log, show_progress, ts2class, ts2doc, ts2dod
 from ..common import constants as cons
 
 

@@ -53,7 +53,10 @@ def classification(ori, des, img, _type='cls', overwrite=False, recursive=False)
 
     # initialize output
     log.info('Initializing output...')
-    result = np.zeros((geo['lines'], geo['samples']), np.int16) + cons.NODATA
+    if _type == 'cls':
+        result = np.zeros((geo['lines'],geo['samples']), np.int16) + cons.NODATA
+    else:
+        result = np.zeros((geo['lines'],geo['samples']), np.int32) + cons.NODATA
     count = 0
 
     # generate results
