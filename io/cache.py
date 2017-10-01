@@ -44,7 +44,9 @@ def cache2map(_file, _type, samples, verbose=False):
         elif _type == 'doc':
             line[px] = ts2doc(ts, line[px])
         elif _type == 'dod':
-            line[px] = ts2dod(ts, line[px])
+            if i > 0:
+                ts_last = records[i - 1]
+            line[px] = ts2dod(ts, ts_last, line[px])
         else:
             log.error('Unknown type: {}'.format(_type))
             return line
@@ -57,6 +59,6 @@ def cache2map(_file, _type, samples, verbose=False):
     if verbose:
         log.info('process completed')
     if _type == 'cls':
-        return line.astype(np.int32)
-    else:
         return line.astype(np.int16)
+    else:
+        return line.astype(np.int32)

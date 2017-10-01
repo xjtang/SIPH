@@ -52,11 +52,12 @@ def ts2doc(ts, cdate):
     return cdate
 
 
-def ts2dod(ts, ddate):
+def ts2dod(ts, ts_last, ddate):
     """ read a csv file based table to a list
 
     Args:
         ts (ndarray): time series segment record
+        ts_last (ndarray): last time series segment record
         ddate (int): current detect date
     Returns:
         ddate2 (int): new detect date
@@ -67,7 +68,7 @@ def ts2dod(ts, ddate):
         if ddate == cons.NODATA:
             return cons.NF
         elif ddate == cons.FOREST:
-            return ordinal_to_doy(int(ts['detect']))
+            return ordinal_to_doy(int(ts_last['detect']))
     else:
         if ddate == cons.NODATA:
             return cons.FOREST
