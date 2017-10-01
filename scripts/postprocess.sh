@@ -18,7 +18,7 @@ overwrite=''
 while [[ $# > 0 ]]; do
 	InArg="$1"
 	case $InArg in
-		-2)
+		-w)
 			w=$2
 			shift
 			;;
