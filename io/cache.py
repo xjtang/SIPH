@@ -46,6 +46,8 @@ def cache2map(_file, _type, samples, verbose=False):
         elif _type == 'dod':
             if i > 0:
                 ts_last = records[i - 1]
+            else:
+                ts_last = ts
             line[px] = ts2dod(ts, ts_last, line[px])
         else:
             log.error('Unknown type: {}'.format(_type))
