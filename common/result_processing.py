@@ -8,71 +8,100 @@ from . import ordinal_to_doy
 from . import constants as cons
 
 
-def ts2class(ts, _class):
+def ts2class(ts, _class, _last):
     """ read a csv file based table to a list
 
     Args:
         ts (ndarray): time series segment record
         _class (int): current class
+        _last (bool): is this the last segment for this pixel
     Returns:
         class2 (int): new class
 
     """
-    class2 = classify(ts)
-    if class2 == cons.FOREST:
-        if _class == cons.NODATA:
-            return cons.FOREST
-    else:
-        if _class == cons.FOREST:
-            return cons.CHANGE
-        elif _class == cons.NODATA:
-            return cons.NF
+    if _class != cons.CHANGE:
+        class2 = classify(ts)
+        if class2 == cons.FOREST:
+            if (((ts['end'] - ts['start']) < cons.LENGTH_THRES) &
+                (_class == cons.NF)):
+                if _last:
+                    return cons.NF
+                else:
+                    return cons.PF
+            if (ts['break'] > 0) & (_last):
+                return cons.PC
+            else:
+                return cons.FOREST
+        else:
+            if _class == cons.FOREST:
+                return cons.CHANGE
+            else:
+                return cons.NF
     return _class
 
 
-def ts2doc(ts, cdate):
+def ts2doc(ts, ts_last, cdate, _last):
     """ read a csv file based table to a list
 
     Args:
         ts (ndarray): time series segment record
+        ts_last(ndarray): last time series segment record
         cdate (int): current change date
+        _last (bool): is this the last segment for this pixel
     Returns:
         cdate2 (int): new change date
 
     """
     _class = classify(ts)
-    if _class == cons.NF:
-        if cdate == cons.NODATA:
-            return cons.NF
-        elif cdate == cons.FOREST:
-            return ordinal_to_doy(int(ts['start']))
-    else:
-        if cdate == cons.NODATA:
+    if _class == cons.FOREST:
+        if (((ts['end'] - ts['start']) < cons.LENGTH_THRES) &
+            (cdate == cons.NF)):
+            if _last:
+                return cons.NF
+            else:
+                return cons.PF
+        if (ts['break'] > 0) & (_last):
+            return ordinal_to_doy(int(ts['break']))
+        else:
             return cons.FOREST
+    else:
+        if cdate == cons.FOREST:
+            return ordinal_to_doy(int(ts_last['break']))
+        else:
+            return cons.NF
     return cdate
 
 
-def ts2dod(ts, ts_last, ddate):
+def ts2dod(ts, ts_last, ddate, _last):
     """ read a csv file based table to a list
 
     Args:
         ts (ndarray): time series segment record
         ts_last (ndarray): last time series segment record
         ddate (int): current detect date
+        _last (bool): is this the last segment for this pixel
     Returns:
         ddate2 (int): new detect date
 
     """
     _class = classify(ts)
-    if _class == cons.NF:
-        if ddate == cons.NODATA:
-            return cons.NF
-        elif ddate == cons.FOREST:
-            return ordinal_to_doy(int(ts_last['detect']))
-    else:
-        if ddate == cons.NODATA:
+    if _class == cons.FOREST:
+        if (((ts['end'] - ts['start']) < cons.LENGTH_THRES) &
+            (cdate == cons.NF)):
+            if _last:
+                return cons.NF
+            else:
+                return cons.PF
+        if (ts['break'] > 0) & (_last):
+            return ordinal_to_doy(int(ts['detect']))
+        else:
             return cons.FOREST
-    return ddate
+    else:
+        if cdate == cons.FOREST:
+            return ordinal_to_doy(int(ts_last['detect']))
+        else:
+            return cons.NF
+    return cdate
 
 
 def classify(ts):

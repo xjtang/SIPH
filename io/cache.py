@@ -39,16 +39,20 @@ def cache2map(_file, _type, samples, verbose=False):
     for i in range(0,n):
         ts = records[i]
         px = ts['px']
+        _last = True
+        if i < n - 1:
+            if records[i + 1]['px'] == px:
+                _last = False
+        if i > 0:
+            ts_last = records[i - 1]
+        else:
+            ts_last = ts
         if _type == 'cls':
-            line[px] = ts2class(ts, line[px])
+            line[px] = ts2class(ts, line[px], _last)
         elif _type == 'doc':
-            line[px] = ts2doc(ts, line[px])
+            line[px] = ts2doc(ts, ts_last, line[px], _last)
         elif _type == 'dod':
-            if i > 0:
-                ts_last = records[i - 1]
-            else:
-                ts_last = ts
-            line[px] = ts2dod(ts, ts_last, line[px])
+            line[px] = ts2dod(ts, ts_last, line[px], _last)
         else:
             log.error('Unknown type: {}'.format(_type))
             return line
