@@ -24,7 +24,7 @@ def classification(ori, des, img, _type='cls', overwrite=False, recursive=False)
 
     Args:
         ori (str): place to look for inputs
-        des (str): place to save outputs
+        des (str): output path and filename
         img (str): path to example image
         _type (str): output map type
         overwrite (bool): overwrite or not
