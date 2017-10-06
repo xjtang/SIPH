@@ -29,7 +29,7 @@ def get_nob_between_dates(img1, img2, ori, des, overwrite=False,
         img1 (str): path to image of start dates
         img2 (str): path to image of end dates
         ori (str): place to look for cache files
-        des (str): place to save outputs
+        des (str): output path and filename
         overwrite (bool): overwrite or not
         recursive (bool): recursive when searching file, or not
         verbose (bool): verbose or not
