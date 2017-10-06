@@ -30,7 +30,6 @@ while [[ $# > 0 ]]; do
 			;;
 		-d)
 			d='-d '
-			shift
 			;;
 		--overwrite)
 			overwrite='--overwrite '
