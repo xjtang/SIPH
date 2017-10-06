@@ -119,5 +119,5 @@ if __name__ == '__main__':
         log.info('Overwriting old files.')
 
     # run function to preprocess data
-    vnrt_postprocess(args.ori, args.des, args.window, args.threshold,
+    vnrt_postprocess(args.ori, args.des, args.window, args.threshold, args.date,
                         args.overwrite)
