@@ -5,6 +5,7 @@
 # Input Arguments:
 #		-w window size, how much to extent out from center pixel
 #		-t clean up threhold
+#		-d try to clean up the date images in the same folder as well
 #		--overwrite overwrite
 #		ori: origin
 #		des: destination
@@ -12,6 +13,7 @@
 # default values
 w=1
 t=2
+d=''
 overwrite=''
 
 # parse input arguments
@@ -24,6 +26,10 @@ while [[ $# > 0 ]]; do
 			;;
 		-t)
 			t=$2
+			shift
+			;;
+		-d)
+			d='-d '
 			shift
 			;;
 		--overwrite)
@@ -39,4 +45,4 @@ done
 
 # submit jobs
 echo 'Submitting job for postprocessing.'
-qsub -N Postprocess -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m VNRT.postprocess ${overwrite}-w $w -t $t $ori $des
+qsub -N Postprocess -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m VNRT.postprocess ${overwrite}${d}-w $w -t $t $ori $des
