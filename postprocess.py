@@ -13,6 +13,8 @@ import os
 import argparse
 import numpy as np
 
+from osgeo import gdal
+
 from .common import log, clean_up, get_files
 from .common import constants as cons
 from .io import stack2array, stackGeo, array2stack
@@ -68,6 +70,11 @@ def vnrt_postprocess(ori, des, w=1, t=2, d=False, overwrite=False):
                 try:
                     img2 = stack2array(os.path.join(img[0],img[1]), 1, np.int32)
                     img2[(array!=cons.CHANGE)|(array!=cons.PC)] = cons.NODATA
+                    if array2stack(img2, geo, os.path.join(img[0],
+                                    '{}_clean.tif'.format(img[1][:-4])), 
+                                    'Post-processed Date Image', cons.NODATA,
+                                    gdal.GDT_Int32, overwrite=overwrite) > 0:
+                        log.warning('Failed to export {}'.format(img[1]))
                     log.info('Cleaned up {}'.format(img[1]))
                 except:
                     log.warning('Failed to clean up {}'.format(img[1]))
