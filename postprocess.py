@@ -3,7 +3,7 @@
     Args:
         -w (window): window size, how much extent out from the center pixel
         -t (threshold): clean up threshold
-        -f (date): try to clean up the date images in the same folder as well
+        -d (date): try to clean up the date images in the same folder as well
         --overwrite: overwrite or not
         ori: origin
         des: destination
@@ -71,7 +71,7 @@ def vnrt_postprocess(ori, des, w=1, t=2, d=False, overwrite=False):
                     img2 = stack2array(os.path.join(img[0],img[1]), 1, np.int32)
                     img2[(array!=cons.CHANGE)|(array!=cons.PC)] = cons.NODATA
                     if array2stack(img2, geo, os.path.join(img[0],
-                                    '{}_clean.tif'.format(img[1][:-4])), 
+                                    '{}_clean.tif'.format(img[1][:-4])),
                                     'Post-processed Date Image', cons.NODATA,
                                     gdal.GDT_Int32, overwrite=overwrite) > 0:
                         log.warning('Failed to export {}'.format(img[1]))
