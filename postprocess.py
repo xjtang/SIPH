@@ -3,6 +3,7 @@
     Args:
         -w (window): window size, how much extent out from the center pixel
         -t (threshold): clean up threshold
+        -f (date): try to clean up the date images in the same folder as well
         --overwrite: overwrite or not
         ori: origin
         des: destination
@@ -10,13 +11,14 @@
 """
 import os
 import argparse
+import numpy as np
 
-from .common import log, clean_up
+from .common import log, clean_up, get_files
 from .common import constants as cons
 from .io import stack2array, stackGeo, array2stack
 
 
-def vnrt_postprocess(ori, des, w=1, t=2, overwrite=False):
+def vnrt_postprocess(ori, des, w=1, t=2, d=False, overwrite=False):
     """ postprocess VNRT result
 
     Args:
@@ -24,6 +26,7 @@ def vnrt_postprocess(ori, des, w=1, t=2, overwrite=False):
         des (str): place to save outputs
         w (int): window size, how much extent out from the center pixel
         t (int): clean up threhold
+        d (bool): try to clean up the date images, or not
         overwrite (bool): overwrite or not
 
     Returns:
@@ -55,6 +58,22 @@ def vnrt_postprocess(ori, des, w=1, t=2, overwrite=False):
     except:
         log.error('Failed to clean up.')
 
+    # clean up date images as well
+    if d:
+        log.info('Attempt to clean up date images...')
+        _path = os.path.dirname(ori)
+        d_list = get_files(_path,'*do*.tif')
+        if len(d_list) > 0:
+            for img in d_list:
+                try:
+                    img2 = stack2array(os.path.join(img[0],img[1]), 1, np.int32)
+                    img2[(array!=cons.CHANGE)|(array!=cons.PC)] = cons.NODATA
+                    log.info('Cleaned up {}'.format(img[1]))
+                except:
+                    log.warning('Failed to clean up {}'.format(img[1]))
+        else:
+            log.warning('Found no date image.')
+
     # writing output
     log.info('Writing outpu to: {}'.format(des))
     if array2stack(array, geo, des, 'Post-processed Map', cons.NODATA,
@@ -75,6 +94,8 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--threshold', action='store', type=int,
                         dest='threshold', default=2,
                         help='clean up threshold')
+    parser.add_argument('-d', '--date', action='store_true',
+                        help='look for date images in the same folder')
     parser.add_argument('--overwrite', action='store_true',
                         help='overwrite or not')
     parser.add_argument('ori', default='./', help='origin')
