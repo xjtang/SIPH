@@ -87,7 +87,7 @@ def ts2dod(ts, ts_last, ddate, _last):
     _class = classify(ts)
     if _class == cons.FOREST:
         if (((ts['end'] - ts['start']) < cons.LENGTH_THRES) &
-            (cdate == cons.NF)):
+            (ddate == cons.NF)):
             if _last:
                 return cons.NF
             else:
@@ -97,11 +97,11 @@ def ts2dod(ts, ts_last, ddate, _last):
         else:
             return cons.FOREST
     else:
-        if cdate == cons.FOREST:
+        if ddate == cons.FOREST:
             return ordinal_to_doy(int(ts_last['detect']))
         else:
             return cons.NF
-    return cdate
+    return ddate
 
 
 def classify(ts):
