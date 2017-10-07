@@ -82,7 +82,7 @@ def vnrt_postprocess(ori, des, w=1, t=2, d=False, overwrite=False):
             log.warning('Found no date image.')
 
     # writing output
-    log.info('Writing outpu to: {}'.format(des))
+    log.info('Writing output to: {}'.format(des))
     if array2stack(array, geo, des, 'Post-processed Map', cons.NODATA,
                     overwrite=overwrite) > 0:
         log.error('Faield to write output to {}'.format(des))
