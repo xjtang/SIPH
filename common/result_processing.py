@@ -19,24 +19,30 @@ def ts2class(ts, _class, _last):
         class2 (int): new class
 
     """
-    if _class != cons.CHANGE:
-        class2 = classify(ts)
-        if class2 == cons.FOREST:
-            if (((ts['end'] - ts['start']) < cons.LENGTH_THRES) &
-                (_class == cons.NF)):
+    class2 = classify(ts)
+    if class2 == cons.FOREST:
+        if (ts['end'] - ts['start']) < cons.LENGTH_THRES:
+            if _class == cons.NF:
                 if _last:
                     return cons.NF
                 else:
                     return cons.PF
-            if (ts['break'] > 0) & (_last):
-                return cons.PC
-            else:
-                return cons.FOREST
+            elif _class == con.CHANGE:
+                if not _last:
+                    return cons.PC
+                else:
+                    return cons.CHANGE
+        if (ts['break'] > 0) & (_last):
+            return cons.PC
         else:
-            if _class == cons.FOREST:
-                return cons.CHANGE
-            else:
-                return cons.NF
+            return cons.FOREST
+    else:
+        if _class == cons.FOREST:
+            return cons.CHANGE
+        elif _class == cons.PF:
+            return cons.NF
+        elif _class == cons.PC:
+            return cons.CHANGE
     return _class
 
 
