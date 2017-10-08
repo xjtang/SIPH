@@ -56,7 +56,11 @@ def vnrt_postprocess(ori, des, w=1, t=2, d=False, overwrite=False):
     # post-processing
     log.info('Start post-processing...')
     try:
+        array2 = np.copy(array)
+        array[array == cons.PC] = cons.CHANGE
         array = clean_up(array, w, t)
+        array[(array == cons.CHANGE) & (array2 == cons.PC)] = cons.PC
+        array2 = None
     except:
         log.error('Failed to clean up.')
 
@@ -69,7 +73,7 @@ def vnrt_postprocess(ori, des, w=1, t=2, d=False, overwrite=False):
             for img in d_list:
                 try:
                     img2 = stack2array(os.path.join(img[0],img[1]), 1, np.int32)
-                    img2[(array!=cons.CHANGE)&(array!=cons.PC)] = cons.NODATA
+                    img2[(array!=cons.CHANGE) & (array!=cons.PC)] = cons.NODATA
                     if array2stack(img2, geo, os.path.join(img[0],
                                     '{}_clean.tif'.format(img[1][:-4])),
                                     'Post-processed Date Image', cons.NODATA,
