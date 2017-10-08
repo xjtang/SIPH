@@ -43,6 +43,8 @@ def ts2class(ts, _class, _last):
             return cons.NF
         elif _class == cons.PC:
             return cons.CHANGE
+        elif _class == cons.NODATA:
+            return cons.NF
     return _class
 
 
