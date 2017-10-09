@@ -41,8 +41,8 @@ def csv2dict(_file, fixType=True):
     """ read a csv file based table to a dictionary
 
     Args:
-        file (str): path to input text file
-        asDic (bool): convert data to correct type or not
+        _file (str): path to input text file
+        fixType (bool): convert data to correct type or not
 
     Returns:
         table (list): the table
@@ -64,3 +64,35 @@ def csv2dict(_file, fixType=True):
 
     # done
     return table
+
+
+def hdr2geo(_file):
+    """ read envi header file and return geo
+
+    Args:
+        file (str): path to input hdr file
+
+    Returns:
+        geo (dic): spatial reference
+
+    """
+    with open(_file, 'r') as f:
+        header = f.readlines()
+    geo = {'file': _file}
+    for line in header:
+        line2 = [x.strip() for x in line.split('=')]
+        if line2[0] == 'samples':
+            geo['samples'] = ast.literal_eval(line2[1])
+        elif line2[0] == 'lines':
+            geo['lines'] = ast.literal_eval(line2[1])
+        elif line2[0] == 'bands':
+            geo['bands'] = ast.literal_eval(line2[1])
+        elif line2[0] == 'coordinate system string':
+            geo['proj'] = line2[1][1:-1]
+        elif line2[0] == 'map info':
+            minfo = line2[1][1:-1].split(', ')
+            geo['geotrans'] = (ast.literal_eval(minfo[3]),
+                                ast.literal_eval(minfo[5]), 0.0,
+                                ast.literal_eval(minfo[4]), 0.0,
+                                ast.literal_eval(minfo[6]) * (-1))
+    return geo
