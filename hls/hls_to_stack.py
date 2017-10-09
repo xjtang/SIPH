@@ -13,8 +13,8 @@ import os
 import sys
 import argparse
 
+from . import hls2stack, hn2ln
 from ..common import log, get_files, manage_batch
-from ..io import hls2stack, hn2ln
 
 
 def hls_to_stack(pattern, ori, des, overwrite=False, recursive=False,
