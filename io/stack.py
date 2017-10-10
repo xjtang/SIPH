@@ -12,6 +12,53 @@ from ..common import (log, apply_mask, result2mask, crop, get_date,
                         apply_stretch, sidebyside, nodata_mask)
 
 
+def stackMerge(stacks, des, _type=gdal.GDT_Int16, overwrite=False):
+    """ merge list of stacks with same spatial reference
+
+    Args:
+        stacks (list, str): path and filename of stacks
+
+    Returns:
+        0: successful
+        1: output already exists
+        2: error during process
+
+    """
+    # check if output already exists
+    if (not overwrite) and os.path.isfile(des):
+        log.error('{} already exists.'.format(des))
+        return 1
+
+    # read spatial reference from first image
+    geo = stackGeo(stacks[0])
+
+    # get total number of bands
+    nband = 0
+    for img in stacks:
+        img2 = gdal.Open(img, gdal.GA_ReadOnly)
+        nband += img2.RasterCount
+
+    # write output
+    _driver = gdal.GetDriverByName('GTiff')
+    output = _driver.Create(des, geo['samples'], geo['lines'], nband, _type)
+    output.SetProjection(geo['proj'])
+    output.SetGeoTransform(geo['geotrans'])
+    count = 1
+    for img in stacks:
+        img2 = gdal.Open(img, gdal.GA_ReadOnly)
+        for i in range(0, img2.RasterCount):
+            array = img2.GetRasterBand(i+1).ReadAsArray()
+            nodata = img2.GetRasterBand(i+1).GetNoDataValue()
+            band = img2.GetRasterBand(i+1).GetDescription()
+            output.GetRasterBand(count).WriteArray(array)
+            output.GetRasterBand(count).SetNoDataValue(nodata)
+            output.GetRasterBand(count).SetDescription(band)
+            count += 1
+
+    # done
+    return 0
+
+
 def stackGeo(img):
     """ grab spatial reference from image file
 
@@ -41,6 +88,8 @@ def array2stack(array, geo, des, bands='NA', nodata='NA', _type=gdal.GDT_Int16,
         geo (dic): spatial reference
         des (str): destination to save the output stack image
         bands (list, str): description of each band, NA for no description
+        nodata (int): nodata value
+        _type (object): gdal data type
         overwrite (bool): overwrite or not
 
     Returns:
@@ -90,6 +139,7 @@ def stack2array(img, band=0, _type=np.int16):
     Args:
         img (str): the link to the image stack file
         band (list, int): what band to read, 0 for all bands
+        _type (object): numpy data type
 
     Returns:
         array (ndarray): array of image data
