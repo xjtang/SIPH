@@ -64,11 +64,11 @@ def bit2mask(bit, _source):
     elif _source == 'fmask':
         return bit
     elif _source == 'maja':
+        mask[np.mod(bit[1], 2) > 0] = cons.MASK_WATER
+        mask[np.mod(np.right_shift(bit[1], 5), 2) > 0] = cons.MASK_SNOW
         mask[np.mod(np.right_shift(bit[0], 2), 4) > 0] = cons.MASK_SHADOW
         mask[np.mod(np.right_shift(bit[0], 4), 16) > 0] = cons.MASK_CLOUD
         mask[np.mod(np.right_shift(bit[0], 1), 2) > 0] = cons.MASK_CLOUD
-        mask[np.mod(bit[1], 2) > 0] = cons.MASK_WATER
-        mask[np.mod(np.right_shift(bit[1], 5), 2) > 0] = cons.MASK_SNOW
         mask[bit[0] == 255] = cons.MASK_NODATA
     else:
         log.error('Unknown source: {}'.format(_source))
