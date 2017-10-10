@@ -82,13 +82,16 @@ def merge_mask(pattern, ori, des, mask, overwrite=False, recursive=False,
         maja = get_files(mask, '*{}*MAJA*'.format(img[1][3:16]), recursive)
         fmask = get_files(mask, '*{}*FMASK*'.format(img[1][3:16]), recursive)
         lasrc = get_files(mask, '*{}*LASRC*'.format(img[1][3:16]), recursive)
-        stacks = [os.path.join(img[0], img[1]),
-                    os.path.join(lasrc[0][0], lasrc[0][1]),
-                    os.path.join(fmask[0][0], fmask[0][1]),
-                    os.path.join(maja[0][0], maja[0][1])]
-        if stackMerge(stacks, os.path.join(des, img[1]), gdal.GDT_Int16,
-                        overwrite) == 0:
-            count += 1
+        if len(maja) * len(fmask) * len(lasrc) == 0:
+            log.warning('No mask for this file: {}'.format(img[1]))
+        else:
+            stacks = [os.path.join(img[0], img[1]),
+                        os.path.join(lasrc[0][0], lasrc[0][1]),
+                        os.path.join(fmask[0][0], fmask[0][1]),
+                        os.path.join(maja[0][0], maja[0][1])]
+            if stackMerge(stacks, os.path.join(des, img[1]), gdal.GDT_Int16,
+                            overwrite) == 0:
+                count += 1
 
     # done
     log.info('Process completed.')
