@@ -70,7 +70,7 @@ def mask_to_stack(pattern, ori, des, _source, overwrite=False, recursive=False,
     # handle batch processing
     if batch[1] > 1:
         log.info('Handling batch process...')
-        img_list = manage_batch(mask_list, batch[0], batch[1])
+        mask_list = manage_batch(mask_list, batch[0], batch[1])
         n = len(mask_list)
         log.info('{} files to be processed by this job.'.format(n))
 

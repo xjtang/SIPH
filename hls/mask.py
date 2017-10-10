@@ -54,22 +54,22 @@ def bit2mask(bit, _source):
         mask (ndarray): mask array
 
     """
-    mask = np.zeros(bit.shape[-2:])
+    mask = np.zeros(bit.shape[-2:], np.int16)
     if _source == 'lasrc':
         mask[bit == 255] = cons.MASK_NODATA
-        mask[np.mod(np.right_shift(bit, 5), 2)] = cons.MASK_WATER
-        mask[np.mod(np.right_shift(bit, 4), 2)] = cons.MASK_SNOW
-        mask[np.mod(np.right_shift(bit, 3), 2)] = cons.MASK_SHADOW
-        mask[np.mod(bit, 8)] = cons.MASK_CLOUD
+        mask[np.mod(np.right_shift(bit, 5), 2) > 0] = cons.MASK_WATER
+        mask[np.mod(np.right_shift(bit, 4), 2) > 0] = cons.MASK_SNOW
+        mask[np.mod(np.right_shift(bit, 3), 2) > 0] = cons.MASK_SHADOW
+        mask[np.mod(bit, 8) > 0] = cons.MASK_CLOUD
     elif _source == 'fmask':
         return bit
     elif _source == 'maja':
         mask[bit[0] == 255] = cons.MASK_NODATA
-        mask[np.mod(np.right_shift(bit[0], 2), 4)] = cons.MASK_SHADOW
-        mask[np.mod(np.right_shift(bit[0], 4), 16)] = cons.MASK_CLOUD
-        mask[np.mod(np.right_shift(bit[0], 1), 2)] = cons.MASK_CLOUD
-        mask[np.mod(bit[1], 2)] = cons.MASK_WATER
-        mask[np.mod(np.right_shift(bit[1], 5), 2)] = cons.MASK_SNOW
+        mask[np.mod(np.right_shift(bit[0], 2), 4) > 0] = cons.MASK_SHADOW
+        mask[np.mod(np.right_shift(bit[0], 4), 16) > 0] = cons.MASK_CLOUD
+        mask[np.mod(np.right_shift(bit[0], 1), 2) > 0] = cons.MASK_CLOUD
+        mask[np.mod(bit[1], 2) > 0] = cons.MASK_WATER
+        mask[np.mod(np.right_shift(bit[1], 5), 2) > 0] = cons.MASK_SNOW
     else:
         log.error('Unknown source: {}'.format(_source))
     return mask
