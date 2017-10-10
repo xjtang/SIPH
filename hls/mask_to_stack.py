@@ -88,7 +88,7 @@ def mask_to_stack(pattern, ori, des, _source, overwrite=False, recursive=False,
         array = bit2mask(array, _source)
         if array2stack(array, geo, '{}.tif'.format(os.path.join(des,
                         mn2ln(mask[1], _source, res))),
-                        '{} {}m'.format(_source, res), cons.MASK_NODATA,
+                        ['{} {}m'.format(_source, res)], cons.MASK_NODATA,
                         gdal.GDT_Int16, overwrite) == 0:
             count += 1
 
