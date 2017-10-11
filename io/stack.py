@@ -8,8 +8,9 @@ import numpy as np
 from osgeo import gdal
 from PIL import Image
 
+from ..common import constants as cons
 from ..common import (log, apply_mask, result2mask, crop, get_date,
-                        apply_stretch, sidebyside, nodata_mask)
+                        apply_stretch, sidebyside, nodata_mask, thematic_map)
 
 
 def stackMerge(stacks, des, _type=gdal.GDT_Int16, overwrite=False):
@@ -266,6 +267,13 @@ def stack2image(img, des, bands=[3,2,1], stretch=[0,5000], mask=0, result='NA',
                 output = apply_mask(output, mask_array)
             if type(result_array) == np.ndarray:
                 output = apply_mask(output, result_array)
+        elif _format == 'hls':
+            array1 = apply_stretch(array, stretch)
+            array2 = np.copy(array1)
+            if type(mask_array) == np.ndarray:
+                array2 = thematic_map(mask_array, cons.MASK_VALUES,
+                                        cons.MASK_COLORS, array2)
+            output = sidebyside(array1, array2)
         else:
             log.error('Unknown format: {}'.format(_format))
             return 4

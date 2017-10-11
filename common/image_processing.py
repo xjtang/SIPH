@@ -115,3 +115,24 @@ def clean_up(array, w, t=2, nodata=cons.NODATA):
                     count[count.argmax()] = 0
                 array2[i, j] = value[count.argmax()]
     return array2
+
+
+def thematic_map(array, values, colors, overarray=0):
+    """ transform array into thematic map
+
+    Args:
+        array (ndarray): input array
+        values (list, int): list of values in the array
+        colors (list, int): list of colors corresponding to the values
+
+    Returns:
+        tm (ndarray): thematic map
+
+    """
+    if type(overarray) == int:
+        tm = np.zeros((3,array.shape[0],array.shape[1]), np.uint8) + cons.IMGBIT
+    else:
+        tm = overarray
+    for i, x in enumerate(values):
+        tm[array == x, :] = colors[i]
+    return tm

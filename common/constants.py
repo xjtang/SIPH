@@ -24,6 +24,10 @@ MASK_CLOUD = 4
 MASK_SHADOW = 2
 MASK_WATER = 1
 MASK_SNOW = 3
+MASK_VALUES = (1, 2, 3, 4)
+MASK_COLORS = ((0, 0, IMGBIT), (IMGBIT, 0, IMGBIT), (IMGBIT, IMGBIT, 0),
+                (IMGBIT, 0, 0))
+
 
 # download
 _HTTP = 'https://e4ftl01.cr.usgs.gov/'
