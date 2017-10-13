@@ -52,5 +52,5 @@ done
 echo 'Total jobs to submit is' $njob
 for i in $(seq 1 $njob); do
   echo 'Submitting job no.' $i 'out of' $njob
-    qsub -N CSV2SHP_$i -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m VNRT.fusion.swath_footprint ${overwrite}${recursive}-p $pattern -b $i $njob -e $epsg $ori $des
+    qsub -j y -N CSV2SHP_$i -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m VNRT.fusion.swath_footprint ${overwrite}${recursive}-p $pattern -b $i $njob -e $epsg $ori $des
 done

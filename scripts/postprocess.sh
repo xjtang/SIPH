@@ -44,4 +44,4 @@ done
 
 # submit jobs
 echo 'Submitting job for postprocessing.'
-qsub -N Postprocess -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m VNRT.postprocess ${overwrite}${d}-w $w -t $t $ori $des
+qsub -j y -N Postprocess -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m VNRT.postprocess ${overwrite}${d}-w $w -t $t $ori $des
