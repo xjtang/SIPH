@@ -28,7 +28,7 @@ def mask2array(mask, _source):
         sub = img.GetSubDatasets()
         img2 = gdal.Open(sub[13][0], gdal.GA_ReadOnly)
         array = img2.GetRasterBand(1).ReadAsArray().astype(np.int16)
-    elif _source == 'fmask' | _source == 'fmask2':
+    elif _source == 'fmask' or _source == 'fmask2':
         img = gdal.Open(mask, gdal.GA_ReadOnly)
         array = img.GetRasterBand(1).ReadAsArray().astype(np.int16)
     elif _source == 'maja':
@@ -61,7 +61,7 @@ def bit2mask(bit, _source):
         mask[np.mod(np.right_shift(bit, 3), 2) > 0] = cons.MASK_SHADOW
         mask[np.mod(bit, 8) > 0] = cons.MASK_CLOUD
         mask[bit == 255] = cons.MASK_NODATA
-    elif _source == 'fmask' | _source == 'fmask2':
+    elif _source == 'fmask' or _source == 'fmask2':
         return bit
     elif _source == 'maja':
         mask[np.mod(bit[1], 2) > 0] = cons.MASK_WATER
