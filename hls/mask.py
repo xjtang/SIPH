@@ -7,7 +7,7 @@ import numpy as np
 
 from osgeo import gdal
 
-from ..common import log
+from ..common import log, date_to_doy
 from ..common import constants as cons
 
 
@@ -28,7 +28,7 @@ def mask2array(mask, _source):
         sub = img.GetSubDatasets()
         img2 = gdal.Open(sub[13][0], gdal.GA_ReadOnly)
         array = img2.GetRasterBand(1).ReadAsArray().astype(np.int16)
-    elif _source == 'fmask':
+    elif _source == 'fmask' | source == 'fmask2':
         img = gdal.Open(mask, gdal.GA_ReadOnly)
         array = img.GetRasterBand(1).ReadAsArray().astype(np.int16)
     elif _source == 'maja':
@@ -61,7 +61,7 @@ def bit2mask(bit, _source):
         mask[np.mod(np.right_shift(bit, 3), 2) > 0] = cons.MASK_SHADOW
         mask[np.mod(bit, 8) > 0] = cons.MASK_CLOUD
         mask[bit == 255] = cons.MASK_NODATA
-    elif _source == 'fmask':
+    elif _source == 'fmask' | _source == 'fmask2':
         return bit
     elif _source == 'maja':
         mask[np.mod(bit[1], 2) > 0] = cons.MASK_WATER
@@ -93,6 +93,16 @@ def mn2ln(hn, _source, res=30):
     if _source == 'fmask':
         hn = hn.split('.')
         return 'M{}{}{}FMASK'.format(res, hn[2], hn[3])
+    elif _source == 'fmask2':
+        if hn[0] == 'L':
+            hn = hn.split('_')
+            d = date_to_doy(int(hn[3][0:4]), int(hn[3][4:6]), int(hn[3][6:8]))
+            hn = hn[1]
+        else:
+            hn = hn.split('_')
+            d = date_to_doy(int(hn[7][0:4]), int(hn[7][4:6]), int(hn[7][6:8]))
+            hn = hn[9]
+        return 'M{}{}{}FMAS2'.format(res, hn, d)
     elif _source == 'lasrc':
         hn = hn.split('.')
         return 'M{}{}{}LASRC'.format(res, hn[2], hn[3])
