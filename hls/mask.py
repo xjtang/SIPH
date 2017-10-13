@@ -28,7 +28,7 @@ def mask2array(mask, _source):
         sub = img.GetSubDatasets()
         img2 = gdal.Open(sub[13][0], gdal.GA_ReadOnly)
         array = img2.GetRasterBand(1).ReadAsArray().astype(np.int16)
-    elif _source == 'fmask' | source == 'fmask2':
+    elif _source == 'fmask' | _source == 'fmask2':
         img = gdal.Open(mask, gdal.GA_ReadOnly)
         array = img.GetRasterBand(1).ReadAsArray().astype(np.int16)
     elif _source == 'maja':
