@@ -88,8 +88,7 @@ def hls2stack(hls, des, sensor='S30', overwrite=False, verbose=False):
         # read actual data
         if verbose:
             log.info('Reading actual data...')
-        #try:
-        if True:
+        try:
             blue = hls_blue.get().astype(np.int16)
             green = hls_green.get().astype(np.int16)
             red = hls_red.get().astype(np.int16)
@@ -98,10 +97,10 @@ def hls2stack(hls, des, sensor='S30', overwrite=False, verbose=False):
             swir2 = hls_swir2.get().astype(np.int16)
             cirrus = hls_cirrus.get().astype(np.int16)
             QA = hls_QA.get().astype(np.int16)
-        #except:
-        #    _error = 3
-        #    log.error('Failed to read data from {}'.format(hls))
-        #    break
+        except:
+            _error = 3
+            log.error('Failed to read data from {}'.format(hls))
+            break
 
         # generate mask band
         if verbose:
@@ -148,7 +147,10 @@ def hls2stack(hls, des, sensor='S30', overwrite=False, verbose=False):
                                     gdal.GDT_Int16)
             output.SetProjection(geo['proj'])
             output.SetGeoTransform(geo['geotrans'])
-            output.GetRasterBand(1).SetNoDataValue(cons.NODATA)
+            # set nodata value
+            for i in range(1,9)
+                output.GetRasterBand(i).SetNoDataValue(cons.NODATA)
+
             # write output
             output.GetRasterBand(1).WriteArray(blue)
             output.GetRasterBand(2).WriteArray(green)
