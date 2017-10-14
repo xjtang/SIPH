@@ -6,18 +6,17 @@ import os
 import numpy as np
 
 from osgeo import gdal
-from pyhdf.SD import SD, SDC
 
 from ..io import stackGeo, stack2array
-from ..common import log, enlarge
+from ..common import log, enlarge, date_to_doy
 from ..common import constants as cons
 
 
-def sen2stack(img, des, overwrite=False, verbose=False):
+def sen2stack(sen, des, overwrite=False, verbose=False):
     """ read Sentinel-2 L1C and convert to stack image with selected bands
 
     Args:
-        img (str): path to input Sentinel file
+        sen (str): path to input Sentinel file
         des (str): path to output
         overwrite (bool): overwrite or not
         verbose (bool): verbose or not
@@ -39,7 +38,7 @@ def sen2stack(img, des, overwrite=False, verbose=False):
     if verbose:
         log.info('Reading input: {}'.format(sen))
     try:
-        geo = stackGeo
+        geo = stackGeo('{}02.jp2'.format(sen))
         blue = stack2array('{}02.jp2'.format(sen), 1, np.int32)
         green = stack2array('{}03.jp2'.format(sen), 1, np.int32)
         red = stack2array('{}04.jp2'.format(sen), 1, np.int32)
@@ -48,8 +47,8 @@ def sen2stack(img, des, overwrite=False, verbose=False):
         swir2 = enlarge(stack2array('{}12.jp2'.format(sen), 1, np.int32), 2)
         cirrus = enlarge(stack2array('{}10.jp2'.format(sen), 1, np.int32), 6)
     except:
-        _error = 3
-        log.error('Failed to read input {}'.format(hls))
+        log.error('Failed to read input {}'.format(img))
+        return 3
 
     # write output
     if verbose:
@@ -79,10 +78,9 @@ def sen2stack(img, des, overwrite=False, verbose=False):
         output.GetRasterBand(5).SetDescription('S10 B11 SWIR')
         output.GetRasterBand(6).SetDescription('S10 B12 SWIR')
         output.GetRasterBand(7).SetDescription('S10 B10 Cirrus')
-
     except:
-        _error = 4
         log.error('Failed to write output to {}'.format(des))
+        return 4
 
     # done
     if verbose:
@@ -103,10 +101,10 @@ def sn2ln(sn):
 
     """
     sn = sn.split('_')
-    if sn[0:2] == 'S2':
+    if sn[0][0:2] == 'S2':
         d = date_to_doy(int(sn[-4][0:4]), int(sn[-4][4:6]), int(sn[-4][6:8]))
-        hn = hn[2]
+        sn = sn[-2]
     else:
         d = date_to_doy(int(sn[1][0:4]), int(sn[1][4:6]), int(sn[1][6:8]))
-        hn = hn[0]
-    return 'S10{}{}S2L1C'.format(hn, d)
+        sn = sn[0]
+    return 'S10{}{}S2L1C'.format(sn, d)
