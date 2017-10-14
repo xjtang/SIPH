@@ -17,9 +17,9 @@ import scipy.io as sio
 
 from osgeo import gdal
 
-from ..io import stackGeo, array2stack
-from ..common import log, get_files, manage_batch, get_int
-from ..common import constants as cons
+from ...io import stackGeo, array2stack
+from ...common import log, get_files, manage_batch, get_int
+from ...common import constants as cons
 
 
 def batch_area_over_threshold(pattern, ori, des, img, overwrite=False,

@@ -5,6 +5,9 @@ from .stack import stack2array, stack2image, stackGeo, array2stack, stackMerge
 from .datafile import csv2list, csv2dict, hdr2geo
 from .shape import csv2shape
 from .cache import cache2map
+from .hls import hls2stack, hlsQA, hn2ln
+from .mask import mn2ln, bit2mask, mask2array
+from .sentinel import sen2stack, sn2ln
 
 
 __all__ = [
@@ -21,5 +24,13 @@ __all__ = [
     'array2stack',
     'cache2map',
     'hdr2geo',
-    'stackMerge'
+    'stackMerge',
+    'hn2ln',
+    'hls2stack',
+    'hlsQA',
+    'mn2ln',
+    'bit2mask',
+    'mask2array',
+    'sen2stack',
+    'sn2ln'
 ]

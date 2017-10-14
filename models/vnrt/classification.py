@@ -15,9 +15,9 @@ import numpy as np
 
 from osgeo import gdal
 
-from .common import log, get_files, get_int, show_progress
-from .common import constants as cons
-from .io import stackGeo, cache2map, array2stack
+from ...common import log, get_files, get_int, show_progress
+from ...common import constants as cons
+from ...io import stackGeo, cache2map, array2stack
 
 def classification(ori, des, img, _type='cls', overwrite=False, recursive=False):
     """ Classify time series segments

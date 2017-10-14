@@ -40,4 +40,4 @@ done
 
 # submit jobs
 echo 'Submitting job for craeting' $type 'map.'
-qsub -j y -N Classification -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m VNRT.classification ${overwrite}${recursive}-t $type $ori $des $img
+qsub -j y -N Classification -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.vnrt.classification ${overwrite}${recursive}-t $type $ori $des $img

@@ -50,7 +50,6 @@ def sen2stack(img, des, overwrite=False, verbose=False):
     except:
         _error = 3
         log.error('Failed to read input {}'.format(hls))
-        break
 
     # write output
     if verbose:
@@ -62,7 +61,7 @@ def sen2stack(img, des, overwrite=False, verbose=False):
                                 gdal.GDT_Int32)
         output.SetProjection(geo['proj'])
         output.SetGeoTransform(geo['geotrans'])
-        for i in range(1,8)
+        for i in range(1,8):
             output.GetRasterBand(i).SetNoDataValue(cons.NODATA)
         # write output
         output.GetRasterBand(1).WriteArray(blue)
@@ -84,7 +83,6 @@ def sen2stack(img, des, overwrite=False, verbose=False):
     except:
         _error = 4
         log.error('Failed to write output to {}'.format(des))
-        break
 
     # done
     if verbose:

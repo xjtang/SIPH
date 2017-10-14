@@ -148,7 +148,7 @@ def hls2stack(hls, des, sensor='S30', overwrite=False, verbose=False):
             output.SetProjection(geo['proj'])
             output.SetGeoTransform(geo['geotrans'])
             # set nodata value
-            for i in range(1,9)
+            for i in range(1,9):
                 output.GetRasterBand(i).SetNoDataValue(cons.NODATA)
 
             # write output

@@ -1,34 +1,32 @@
-""" Module for getting observation footprint from swath data and save as
-    shapefile
+""" Module for converting HLS images to stacked images
 
     Args:
         -p (pattern): searching pattern
         -b (batch): batch process, thisjob and totaljob
-        -e (epsg): coordinate system in EPSG
-        -R (recursive): recursive when searching, or not
+        -R (recursive): recursive when seaching files
         --overwrite: overwrite or not
         ori: origin
         des: destination
 
 """
 import os
+import sys
 import argparse
 
-from ..common import log, get_files, manage_batch
-from ..io import csv2shape
+from ...io import hls2stack, hn2ln
+from ...common import log, get_files, manage_batch
 
 
-def batch_swath_footprint(pattern, ori, des, epsg=3857, overwrite=False,
-                            recursive=False, batch=[1,1]):
-    """ Get observation footprint from swath data and save as shapefile
+def hls_to_stack(pattern, ori, des, overwrite=False, recursive=False,
+                    batch=[1,1]):
+    """ converting HLS images to stacked images
 
     Args:
-        pattern (str): searching pattern, e.g. MOD*csv
+        pattern (str): searching pattern, e.g. HLS*hdf
         ori (str): place to look for inputs
         des (str): place to save outputs
-        epsg (int): coordinate system in EPSG
-        recursive (bool): recursive when searching file, or not
         overwrite (bool): overwrite or not
+        recursive (bool): recursive when searching file, or not
         batch (list, int): batch processing, [thisjob, totaljob]
 
     Returns:
@@ -51,8 +49,8 @@ def batch_swath_footprint(pattern, ori, des, epsg=3857, overwrite=False,
     # locate files
     log.info('Locating files...'.format(ori))
     try:
-        csv_list = get_files(ori, pattern, recursive)
-        n = len(csv_list)
+        img_list = get_files(ori, pattern, recursive)
+        n = len(img_list)
     except:
         log.error('Failed to search for {}'.format(pattern))
         return 2
@@ -66,23 +64,23 @@ def batch_swath_footprint(pattern, ori, des, epsg=3857, overwrite=False,
     # handle batch processing
     if batch[1] > 1:
         log.info('Handling batch process...')
-        csv_list = manage_batch(csv_list, batch[0], batch[1])
-        n = len(csv_list)
+        img_list = manage_batch(img_list, batch[0], batch[1])
+        n = len(img_list)
         log.info('{} files to be processed by this job.'.format(n))
 
     # loop through all files
     count = 0
-    log.info('Start extracting observation footprint...')
-    for swath in csv_list:
-        log.info('Processing {}'.format(swath[1]))
-        if csv2shape('{}/{}'.format(swath[0], swath[1]),
-                        '{}/{}.shp'.format(des, swath[1].split('.csv')[0]),
-                        'ellipse', epsg, overwrite, False) == 0:
+    log.info('Start processing files...')
+    for img in img_list:
+        log.info('Processing {}'.format(img[1]))
+        if hls2stack(os.path.join(img[0], img[1]),
+                        '{}.gtif'.format(os.path.join(des, hn2ln(img[1]))),
+                        hn2ln(img[1])[0:3], overwrite) == 0:
             count += 1
 
     # done
     log.info('Process completed.')
-    log.info('Successfully generated {}/{} shapefiles.'.format(count, n))
+    log.info('Successfully processed {}/{} files.'.format(count, n))
     return 0
 
 
@@ -90,13 +88,11 @@ if __name__ == '__main__':
     # parse options
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--pattern', action='store', type=str,
-                        dest='pattern', default='VNP*tif',
+                        dest='pattern', default='HLS*hdf',
                         help='searching pattern')
     parser.add_argument('-b', '--batch', action='store', type=int, nargs=2,
                         dest='batch', default=[1,1],
-                        help='batch process, thisjob and totaljob')
-    parser.add_argument('-e', '--epsg', action='store', type=int, dest='epsg',
-                        default=3857, help='coordinate system in EPSG')
+                        help='batch process, [thisjob, totaljob]')
     parser.add_argument('-R', '--recursive', action='store_true',
                         help='recursive or not')
     parser.add_argument('--overwrite', action='store_true',
@@ -112,17 +108,16 @@ if __name__ == '__main__':
         sys.exit(1)
 
     # print logs
-    log.info('Start extracting observation footprint from swath data...')
+    log.info('Start preprocessing...')
     log.info('Running job {}/{}'.format(args.batch[0], args.batch[1]))
     log.info('Looking for {}'.format(args.pattern))
     log.info('In {}'.format(args.ori))
     log.info('Saving in {}'.format(args.des))
-    log.info('EPSG:{}'.format(args.epsg))
     if args.recursive:
         log.info('Recursive seaching.')
     if args.overwrite:
         log.info('Overwriting old files.')
 
-    # run function to generate footprint files
-    batch_swath_footprint(args.pattern, args.ori, args.des, args.epsg,
-                            args.overwrite, args.recursive, args.batch)
+    # run function to preprocess data
+    hls_to_stack(args.pattern, args.ori, args.des, args.overwrite,
+                        args.recursive, args.batch)

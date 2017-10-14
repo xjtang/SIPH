@@ -13,8 +13,8 @@ import os
 import sys
 import argparse
 
-from .common import log, get_files, manage_batch
-from .io import viirs2gtif, vn2ln
+from ...common import log, get_files, manage_batch
+from ...io import viirs2gtif, vn2ln
 
 
 def viirs_preprocess(pattern, ori, des, overwrite=False, recursive=False,

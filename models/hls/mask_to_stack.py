@@ -1,4 +1,4 @@
-""" Module for merging mask with image
+""" Module for converting masks to stacked image
 
     Args:
         -p (pattern): searching pattern
@@ -16,21 +16,20 @@ import argparse
 
 from osgeo import gdal
 
-from . import mn2ln, bit2mask, mask2array
-from ..common import constants as cons
-from ..common import log, get_files, manage_batch
-from ..io import stackMerge
+from ...io import mn2ln, bit2mask, mask2array, hdr2geo, stackGeo, array2stack
+from ...common import constants as cons
+from ...common import log, get_files, manage_batch
 
 
-def merge_mask(pattern, ori, des, mask, overwrite=False, recursive=False,
+def mask_to_stack(pattern, ori, des, _source, overwrite=False, recursive=False,
                     batch=[1,1]):
     """ converting masks to stacked images
 
     Args:
-        pattern (str): searching pattern, e.g. S30*tif
+        pattern (str): searching pattern, e.g. HLS*hdf
         ori (str): place to look for inputs
         des (str): place to save outputs
-        mask (str): place to look for masks
+        _source (str): mask source, e.g. fmask, maja, lasrc
         overwrite (bool): overwrite or not
         recursive (bool): recursive when searching file, or not
         batch (list, int): batch processing, [thisjob, totaljob]
@@ -55,8 +54,8 @@ def merge_mask(pattern, ori, des, mask, overwrite=False, recursive=False,
     # locate files
     log.info('Locating files...'.format(ori))
     try:
-        img_list = get_files(ori, pattern, recursive)
-        n = len(img_list)
+        mask_list = get_files(ori, pattern, recursive)
+        n = len(mask_list)
     except:
         log.error('Failed to search for {}'.format(pattern))
         return 2
@@ -70,28 +69,27 @@ def merge_mask(pattern, ori, des, mask, overwrite=False, recursive=False,
     # handle batch processing
     if batch[1] > 1:
         log.info('Handling batch process...')
-        img_list = manage_batch(img_list, batch[0], batch[1])
-        n = len(img_list)
+        mask_list = manage_batch(mask_list, batch[0], batch[1])
+        n = len(mask_list)
         log.info('{} files to be processed by this job.'.format(n))
 
     # loop through all files
     count = 0
     log.info('Start processing files...')
-    for img in img_list:
-        log.info('Processing {}'.format(img[1]))
-        maja = get_files(mask, '*{}*MAJA*'.format(img[1][3:16]), recursive)
-        fmask = get_files(mask, '*{}*FMASK*'.format(img[1][3:16]), recursive)
-        lasrc = get_files(mask, '*{}*LASRC*'.format(img[1][3:16]), recursive)
-        if len(maja) * len(fmask) * len(lasrc) == 0:
-            log.warning('No mask for this file: {}'.format(img[1]))
+    for mask in mask_list:
+        log.info('Processing {}'.format(mask[1]))
+        if _source == 'lasrc':
+            geo = hdr2geo('{}.hdr'.format(os.path.join(mask[0], mask[1])))
         else:
-            stacks = [os.path.join(img[0], img[1]),
-                        os.path.join(lasrc[0][0], lasrc[0][1]),
-                        os.path.join(fmask[0][0], fmask[0][1]),
-                        os.path.join(maja[0][0], maja[0][1])]
-            if stackMerge(stacks, os.path.join(des, img[1]), gdal.GDT_Int16,
-                            overwrite) == 0:
-                count += 1
+            geo = stackGeo(os.path.join(mask[0], mask[1]))
+        res = int(geo['geotrans'][1])
+        array = mask2array(os.path.join(mask[0], mask[1]), _source)
+        array = bit2mask(array, _source)
+        if array2stack(array, geo, '{}.tif'.format(os.path.join(des,
+                        mn2ln(mask[1], _source, res))),
+                        ['{} {}m'.format(_source, res)], cons.MASK_NODATA,
+                        gdal.GDT_Int16, overwrite) == 0:
+            count += 1
 
     # done
     log.info('Process completed.')
@@ -103,17 +101,18 @@ if __name__ == '__main__':
     # parse options
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--pattern', action='store', type=str,
-                        dest='pattern', default='S30*tif',
+                        dest='pattern', default='HLS*hdf',
                         help='searching pattern')
     parser.add_argument('-b', '--batch', action='store', type=int, nargs=2,
                         dest='batch', default=[1,1],
                         help='batch process, [thisjob, totaljob]')
+    parser.add_argument('-m', '--mask', action='store', type=str, dest='mask',
+                        default='fmask', help='mask source')
     parser.add_argument('-R', '--recursive', action='store_true',
                         help='recursive or not')
     parser.add_argument('--overwrite', action='store_true',
                         help='overwrite or not')
     parser.add_argument('ori', default='./', help='origin')
-    parser.add_argument('mask', default='./', help='mask location')
     parser.add_argument('des', default='./', help='destination')
     args = parser.parse_args()
 
@@ -129,12 +128,12 @@ if __name__ == '__main__':
     log.info('Looking for {}'.format(args.pattern))
     log.info('In {}'.format(args.ori))
     log.info('Saving in {}'.format(args.des))
-    log.info('Masks in {}'.format(args.mask))
+    log.info('Mask generated by {}.'.format(args.mask))
     if args.recursive:
         log.info('Recursive seaching.')
     if args.overwrite:
         log.info('Overwriting old files.')
 
-    # run function merge masks and image
-    merge_mask(args.pattern, args.ori, args.des, args.mask, args.overwrite,
+    # run function to convert masks
+    mask_to_stack(args.pattern, args.ori, args.des, args.mask, args.overwrite,
                         args.recursive, args.batch)

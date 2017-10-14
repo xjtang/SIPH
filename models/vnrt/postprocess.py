@@ -15,9 +15,9 @@ import numpy as np
 
 from osgeo import gdal
 
-from .common import log, clean_up, get_files
-from .common import constants as cons
-from .io import stack2array, stackGeo, array2stack
+from ...common import log, clean_up, get_files
+from ...common import constants as cons
+from ...io import stack2array, stackGeo, array2stack
 
 
 def vnrt_postprocess(ori, des, w=1, t=2, d=False, overwrite=False):

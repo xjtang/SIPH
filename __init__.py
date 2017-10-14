@@ -1,9 +1,7 @@
-""" VNRT
+""" SIPH
+    Satellite Image Processing Hub
 """
-from . import preprocess
-from . import classification
-from . import postprocess
-
+from . import common, io, tools, visualization, models
 
 __version__ = '0.2.1'
 
@@ -13,6 +11,5 @@ __all__ = [
     'io',
     'tools',
     'visualization',
-    'fusion',
-    'hls'
+    'models',
 ]

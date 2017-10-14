@@ -16,9 +16,9 @@ import scipy.io as sio
 
 from osgeo import gdal
 
-from ..io import stack2array, stackGeo, array2stack
-from ..common import log, get_files
-from ..common import constants as cons
+from ...io import stack2array, stackGeo, array2stack
+from ...common import log, get_files
+from ...common import constants as cons
 
 
 def get_nob_between_dates(img1, img2, ori, des, overwrite=False,
