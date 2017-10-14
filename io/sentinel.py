@@ -39,13 +39,13 @@ def sen2stack(sen, des, overwrite=False, verbose=False):
         log.info('Reading input: {}'.format(sen))
     try:
         geo = stackGeo('{}02.jp2'.format(sen))
-        blue = stack2array('{}02.jp2'.format(sen), 1, np.int32)
-        green = stack2array('{}03.jp2'.format(sen), 1, np.int32)
-        red = stack2array('{}04.jp2'.format(sen), 1, np.int32)
-        nir = stack2array('{}08.jp2'.format(sen), 1, np.int32)
-        swir1 = enlarge(stack2array('{}11.jp2'.format(sen), 1, np.int32), 2)
-        swir2 = enlarge(stack2array('{}12.jp2'.format(sen), 1, np.int32), 2)
-        cirrus = enlarge(stack2array('{}10.jp2'.format(sen), 1, np.int32), 6)
+        blue = stack2array('{}02.jp2'.format(sen), 1, np.int16)
+        green = stack2array('{}03.jp2'.format(sen), 1, np.int16)
+        red = stack2array('{}04.jp2'.format(sen), 1, np.int16)
+        nir = stack2array('{}08.jp2'.format(sen), 1, np.int16)
+        swir1 = enlarge(stack2array('{}11.jp2'.format(sen), 1, np.int16), 2)
+        swir2 = enlarge(stack2array('{}12.jp2'.format(sen), 1, np.int16), 2)
+        cirrus = enlarge(stack2array('{}10.jp2'.format(sen), 1, np.int16), 6)
     except:
         log.error('Failed to read input {}'.format(img))
         return 3
@@ -57,7 +57,7 @@ def sen2stack(sen, des, overwrite=False, verbose=False):
         # initialize output
         _driver = gdal.GetDriverByName('GTiff')
         output = _driver.Create(des, geo['samples'], geo['lines'], 7,
-                                gdal.GDT_Int32)
+                                gdal.GDT_Int16)
         output.SetProjection(geo['proj'])
         output.SetGeoTransform(geo['geotrans'])
         for i in range(1,8):
