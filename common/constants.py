@@ -27,7 +27,7 @@ MASK_SNOW = 3
 MASK_VALUES = (1, 2, 3, 4)
 MASK_COLORS = ((0, 0, IMGBIT), (IMGBIT, 0, IMGBIT), (IMGBIT, IMGBIT, 0),
                 (IMGBIT, 0, 0))
-LASRC_BAND = [4]
+LASRC_BAND = 4
 
 
 # download

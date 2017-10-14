@@ -20,7 +20,7 @@ from ...common import constants as cons
 from ...common import log, get_files, manage_batch
 
 
-def sen_to_stack(pattern, ori, des, _source, overwrite=False, recursive=False,
+def sen_to_stack(pattern, ori, des, overwrite=False, recursive=False,
                     batch=[1,1]):
     """ converting sentinel images to stacked images
 
