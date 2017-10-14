@@ -26,7 +26,7 @@ def mask2array(mask, _source):
     if _source == 'lasrc':
         img = gdal.Open(mask, gdal.GA_ReadOnly)
         sub = img.GetSubDatasets()
-        img2 = gdal.Open(sub[13][0], gdal.GA_ReadOnly)
+        img2 = gdal.Open(sub[cons.LASRC_BAND][0], gdal.GA_ReadOnly)
         array = img2.GetRasterBand(1).ReadAsArray().astype(np.int16)
     elif _source == 'fmask' or _source == 'fmask2':
         img = gdal.Open(mask, gdal.GA_ReadOnly)
