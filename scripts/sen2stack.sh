@@ -11,7 +11,7 @@
 #		des: destination
 
 # default values
-pattern=*B02.jp
+pattern=*B02.jp2
 njob=1
 overwrite=''
 recursive=''
