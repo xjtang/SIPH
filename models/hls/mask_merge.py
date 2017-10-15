@@ -16,7 +16,7 @@ import argparse
 
 from osgeo import gdal
 
-from ...io import mn2ln, bit2mask, mask2array, stackMerge
+from ...io import stackMerge
 from ...common import constants as cons
 from ...common import log, get_files, manage_batch
 
