@@ -90,7 +90,7 @@ def merge_mask(pattern, ori, des, mask, overwrite=False, recursive=False,
                         os.path.join(lasrc[0][0], lasrc[0][1]),
                         os.path.join(fmask[0][0], fmask[0][1]),
                         os.path.join(maja[0][0], maja[0][1]),
-                        os.path.join(fmask2[0][0], fmask2[0][1])
+                        os.path.join(fmask2[0][0], fmask2[0][1]),
                         os.path.join(sen2cor[0][0], sen2cor[0][1])]
             if stackMerge(stacks, os.path.join(des, img[1]), gdal.GDT_Int16,
                             overwrite) == 0:
