@@ -28,7 +28,7 @@ def mask2array(mask, _source):
         sub = img.GetSubDatasets()
         img2 = gdal.Open(sub[cons.LASRC_BAND][0], gdal.GA_ReadOnly)
         array = img2.GetRasterBand(1).ReadAsArray().astype(np.int16)
-    elif _source == 'fmask' or _source == 'fmask2':
+    elif _source == 'fmask' or _source == 'fmask2' or _source == 's2cor':
         img = gdal.Open(mask, gdal.GA_ReadOnly)
         array = img.GetRasterBand(1).ReadAsArray().astype(np.int16)
     elif _source == 'maja':
@@ -70,6 +70,12 @@ def bit2mask(bit, _source):
         mask[np.mod(np.right_shift(bit[0], 4), 16) > 0] = cons.MASK_CLOUD
         mask[np.mod(np.right_shift(bit[0], 1), 2) > 0] = cons.MASK_CLOUD
         mask[bit[0] == 255] = cons.MASK_NODATA
+    elif _source == 's2cor':
+        mask[bit == 6] = cons.MASK_WATER
+        mask[bit == 11] = cons.MASK_SNOW
+        mask[bit == 3] = cons.MASK_SHADOW
+        mask[(bit >= 8)&(bit <= 10)] = cons.MASK_CLOUD
+        mask[bit == 0] = cons.MASK_NODATA
     else:
         log.error('Unknown source: {}'.format(_source))
     return mask
@@ -103,6 +109,16 @@ def mn2ln(hn, _source, res=30):
             d = date_to_doy(int(hn[7][0:4]), int(hn[7][4:6]), int(hn[7][6:8]))
             hn = hn[9]
         return 'M{}{}{}FMAS2'.format(res, hn, d)
+    elif _source == 's2cor':
+        if hn[0] == 'L':
+            hn = hn.split('_')
+            d = date_to_doy(int(hn[2][0:4]), int(hn[2][4:6]), int(hn[2][6:8]))
+            hn = hn[1]
+        else:
+            hn = hn.split('_')
+            d = date_to_doy(int(hn[7][0:4]), int(hn[7][4:6]), int(hn[7][6:8]))
+            hn = hn[9]
+        return 'M{}{}{}S2COR'.format(res, hn, d)
     elif _source == 'lasrc':
         hn = hn.split('.')
         return 'M{}{}{}LASRC'.format(res, hn[2], hn[3])
