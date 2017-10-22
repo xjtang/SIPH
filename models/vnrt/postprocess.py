@@ -76,7 +76,7 @@ def vnrt_postprocess(ori, des, w=1, t=2, d=False, overwrite=False):
                     img2[(array!=cons.CHANGE) & (array!=cons.PC)] = cons.NODATA
                     if array2stack(img2, geo, os.path.join(img[0],
                                     '{}_clean.tif'.format(img[1][:-4])),
-                                    'Post-processed Date Image', cons.NODATA,
+                                    ['Post-processed Date Image'], cons.NODATA,
                                     gdal.GDT_Int32, overwrite=overwrite) > 0:
                         log.warning('Failed to export {}'.format(img[1]))
                     log.info('Cleaned up {}'.format(img[1]))
