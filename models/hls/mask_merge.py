@@ -3,10 +3,10 @@
     Args:
         -p (pattern): searching pattern
         -b (batch): batch process, thisjob and totaljob
-        -m (mask): mask source, e.g. fmask
         -R (recursive): recursive when seaching files
         --overwrite: overwrite or not
         ori: origin
+        mask: mask location
         des: destination
 
 """
