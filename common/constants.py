@@ -28,6 +28,8 @@ MASK_VALUES = (1, 2, 3, 4)
 MASK_COLORS = ((0, 0, IMGBIT), (IMGBIT, 0, IMGBIT), (IMGBIT, IMGBIT, 0),
                 (IMGBIT, 0, 0))
 LASRC_BAND = 4
+STRATA = (0, 2, 4, 20, 22, 24, 40, 42, 44, 200, 202, 204, 220, 222, 224, 240,
+            242, 244, 400, 402, 404, 420, 422, 424, 440, 442, 444)
 
 
 # download
