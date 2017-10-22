@@ -13,7 +13,7 @@
 #		des: destination
 
 # default values
-pattern=S30*tif
+pattern=S*tif
 njob=1
 mask='-m 9 10 11 '
 value='-v 2 4 '

@@ -99,7 +99,7 @@ if __name__ == '__main__':
     # parse options
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--pattern', action='store', type=str,
-                        dest='pattern', default='S30*tif',
+                        dest='pattern', default='S*tif',
                         help='searching pattern')
     parser.add_argument('-b', '--batch', action='store', type=int, nargs=2,
                         dest='batch', default=[1,1],
