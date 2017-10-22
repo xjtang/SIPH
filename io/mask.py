@@ -11,6 +11,30 @@ from ..common import log, date_to_doy
 from ..common import constants as cons
 
 
+def mask2strata(array, value=[1]):
+    """ create a strata layer from a stack of masks
+
+    Args:
+        array (ndarray): array of maskes
+        value (ndarray): which value to use
+
+    Returns:
+        strata (ndarray): array of strata
+
+    """
+    strata = np.zeros(array.shape[:-1], np.int16)
+    nodata = np.zeros(array.shape[:-1], np.int16)
+    for i in range(0, array.shape[2]):
+        if len(value) == 1:
+            strata += (array[:, :, i] == value[0]) * (2 ** i)
+        else:
+            for j in range(0, len(value)):
+                strata += (array[:, :, i] == value[j]) * (10 ** i) * value[j]
+        nodata += (array[:,:,i] != cons.MASK_NODATA)
+    strata[nodata == 0] = cons.MASK_NODATA
+    return strata
+
+
 def mask2array(mask, _source):
     """ read mask image as array
 

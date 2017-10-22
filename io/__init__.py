@@ -6,7 +6,7 @@ from .datafile import csv2list, csv2dict, hdr2geo
 from .shape import csv2shape
 from .cache import cache2map
 from .hls import hls2stack, hlsQA, hn2ln
-from .mask import mn2ln, bit2mask, mask2array
+from .mask import mn2ln, bit2mask, mask2array, mask2strata
 from .sentinel import sen2stack, sn2ln
 
 
@@ -32,5 +32,6 @@ __all__ = [
     'bit2mask',
     'mask2array',
     'sen2stack',
-    'sn2ln'
+    'sn2ln',
+    'mask2strata'
 ]
