@@ -5,16 +5,15 @@
 # Input Arguments:
 #		-p searching pattern
 #		-n number of jobs
-#		-m mask source
 #		-R recursive
 #		--overwrite overwrite
 #		ori: origin
+#		mask: mask source
 #		des: destination
 
 # default values
 pattern=S30*tif
 njob=1
-mask=fmask
 overwrite=''
 recursive=''
 
