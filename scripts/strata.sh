@@ -51,7 +51,7 @@ while [[ $# > 0 ]]; do
 			;;
 		*)
       ori=$1
-			des=$3
+			des=$2
 			break
 	esac
 	shift
