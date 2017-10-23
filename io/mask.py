@@ -30,8 +30,8 @@ def mask2strata(array, value=[1]):
         else:
             for j in range(0, len(value)):
                 strata += (array[:, :, i] == value[j]) * (10 ** i) * value[j]
-        nodata += (array[:,:,i] != cons.MASK_NODATA)
-    strata[nodata == 0] = cons.MASK_NODATA
+        nodata += (array[:,:,i] == cons.MASK_NODATA)
+    strata[nodata > 0] = cons.MASK_NODATA
     return strata
 
 
