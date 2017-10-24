@@ -5,6 +5,7 @@
         -b (batch): batch process, thisjob and totaljob
         -m (mask): mask bands
         -v (value): mask value
+        -r (reclass): reclassify results
         -R (recursive): recursive when seaching files
         --overwrite: overwrite or not
         ori: origin
@@ -19,11 +20,11 @@ from osgeo import gdal
 
 from ...io import mask2strata, stack2array, array2stack, stackGeo
 from ...common import constants as cons
-from ...common import log, get_files, manage_batch
+from ...common import log, get_files, manage_batch, reclassify
 
 
-def create_strata(pattern, mask, value, ori, des, overwrite=False, recursive=False,
-                    batch=[1,1]):
+def create_strata(pattern, mask, value, ori, des, reclass=False,
+                    overwrite=False, recursive=False, batch=[1,1]):
     """ converting masks to stacked images
 
     Args:
@@ -32,6 +33,7 @@ def create_strata(pattern, mask, value, ori, des, overwrite=False, recursive=Fal
         value (int, list): mask values
         ori (str): place to look for inputs
         des (str): place to save outputs
+        reclass (bool): reclassify results
         overwrite (bool): overwrite or not
         recursive (bool): recursive when searching file, or not
         batch (list, int): batch processing, [thisjob, totaljob]
@@ -83,6 +85,8 @@ def create_strata(pattern, mask, value, ori, des, overwrite=False, recursive=Fal
         geo = stackGeo(os.path.join(img[0], img[1]))
         array = stack2array(os.path.join(img[0], img[1]), mask)
         strata = mask2strata(array, value)
+        if reclass:
+            strata = reclassify(strata, cons.SCHEME)
         if array2stack(strata, geo, os.path.join(des,
                         '{}_strata.tif'.format(os.path.splitext(img[1])[0])),
                         ['Strata'], cons.MASK_NODATA, gdal.GDT_Int16,
@@ -109,6 +113,8 @@ if __name__ == '__main__':
     parser.add_argument('-v', '--value', action='store', type=int, nargs='+',
                         dest='value', default=[cons.MASK_CLOUD],
                         help='mask value')
+    parser.add_argument('-r', '--reclass', action='store_true',
+                        help='reclassify or not')
     parser.add_argument('-R', '--recursive', action='store_true',
                         help='recursive or not')
     parser.add_argument('--overwrite', action='store_true',
@@ -130,6 +136,8 @@ if __name__ == '__main__':
     log.info('Saving in {}'.format(args.des))
     log.info('Masks bands: {}'.format(args.mask))
     log.info('Mask value: {}'.format(args.value))
+    if args.reclass:
+        log.info('Reclassify results.')
     if args.recursive:
         log.info('Recursive seaching.')
     if args.overwrite:
@@ -137,4 +145,4 @@ if __name__ == '__main__':
 
     # run function to create strata
     create_strata(args.pattern, args.mask, args.value, args.ori, args.des,
-                    args.overwrite, args.recursive, args.batch)
+                    args.reclass, args.overwrite, args.recursive, args.batch)

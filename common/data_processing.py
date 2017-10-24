@@ -63,3 +63,21 @@ def sidebyside(array1, array2):
     s[1] = 1
     return np.concatenate((array1, np.zeros(s), array2),
                             axis=1).astype(array1.dtype)
+
+
+def reclassify(array, scheme):
+    """ reclassify array
+
+    Args:
+        array (ndarray): input array
+        scheme (list): classification scheme
+
+    Returns:
+        reclassed (ndarray): reclassified array
+
+    """
+    reclassed = np.copy(array)
+    for i in range(0, len(scheme)):
+        for j in scheme[i][1]:
+            reclassed[reclassed == j] = scheme[i][0]
+    return reclassed

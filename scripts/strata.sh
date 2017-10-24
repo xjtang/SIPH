@@ -19,6 +19,7 @@ mask='-m 9 10 11 '
 value='-v 2 4 '
 overwrite=''
 recursive=''
+reclass=''
 
 # parse input arguments
 while [[ $# > 0 ]]; do
@@ -43,6 +44,9 @@ while [[ $# > 0 ]]; do
       shift
       shift
       ;;
+		-r)
+			reclass='-r '
+			;;
 		-R)
 			recursive='-R '
 			;;
@@ -61,5 +65,5 @@ done
 echo 'Total jobs to submit is' $njob
 for i in $(seq 1 $njob); do
     echo 'Submitting job no.' $i 'out of' $njob
-    qsub -j y -N HLS_$i -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.hls.strata ${mask}${value}${overwrite}${recursive}-p $pattern -b $i $njob $ori $des
+    qsub -j y -N HLS_$i -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.hls.strata ${mask}${value}${overwrite}${recursive}${reclass}-p $pattern -b $i $njob $ori $des
 done
