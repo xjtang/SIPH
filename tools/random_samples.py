@@ -123,6 +123,7 @@ def sample_from_images(pattern, n, ori, des, strata=0,
         array = np.zeros((geo['lines'], geo['samples']),
                             np.int16) + cons.MASK_NODATA
         subsample = samples[samples[:, 1] == i, :]
+        log.info('Total number of samples {}.'.format(subsample.shape[0]))
         for j in range(0, subsample.shape[0]):
             array[subsample[j, 2], subsample[j, 3]] = subsample[j, 0]
         if array2stack(array, geo, os.path.join(des,
