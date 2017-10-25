@@ -79,5 +79,24 @@ def reclassify(array, scheme):
     reclassed = np.copy(array)
     for i in range(0, len(scheme)):
         for j in scheme[i][1]:
-            reclassed[reclassed == j] = scheme[i][0]
+            reclassed[array == j] = scheme[i][0]
     return reclassed
+
+
+def tablize(array):
+    """ convert to a table with x y pixel coordinates
+
+    Args:
+        array (ndarray): input array
+
+    Returns:
+        table (ndarray): output table
+
+    """
+    table = np.zeros((array.shape[0] * array.shape[1], 3), array.dtype)
+    for i in range(0, array.shape[0]):
+        table[(array.shape[1] * i):(array.shape[1] * (i + 1)), 0] = i
+        table[(array.shape[1] * i):(array.shape[1] * (i + 1)), 1] = range(0,
+                                                                array.shape[1])
+        table[(array.shape[1] * i):(array.shape[1] * (i + 1)), 2] = array[i, :]
+    return table
