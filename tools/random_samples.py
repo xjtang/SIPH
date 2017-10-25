@@ -120,7 +120,8 @@ def sample_from_images(pattern, n, ori, des, strata=0,
     for i, img in enumerate(img_list):
         log.info('Exporting {}'.format(os.path.splitext(img[1])[0]))
         geo = stackGeo(os.path.join(img[0], img[1]))
-        array = np.zeros((geo['lines'], geo['samples']), np.int16)
+        array = np.zeros((geo['lines'], geo['samples']),
+                            np.int16) + cons.MASK_NODATA
         subsample = samples[samples[:, 1] == i, :]
         for j in range(0, subsample.shape[0]):
             array[subsample[j, 2], subsample[j, 3]] = subsample[j, 0]
