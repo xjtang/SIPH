@@ -9,7 +9,7 @@ from osgeo import gdal
 from PIL import Image
 
 from ..common import constants as cons
-from ..common import (log, apply_mask, result2mask, crop, get_date,
+from ..common import (log, apply_mask, result2mask, crop, get_date, tablize,
                         apply_stretch, sidebyside, nodata_mask, thematic_map)
 
 
@@ -296,3 +296,21 @@ def stack2image(img, des, bands=[3,2,1], stretch=[0,5000], mask=0, result='NA',
     if verbose:
         log.info('Process completed.')
     return 0
+
+
+def stack2table(img, band=1, nodata=cons.MASK_NODATA, _type=np.int16):
+    """ read stack image and convert to a table with x y pixel coordinates
+
+    Args:
+        img (str): the link to the image stack file
+        band (int): what band to read, one band only
+        nodata (int): nodata value
+        _type (object): numpy data type
+
+    Returns:
+        table (ndarray): table of image data
+
+    """
+    array = stack2array(img, band, _type)
+    table = tablize(array)
+    return table[table[:, 2] != nodata, :]
