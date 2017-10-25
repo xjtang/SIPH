@@ -3,8 +3,9 @@
 from .logger import log
 from .utility import (date_to_doy, doy_to_date, get_files, show_progress,
                         manage_batch, get_date, get_int, doy_to_ordinal,
-                        ordinal_to_doy)
-from .data_processing import enlarge, crop, mirror, sidebyside, reclassify
+                        ordinal_to_doy, select_samples)
+from .data_processing import (enlarge, crop, mirror, sidebyside, reclassify,
+                                tablize)
 from .image_processing import (apply_mask, result2mask, apply_stretch,
                                 nodata_mask, clean_up, thematic_map)
 from .result_processing import ts2class, ts2doc, ts2dod
@@ -34,5 +35,6 @@ __all__ = [
     'ts2dod',
     'clean_up',
     'thematic_map',
-    'reclassify'
+    'reclassify',
+    'select_samples'
 ]
