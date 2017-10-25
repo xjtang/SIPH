@@ -5,6 +5,8 @@ from __future__ import division
 import os
 import re
 import fnmatch
+import random
+import numpy as np
 
 from calendar import isleap
 from datetime import date
@@ -177,3 +179,21 @@ def ordinal_to_doy(ordinal):
     """
     _date = date.fromordinal(ordinal)
     return date_to_doy(_date.year, _date.month, _date.day)
+
+
+def select_samples(population, n):
+    """ select sample from data withour replacement
+
+    Args:
+        population (ndarray/list): population
+        n (int): number of samples
+    Returns:
+        samples (ndarray/list): samples selected
+
+    """
+    random.seed()
+    if type(population) == list:
+        return [population[i] for i in random.sample(range(0,
+                                                        len(population)), n)]
+    else:
+        return population[random.sample(range(0, len(population)), n)]
