@@ -10,7 +10,6 @@
 """
 import os
 import argparse
-
 import numpy as np
 
 from ...io import stack2array
