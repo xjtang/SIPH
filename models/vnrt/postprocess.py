@@ -24,7 +24,7 @@ def vnrt_postprocess(ori, des, w=1, t=2, d=False, overwrite=False):
     """ postprocess VNRT result
 
     Args:
-        ori (str): place to look for inputs
+        ori (str): input image
         des (str): place to save outputs
         w (int): window size, how much extent out from the center pixel
         t (int): clean up threhold
@@ -87,7 +87,7 @@ def vnrt_postprocess(ori, des, w=1, t=2, d=False, overwrite=False):
 
     # writing output
     log.info('Writing output to: {}'.format(des))
-    if array2stack(array, geo, des, 'Post-processed Map', cons.NODATA,
+    if array2stack(array, geo, des, ['Post-processed Map'], cons.NODATA,
                     overwrite=overwrite) > 0:
         log.error('Faield to write output to {}'.format(des))
 

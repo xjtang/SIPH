@@ -125,6 +125,8 @@ def array2stack(array, geo, des, bands='NA', nodata='NA', _type=gdal.GDT_Int16,
             if not nodata == 'NA':
                 output.GetRasterBand(i+1).SetNoDataValue(nodata)
             if not bands == 'NA':
+                if type(bands) == str:
+                    bands = [bands]
                 output.GetRasterBand(i+1).SetDescription(bands[i])
     except:
         log.error('Failed to write output to {}'.format(des))
