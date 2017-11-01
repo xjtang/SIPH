@@ -24,7 +24,7 @@ from ...common import log, get_files
 from ...common import constants as cons
 
 
-def get_nob_between_dates(patter, _type, img1, img2, ori, des, overwrite=False,
+def get_nob_between_dates(pattern, _type, img1, img2, ori, des, overwrite=False,
                             recursive=False, _file='NA'):
     """ Generage image of number of clear observation between two dates
 
