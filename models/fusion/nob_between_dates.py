@@ -166,7 +166,7 @@ if __name__ == '__main__':
 
     # get type
     if args.pattern[-3:] == 'npz':
-        _typr = 'npz'
+        _type = 'npz'
         if not os.path.isfile(args.file):
             log.error('Image list file does not exist: {}'.format(args.file))
             sys.exit(1)
