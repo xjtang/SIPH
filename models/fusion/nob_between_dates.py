@@ -119,7 +119,7 @@ def get_nob_between_dates(pattern, _type, img1, img2, ori, des, overwrite=False,
                     else:
                         ts = cache['Y'][3, :, j]
                         dlist = csv2list(_file, True)
-                        dts = np.asarray([x for x in dlist])
+                        dts = np.asarray([x[0] for x in dlist])
                         index1 = np.where(dts >= date1)[0][0]
                         index2 = np.where(dts >= date2)[0][0]
                         if date2 > date1:
