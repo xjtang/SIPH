@@ -62,12 +62,10 @@ def ts2doc(ts, ts_last, cdate, _last):
     """
     _class = classify(ts)
     if _class == cons.FOREST:
-        if (((ts['end'] - ts['start']) < cons.LENGTH_THRES) &
-            (cdate == cons.NF)):
-            if _last:
-                return cons.NF
-            else:
-                return cons.PF
+        if (ts['end'] - ts['start']) < cons.LENGTH_THRES:
+            if cdate != cons.NODATA:
+                if classify(ts_last) != cons.FOREST:
+                    return cdate
         if (ts['break'] > 0) & (_last):
             return ordinal_to_doy(int(ts['break']))
         else:
@@ -75,7 +73,7 @@ def ts2doc(ts, ts_last, cdate, _last):
     else:
         if cdate == cons.FOREST:
             return ordinal_to_doy(int(ts_last['break']))
-        else:
+        if cdate == cons.NODATA:
             return cons.NF
     return cdate
 
@@ -94,12 +92,10 @@ def ts2dod(ts, ts_last, ddate, _last):
     """
     _class = classify(ts)
     if _class == cons.FOREST:
-        if (((ts['end'] - ts['start']) < cons.LENGTH_THRES) &
-            (ddate == cons.NF)):
-            if _last:
-                return cons.NF
-            else:
-                return cons.PF
+        if (ts['end'] - ts['start']) < cons.LENGTH_THRES:
+            if ddate != cons.NODATA:
+                if classify(ts_last) != cons.FOREST:
+                    return ddate
         if (ts['break'] > 0) & (_last):
             return ordinal_to_doy(int(ts['detect']))
         else:
@@ -107,7 +103,7 @@ def ts2dod(ts, ts_last, ddate, _last):
     else:
         if ddate == cons.FOREST:
             return ordinal_to_doy(int(ts_last['detect']))
-        else:
+        if ddate == cons.NODATA:
             return cons.NF
     return ddate
 
