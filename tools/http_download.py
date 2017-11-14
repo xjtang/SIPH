@@ -258,7 +258,7 @@ if __name__ == '__main__':
             log.error('Invalid product.')
             sys.exit(1)
     elif args.sensor == 'M':
-        if args.platform not in [5, 6]:
+        if args.collection not in [5, 6]:
             log.error('Invalid collection, use 5 or 6 for MODIS.')
             sys.exit(1)
         if args.product not in ['MOD09GA', 'MYD09GA']:
