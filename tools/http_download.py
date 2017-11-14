@@ -108,7 +108,9 @@ def locate_data(url, sensor, collection, product, tile, year, day):
     # handle sensor, collection, product and yaer
     if sensor == 'V':
         url = '{}VIIRS/{}.{:03}/'.format(url, product, collection)
+        fmt = 'h5'
     else:
+        fmt = 'hdf'
         if product[1] == 'O':
             url = '{}MOLT/{}.{:03}/'.format(url, product, collection)
         elif product[1] == 'Y':
@@ -132,8 +134,8 @@ def locate_data(url, sensor, collection, product, tile, year, day):
             continue
 
         # search for image name
-        pattern = re.compile('{}\.A{}{:03}\.h{:02}v{:02}\.{:03}\..{{13}}\.h5'.format(
-                                product, year, i, tile[0], tile[1], collection))
+        pattern = re.compile('{}\.A{}{:03}\.h{:02}v{:02}\.{:03}\..{{13}}\.{}'.format(
+                                product, year, i, tile[0], tile[1], collection, fmt))
         m = re.search(pattern, page)
         if m:
             url_list.append('{}{}'.format(link, m.group()))
