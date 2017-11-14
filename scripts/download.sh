@@ -86,11 +86,10 @@ while [[ $# > 0 ]]; do
 done
 
 # run python script
-cd /projectnb/landsat/users/xjtang/documents/
 if [ $method = "ftp" ]; then
-	python -m SIPH.tools.ftp_download -s $sensor -c $collection -p $product -t $h $v -y $year -d $dstart $dend $des
+	qsub -j y -N Download -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.tools.ftp_download -s $sensor -c $collection -p $product -t $h $v -y $year -d $dstart $dend $des
 elif [ $method = "http" ]; then
-	python -m SIPH.tools.http_download -u $username -w $password -s $sensor -c $collection -p $product -t $h $v -y $year -d $dstart $dend $des
+	qsub -j y -N Download -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.tools.http_download -u $username -w $password -s $sensor -c $collection -p $product -t $h $v -y $year -d $dstart $dend $des
 else
 	echo 'unknown method'
 fi
