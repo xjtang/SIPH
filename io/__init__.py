@@ -9,6 +9,7 @@ from .cache import cache2map
 from .hls import hls2stack, hlsQA, hn2ln
 from .mask import mn2ln, bit2mask, mask2array, mask2strata
 from .sentinel import sen2stack, sn2ln
+from .modis import modis2stack
 
 
 __all__ = [
@@ -35,5 +36,6 @@ __all__ = [
     'sen2stack',
     'sn2ln',
     'mask2strata',
-    'stack2table'
+    'stack2table',
+    'modis2stack'
 ]

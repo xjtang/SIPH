@@ -15,6 +15,12 @@ SR_BANDS = (23, 24, 25)
 QA_BANDS = (13, 14, 16, 18, 19)
 VZA_BAND = 1
 
+# MODIS
+MGA_QA_BAND = 1
+MGA_VZA_BAND = 2
+MGA_SR_BANDS = [11, 12, 15, 14]
+MGQ_BANDS = [1, 2]
+
 # HLS
 L30_BANDS = ('band02', 'band03', 'band04', 'band05', 'band06', 'band07',
                 'band09', 'QA')
