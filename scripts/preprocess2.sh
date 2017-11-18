@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# bash script to preprocess viirs data
+# bash script to preprocess MODIS data
 
 # Input Arguments:
 #		-p searching pattern
