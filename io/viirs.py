@@ -108,10 +108,10 @@ def viirs2gtif(img, des, overwrite=False, verbose=False):
         try:
             invalid = ~(((red >= 0) & (red <= 10000)) & ((nir >= 0) & (nir <= 10000)) &
                         ((swir >= 0) & (swir <= 10000)))
-            red[invalid] <- cons.NODATA
-            nir[invalid] <- cons.NODATA
-            swir[invalid] <- cons.NODATA
-            vza[~((vza >= 0) & (vza <= 18000))] <- cons.NODATA
+            red[invalid] = cons.NODATA
+            nir[invalid] = cons.NODATA
+            swir[invalid] = cons.NODATA
+            vza[~((vza >= 0) & (vza <= 18000))] = cons.NODATA
         except:
             _error = 4
             log.error('Failed to clean up data.')
