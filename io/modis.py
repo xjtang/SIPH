@@ -121,6 +121,7 @@ def modis2stack(MOD09GA, des, MOD09GQ='NA', overwrite=False, verbose=False):
         _size = np.shape(mask)
         if verbose:
             log.info('{}% masked'.format(_total/(_size[0]*_size[1])*100))
+        mask2 = mask | vza > 3500
     except:
         log.error('Failed to generate mask band.')
         return 3
@@ -130,15 +131,15 @@ def modis2stack(MOD09GA, des, MOD09GQ='NA', overwrite=False, verbose=False):
         log.info('Cleaning up data...')
     try:
         invalid = ~(((red>0) & (red<=10000)) & ((nir>0) & (nir<=10000)))
-        red[invalid] <- cons.NODATA
-        nir[invalid] <- cons.NODATA
-        ndvi[invalid] <- cons.NODATA
-        vza[~((vza >= 0) & (vza <= 18000))] <- cons.NODATA
+        red[invalid] = cons.NODATA
+        nir[invalid] = cons.NODATA
+        ndvi[invalid] = cons.NODATA
+        vza[~((vza >= 0) & (vza <= 18000))] = cons.NODATA
         if MOD09GQ != 'NA':
             invalid = ~(((red2>0) & (red2<=10000)) & ((nir2>0) & (nir2<=10000)))
-            red2[invalid] <- cons.NODATA
-            nir2[invalid] <- cons.NODATA
-            ndvi2[invalid] <- cons.NODATA
+            red2[invalid] = cons.NODATA
+            nir2[invalid] = cons.NODATA
+            ndvi2[invalid] = cons.NODATA
     except:
         log.error('Failed to clean up data.')
         return 4
@@ -150,7 +151,7 @@ def modis2stack(MOD09GA, des, MOD09GQ='NA', overwrite=False, verbose=False):
         # initialize output
         _driver = gdal.GetDriverByName('GTiff')
         output = _driver.Create(des_ga, mga_geo['samples'], mga_geo['lines'],
-                                7, gdal.GDT_Int16)
+                                8, gdal.GDT_Int16)
         output.SetProjection(mga_geo['proj'])
         output.SetGeoTransform(mga_geo['geotrans'])
         output.GetRasterBand(1).SetNoDataValue(cons.NODATA)
@@ -162,6 +163,7 @@ def modis2stack(MOD09GA, des, MOD09GQ='NA', overwrite=False, verbose=False):
         output.GetRasterBand(5).WriteArray(ndvi)
         output.GetRasterBand(6).WriteArray(enlarge(vza, 2))
         output.GetRasterBand(7).WriteArray(enlarge(mask, 2))
+        output.GetRasterBand(7).WriteArray(enlarge(mask2, 2))
         # assign band name
         output.GetRasterBand(1).SetDescription('MODIS 500m Red')
         output.GetRasterBand(2).SetDescription('MODIS 500m NIR')
@@ -170,6 +172,7 @@ def modis2stack(MOD09GA, des, MOD09GQ='NA', overwrite=False, verbose=False):
         output.GetRasterBand(5).SetDescription('MODIS 500m NDVI')
         output.GetRasterBand(6).SetDescription('MODIS 1km VZA')
         output.GetRasterBand(7).SetDescription('MODIS 1km MASK')
+        output.GetRasterBand(7).SetDescription('MODIS 1km MASK with VZA')
     except:
         log.error('Failed to write output to {}'.format(des_ga))
         return 5
@@ -180,7 +183,7 @@ def modis2stack(MOD09GA, des, MOD09GQ='NA', overwrite=False, verbose=False):
             # initialize output
             _driver = gdal.GetDriverByName('GTiff')
             output = _driver.Create(des_gq, mgq_geo['samples'],
-                                    mgq_geo['lines'], 7, gdal.GDT_Int16)
+                                    mgq_geo['lines'], 8, gdal.GDT_Int16)
             output.SetProjection(mgq_geo['proj'])
             output.SetGeoTransform(mgq_geo['geotrans'])
             output.GetRasterBand(1).SetNoDataValue(cons.NODATA)
@@ -192,14 +195,16 @@ def modis2stack(MOD09GA, des, MOD09GQ='NA', overwrite=False, verbose=False):
             output.GetRasterBand(5).WriteArray(ndvi2)
             output.GetRasterBand(6).WriteArray(enlarge(vza, 4))
             output.GetRasterBand(7).WriteArray(enlarge(mask, 4))
+            output.GetRasterBand(8).WriteArray(enlarge(mask2, 4))
             # assign band name
-            output.GetRasterBand(1).SetDescription('VIIRS 250m Red')
-            output.GetRasterBand(2).SetDescription('VIIRS 250m NIR')
-            output.GetRasterBand(3).SetDescription('VIIRS 500m SWIR')
-            output.GetRasterBand(4).SetDescription('VIIRS 500m GREEN')
-            output.GetRasterBand(5).SetDescription('VIIRS 250m NDVI')
-            output.GetRasterBand(6).SetDescription('VIIRS 1km VZA')
-            output.GetRasterBand(7).SetDescription('VIIRS 1km Mask')
+            output.GetRasterBand(1).SetDescription('MODIS 250m Red')
+            output.GetRasterBand(2).SetDescription('MODIS 250m NIR')
+            output.GetRasterBand(3).SetDescription('MODIS 500m SWIR')
+            output.GetRasterBand(4).SetDescription('MODIS 500m GREEN')
+            output.GetRasterBand(5).SetDescription('MODIS 250m NDVI')
+            output.GetRasterBand(6).SetDescription('MODIS 1km VZA')
+            output.GetRasterBand(7).SetDescription('MODIS 1km Mask')
+            output.GetRasterBand(7).SetDescription('MODIS 1km MASK with VZA')
         except:
             log.error('Failed to write output to {}'.format(des_gq))
             return 5
@@ -262,5 +267,5 @@ def mn2ln(mn):
                                     mn[1][1:], mn[3][-1], mn[0][3:])
 
 
-def modis2composite():
+def modis2composite(MOD, MYD, des, overwrite=False, verbose=False):
     return 0
