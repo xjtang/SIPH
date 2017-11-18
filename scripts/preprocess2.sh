@@ -52,5 +52,5 @@ done
 echo 'Total jobs to submit is' $njob
 for i in $(seq 1 $njob); do
     echo 'Submitting job no.' $i 'out of' $njob
-    qsub -j y -N Preprocess_$i -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.vnrt.preprocess2 ${overwrite}${recursive}-p $pattern -Q mgq -b $i $njob $ori $des
+    qsub -j y -N Preprocess_$i -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.vnrt.preprocess2 ${overwrite}${recursive}-p $pattern -Q $mgq -b $i $njob $ori $des
 done
