@@ -7,7 +7,7 @@ import numpy as np
 
 from osgeo import gdal
 
-from . import stackGeo
+from . import stackGeo, stack2array, array2stack
 from ..common import log, enlarge
 from ..common import constants as cons
 
@@ -33,9 +33,10 @@ def modis2stack(MOD09GA, des, MOD09GQ='NA', overwrite=False, verbose=False):
 
     """
     # set destinations
-    des_ga = os.path.join(des, mn2ln(os.path.basename(MOD09GA)))
+    des_ga = os.path.join(des,'{}.tif'.format(mn2ln(os.path.basename(MOD09GA))))
     if MOD09GQ != 'NA':
-        des_gq = os.path.join(des, mn2ln(os.path.basename(MOD09GQ)))
+        des_gq = os.path.join(des,
+                            '{}.tif'.format(mn2ln(os.path.basename(MOD09GQ))))
 
     # check if output already exists
     if (not overwrite) and os.path.isfile(des_ga):
@@ -121,7 +122,7 @@ def modis2stack(MOD09GA, des, MOD09GQ='NA', overwrite=False, verbose=False):
         _size = np.shape(mask)
         if verbose:
             log.info('{}% masked'.format(_total/(_size[0]*_size[1])*100))
-        mask2 = mask | vza > 3500
+        mask2 = mask | (vza > 3500)
     except:
         log.error('Failed to generate mask band.')
         return 3
@@ -163,7 +164,7 @@ def modis2stack(MOD09GA, des, MOD09GQ='NA', overwrite=False, verbose=False):
         output.GetRasterBand(5).WriteArray(ndvi)
         output.GetRasterBand(6).WriteArray(enlarge(vza, 2))
         output.GetRasterBand(7).WriteArray(enlarge(mask, 2))
-        output.GetRasterBand(7).WriteArray(enlarge(mask2, 2))
+        output.GetRasterBand(8).WriteArray(enlarge(mask2, 2))
         # assign band name
         output.GetRasterBand(1).SetDescription('MODIS 500m Red')
         output.GetRasterBand(2).SetDescription('MODIS 500m NIR')
@@ -172,7 +173,7 @@ def modis2stack(MOD09GA, des, MOD09GQ='NA', overwrite=False, verbose=False):
         output.GetRasterBand(5).SetDescription('MODIS 500m NDVI')
         output.GetRasterBand(6).SetDescription('MODIS 1km VZA')
         output.GetRasterBand(7).SetDescription('MODIS 1km MASK')
-        output.GetRasterBand(7).SetDescription('MODIS 1km MASK with VZA')
+        output.GetRasterBand(8).SetDescription('MODIS 1km MASK with VZA')
     except:
         log.error('Failed to write output to {}'.format(des_ga))
         return 5
@@ -204,7 +205,7 @@ def modis2stack(MOD09GA, des, MOD09GQ='NA', overwrite=False, verbose=False):
             output.GetRasterBand(5).SetDescription('MODIS 250m NDVI')
             output.GetRasterBand(6).SetDescription('MODIS 1km VZA')
             output.GetRasterBand(7).SetDescription('MODIS 1km Mask')
-            output.GetRasterBand(7).SetDescription('MODIS 1km MASK with VZA')
+            output.GetRasterBand(8).SetDescription('MODIS 1km MASK with VZA')
         except:
             log.error('Failed to write output to {}'.format(des_gq))
             return 5
@@ -245,6 +246,7 @@ def modisQA(qa):
             np.mod(np.right_shift(qa, 9), 2) |
             np.mod(np.right_shift(qa, 10), 2) |
             np.mod(np.right_shift(qa, 13), 2)) > 0
+    mask[qa==65535] = cons.NODATA
     return mask
 
 
@@ -268,4 +270,83 @@ def mn2ln(mn):
 
 
 def modis2composite(MOD, MYD, des, overwrite=False, verbose=False):
+    """ create composit out of pairs of MODIS images
+
+    Args:
+        MOD (str): path to input Terra image
+        MYD (str): path to input Aqua image
+        des (str): path to output
+        overwrite (bool): overwrite or not
+        verbose (bool): verbose or not
+
+    Returns:
+        0: successful
+        1: error due to des
+        2: error in reading input
+        3: error in calculation
+        4: error in writing output
+
+    """
+    # check if output already exists
+    des = os.path.join(des, 'COM{}'.format(os.path.basename(MOD)[3:]))
+    if (not overwrite) and os.path.isfile(des):
+        log.error('{} already exists.'.format(os.path.basename(des)))
+        return 1
+
+    # read input files
+    if verbose:
+        log.info('Reading input images...')
+    try:
+        terra = stack2array(MOD)
+        aqua = stack2array(MYD)
+        geo = stackGeo(MOD)
+    except:
+        log.error('Failed to read input image.')
+        return 2
+
+    # calculating output
+    if verbose:
+        log.info('Making composite...')
+    try:
+        comp = np.zeros(terra.shape, np.int16)
+        for i in range(0, terra.shape[0]):
+            for j in range(0,terra.shape[1]):
+                if aqua[i, j, 4] == cons.NODATA:
+                    comp[i, j, :] = terra[i, j, :]
+                else:
+                    if terra[i, j, 4] == cons.NODATA:
+                        comp[i, j, :] = aqua[i, j, :]
+                    else:
+                        if aqua[i, j, 7] == 1:
+                            comp[i, j, :] = terra[i, j, :]
+                        else:
+                            if terra[i, j, 7] == 1:
+                                comp[i, j, :] = aqua[i, j, :]
+                            else:
+                                if terra[i, j, 5] == cons.NODATA:
+                                    terra[i, j, 5] = 20000
+                                if aqua[i, j, 5] == cons.NODATA:
+                                    aqua[i, j, 5] = 20000
+                                if terra[i, j, 5] > aqua[i, j, 5]:
+                                    comp[i, j, :] = aqua[i, j, :]
+                                else:
+                                    comp[i, j, :] = terra[i, j, :]
+    except:
+        log.error('Failed to make composit.')
+        return 3
+
+    # writing output
+    if verbose:
+        log.info('Writing output: {}'.format(des))
+    bands = ['Composite Red', 'Composite, NIR', 'Composite, SWIR',
+                'Composite Green', 'Composite NDVI', 'Composite VZA',
+                'Composite Mask', 'Composite Mask with VZA']
+    if array2stack(comp, geo, des, bands, cons.NODATA, gdal.GDT_Int16,
+                    overwrite) > 0:
+         log.error('Failed to write output to {}'.format(des))
+         return 4
+
+    # done
+    if verbose:
+        log.info('Process completed.')
     return 0
