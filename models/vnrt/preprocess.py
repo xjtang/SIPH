@@ -47,7 +47,7 @@ def viirs_preprocess(pattern, ori, des, overwrite=False, recursive=False,
             return 1
 
     # locate files
-    log.info('Locating files...'.format(ori))
+    log.info('Locating files...')
     try:
         img_list = get_files(ori, pattern, recursive)
         n = len(img_list)

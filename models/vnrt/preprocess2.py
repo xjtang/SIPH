@@ -49,7 +49,7 @@ def modis_preprocess(pattern, ori, des, mgq='NA', overwrite=False, recursive=Fal
             return 1
 
     # locate files
-    log.info('Locating files...'.format(ori))
+    log.info('Locating files...')
     try:
         img_list = get_files(ori, pattern, recursive)
         n = len(img_list)
