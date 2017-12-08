@@ -97,6 +97,7 @@ def viirs2gtif(img, des, overwrite=False, verbose=False):
             _size = np.shape(mask)
             if verbose:
                 log.info('{}% masked'.format(_total/(_size[0]*_size[1])*100))
+                mask2 = mask | (vza > 3500)
         except:
             _error = 3
             log.error('Failed to generate mask band.')
@@ -124,7 +125,7 @@ def viirs2gtif(img, des, overwrite=False, verbose=False):
             # initialize output
             _driver = gdal.GetDriverByName('GTiff')
             output = _driver.Create(des, vs_i1.RasterXSize, vs_i1.RasterYSize,
-                                    6, gdal.GDT_Int16)
+                                    7, gdal.GDT_Int16)
             output.SetProjection(vs_geo['proj'])
             output.SetGeoTransform(vs_geo['geotrans'])
             output.GetRasterBand(1).SetNoDataValue(cons.NODATA)
@@ -135,6 +136,7 @@ def viirs2gtif(img, des, overwrite=False, verbose=False):
             output.GetRasterBand(4).WriteArray(ndvi)
             output.GetRasterBand(5).WriteArray(vza)
             output.GetRasterBand(6).WriteArray(mask)
+            output.GetRasterBand(7).WriteArray(mask2)
             # assign band name
             output.GetRasterBand(1).SetDescription('VIIRS 500m I1 Red')
             output.GetRasterBand(2).SetDescription('VIIRS 500m I2 NIR')
@@ -142,6 +144,7 @@ def viirs2gtif(img, des, overwrite=False, verbose=False):
             output.GetRasterBand(4).SetDescription('VIIRS 500m NDVI')
             output.GetRasterBand(5).SetDescription('VIIRS 500m VZA')
             output.GetRasterBand(6).SetDescription('VIIRS 500m Mask')
+            output.GetRasterBand(7).SetDescription('VIIRS 500m Mask with VZA')
         except:
             _error = 5
             log.error('Failed to write output to {}'.format(des))
