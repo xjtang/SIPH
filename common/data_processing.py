@@ -15,7 +15,7 @@ def enlarge(array, scaling):
         scaled (ndarray): scaled array
 
     """
-    return np.kron(array, np.ones((scaling, scaling)))
+    return np.kron(array, np.ones((scaling, scaling))).astype(array.dtype)
 
 
 def crop(array, window):
