@@ -97,7 +97,7 @@ def viirs2gtif(img, des, overwrite=False, verbose=False):
             _size = np.shape(mask)
             if verbose:
                 log.info('{}% masked'.format(_total/(_size[0]*_size[1])*100))
-                mask2 = mask | (vza > 3500)
+            mask2 = mask | (vza > 3500)
         except:
             _error = 3
             log.error('Failed to generate mask band.')
