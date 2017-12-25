@@ -25,6 +25,7 @@ MGQ_BANDS = [1, 2]
 L30_BANDS = ('band02', 'band03', 'band04', 'band05', 'band06', 'band07',
                 'band09', 'QA')
 S30_BANDS = ('B02', 'B03', 'B04', 'B8A', 'B11', 'B12', 'B10', 'QA')
+T_BANDS = (1, 3, 4, 7)
 MASK_NODATA = 255
 MASK_CLOUD = 4
 MASK_SHADOW = 2
