@@ -242,7 +242,7 @@ def ln2tn(ln):
     """ convert Landsat style file name to style for Tmask
         file name only, regardless of file type extension
         e.g. S30T28PDC2016074HLS13.tif
-             to LNDT28PDC2016074HLS13
+             to LNDT28PDC2016074S3013
 
     Args:
         ln (str): Landsat style file name
@@ -251,4 +251,5 @@ def ln2tn(ln):
         tn (str): Tmask style file name
 
     """
-    return '{}{}'.format('LND', os.path.splitext(ln)[0][3:])
+    ln = os.path.splitext(ln)[0]
+    return '{}{}{}{}'.format('LND', ln[3:16], ln[0:3], ln[19:21])
