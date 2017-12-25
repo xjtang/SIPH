@@ -17,9 +17,9 @@ import numpy as np
 
 from osgeo import gdal
 
-from ..io import stack2table, stackGeo, array2stack
-from ..common import log, get_files, select_samples
-from ..common import constants as cons
+from ...io import stack2table, stackGeo, array2stack
+from ...common import log, get_files, select_samples
+from ...common import constants as cons
 
 
 def sample_from_images(pattern, n, ori, des, strata=0,
@@ -121,14 +121,14 @@ def sample_from_images(pattern, n, ori, des, strata=0,
         log.info('Exporting {}'.format(os.path.splitext(img[1])[0]))
         geo = stackGeo(os.path.join(img[0], img[1]))
         array = np.zeros((geo['lines'], geo['samples']),
-                            np.int16) + cons.MASK_NODATA
+                            np.int16) + cons.NODATA
         subsample = samples[samples[:, 1] == i, :]
         log.info('Total number of samples {}.'.format(subsample.shape[0]))
         for j in range(0, subsample.shape[0]):
             array[subsample[j, 2], subsample[j, 3]] = subsample[j, 0]
         if array2stack(array, geo, os.path.join(des,
                         '{}_sample.tif'.format(os.path.splitext(img[1])[0])),
-                        ['samples'], cons.MASK_NODATA, gdal.GDT_Int16,
+                        ['samples'], cons.NODATA, gdal.GDT_Int16,
                         overwrite) == 0:
             count += 1
         else:

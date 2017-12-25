@@ -40,4 +40,4 @@ done
 
 # submit jobs
 echo 'Submitting job to select samples.'
-qsub -j y -N SAMPLE -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.tools.random_samples -s 2 3 4 5 ${overwrite}${recursive}-p $pattern $n $ori $des
+qsub -j y -N SAMPLE -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.accuracy.random_samples -s 2 3 4 5 ${overwrite}${recursive}-p $pattern $n $ori $des
