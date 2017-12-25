@@ -236,3 +236,19 @@ def hn2ln(hn):
     """
     hn = hn.split('.')
     return '{}{}{}{}{}{}'.format(hn[1], hn[2], hn[3], hn[0], hn[4][1], hn[5])
+
+
+def ln2tn(ln):
+    """ convert Landsat style file name to style for Tmask
+        file name only, regardless of file type extension
+        e.g. S30T28PDC2016074HLS13.tif
+             to LNDT28PDC2016074HLS13
+
+    Args:
+        ln (str): Landsat style file name
+
+    Returns:
+        tn (str): Tmask style file name
+
+    """
+    return '{}{}'.format('LND', os.path.splitext(ln)[0][3:])

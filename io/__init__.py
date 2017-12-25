@@ -6,7 +6,7 @@ from .stack import (stack2array, stack2image, stackGeo, array2stack, stackMerge,
 from .datafile import csv2list, csv2dict, hdr2geo
 from .shape import csv2shape
 from .cache import cache2map
-from .hls import hls2stack, hlsQA, hn2ln
+from .hls import hls2stack, hlsQA, hn2ln, ln2tn
 from .mask import mn2ln, bit2mask, mask2array, mask2strata
 from .sentinel import sen2stack, sn2ln
 from .modis import modis2stack, modis2composite
@@ -38,5 +38,6 @@ __all__ = [
     'mask2strata',
     'stack2table',
     'modis2stack',
-    'modis2composite'
+    'modis2composite',
+    'ln2tn'
 ]
