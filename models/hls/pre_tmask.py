@@ -82,7 +82,7 @@ def prepare_tmask(pattern, ori, des, overwrite=False, recursive=False,
             os.makedirs(os.path.join(des, ln2tn(img[1])))
             bands = ['GREEN', 'NIR', 'SWIR', 'FMASK']
             if array2stack(array, geo, os.path.join(des, ln2tn(img[1]),
-                            ln2tn(img[1])), bands, cons.NODATA, gdal.GDT_Int16,
+                            '{}SFstack'.format(ln2tn(img[1]))), bands, cons.NODATA, gdal.GDT_Int16,
                             overwrite, 'ENVI') == 0:
                 count += 1
             else:
