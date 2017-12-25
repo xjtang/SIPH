@@ -18,7 +18,7 @@ from ...common import log, get_files
 
 
 def sum_strata(pattern, ori, des, overwrite=False, recursive=False):
-    """ converting masks to stacked images
+    """ summarize stratification statistics
 
     Args:
         pattern (str): searching pattern, e.g. S30*tif

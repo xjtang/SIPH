@@ -40,7 +40,7 @@ def classification(ori, des, img, _type='cls', overwrite=False, recursive=False)
     """
     # check if output already exists
     if (not overwrite) and os.path.isfile(des):
-        log.error('{} already exists.'.format(des.split('/')[-1]))
+        log.error('{} already exists.'.format(os.path.basename(des)))
         return 1
 
     # get image spatial reference

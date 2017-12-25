@@ -25,7 +25,7 @@ from ...common import log, get_files, manage_batch, reclassify
 
 def create_strata(pattern, mask, value, ori, des, reclass=False,
                     overwrite=False, recursive=False, batch=[1,1]):
-    """ converting masks to stacked images
+    """ create stratification from masks
 
     Args:
         pattern (str): searching pattern, e.g. S30*tif
