@@ -76,12 +76,16 @@ def stackGeo(img):
     geo['lines'] = img2.RasterYSize
     geo['samples'] = img2.RasterXSize
     geo['bands'] = img2.RasterCount
+    try:
+        geo['nodata'] = img2.GetRasterBand(1).GetNoDataValue()
+    except:
+        geo['nodata'] = 'NA'
     img2 = None
     return geo
 
 
 def array2stack(array, geo, des, bands='NA', nodata='NA', _type=gdal.GDT_Int16,
-                overwrite=False):
+                overwrite=False, driver_name='GTiff'):
     """ Save array as stack image
 
     Args:
@@ -113,7 +117,7 @@ def array2stack(array, geo, des, bands='NA', nodata='NA', _type=gdal.GDT_Int16,
 
     # write output
     try:
-        _driver = gdal.GetDriverByName('GTiff')
+        _driver = gdal.GetDriverByName(driver_name)
         output = _driver.Create(des, samples, lines, nband, _type)
         output.SetProjection(geo['proj'])
         output.SetGeoTransform(geo['geotrans'])
