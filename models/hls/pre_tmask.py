@@ -79,7 +79,8 @@ def prepare_tmask(pattern, ori, des, overwrite=False, recursive=False,
         try:
             geo = stackGeo(os.path.join(img[0], img[1]))
             array = stack2array(os.path.join(img[0], img[1]), cons.T_BANDS)
-            os.makedirs(os.path.join(des, ln2tn(img[1])))
+            if not os.path.exists(os.path.join(des, ln2tn(img[1]))):
+                os.makedirs(os.path.join(des, ln2tn(img[1])))
             bands = ['GREEN', 'NIR', 'SWIR', 'FMASK']
             if array2stack(array, geo, os.path.join(des, ln2tn(img[1]),
                             '{}_SFstack'.format(ln2tn(img[1]))), bands,
