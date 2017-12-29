@@ -118,7 +118,11 @@ def array2stack(array, geo, des, bands='NA', nodata='NA', _type=gdal.GDT_Int16,
     # write output
     try:
         _driver = gdal.GetDriverByName(driver_name)
-        output = _driver.Create(des, samples, lines, nband, _type)
+        if driver_name == 'ENVI':
+            output = _driver.Create(des, samples, lines, nband, _type,
+                                    options=['INTERLEAVE=BIP'])
+        else:
+            output = _driver.Create(des, samples, lines, nband, _type)
         output.SetProjection(geo['proj'])
         output.SetGeoTransform(geo['geotrans'])
         for i in range(0, nband):
