@@ -122,18 +122,15 @@ def hls2stack(hls, des, sensor='S30', overwrite=False, verbose=False):
         if verbose:
             log.info('Cleaning up data...')
         try:
-            invalid = ~(((blue >= 0) & (blue <= 10000)) &
-                        ((green >= 0) & (green <= 10000)) &
-                        ((red >= 0) & (red <= 10000)) &
-                        ((nir >= 0) & (nir <= 10000)) &
-                        ((swir1 >= 0) & (swir1 <= 10000)) &
-                        ((swir2 >= 0) & (swir2 <= 10000)))
+            invalid = ((blue == -1000) | (green == -1000) | (red == -1000) |
+                        (nir == -1000) | (swir1 == -1000) | (swir2 == -1000))
             blue[invalid] = cons.NODATA
             green[invalid] = cons.NODATA
             red[invalid] = cons.NODATA
             nir[invalid] = cons.NODATA
             swir1[invalid] = cons.NODATA
             swir2[invalid] = cons.NODATA
+            cirrus[invalid] = cons.NODATA
             QA[invalid] = cons.MASK_NODATA
         except:
             _error = 5
