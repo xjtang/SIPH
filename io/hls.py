@@ -106,11 +106,13 @@ def hls2stack(hls, des, sensor='S30', overwrite=False, verbose=False):
         if verbose:
             log.info('Generating mask band...')
         try:
-            mask = hlsQA(QA)
-            _total = np.sum(mask)
-            _size = np.shape(mask)
-            if verbose:
-                log.info('{}% masked'.format(_total/(_size[0]*_size[1])*100))
+            fmask = True
+            mask = hlsQA(QA, fmask)
+            if not fmask:
+                _total = np.sum(mask)
+                _size = np.shape(mask)
+                if verbose:
+                    log.info('{}% masked'.format(_total/(_size[0]*_size[1])*100))
         except:
             _error = 4
             log.error('Failed to generate mask band.')
@@ -126,12 +128,13 @@ def hls2stack(hls, des, sensor='S30', overwrite=False, verbose=False):
                         ((nir >= 0) & (nir <= 10000)) &
                         ((swir1 >= 0) & (swir1 <= 10000)) &
                         ((swir2 >= 0) & (swir2 <= 10000)))
-            blue[invalid] <- cons.NODATA
-            green[invalid] <- cons.NODATA
-            red[invalid] <- cons.NODATA
-            nir[invalid] <- cons.NODATA
-            swir1[invalid] <- cons.NODATA
-            swir2[invalid] <- cons.NODATA
+            blue[invalid] = cons.NODATA
+            green[invalid] = cons.NODATA
+            red[invalid] = cons.NODATA
+            nir[invalid] = cons.NODATA
+            swir1[invalid] = cons.NODATA
+            swir2[invalid] = cons.NODATA
+            QA[invalid] = cons.MASK_NODATA
         except:
             _error = 5
             log.error('Failed to clean up data.')
@@ -148,8 +151,9 @@ def hls2stack(hls, des, sensor='S30', overwrite=False, verbose=False):
             output.SetProjection(geo['proj'])
             output.SetGeoTransform(geo['geotrans'])
             # set nodata value
-            for i in range(1,9):
+            for i in range(1,8):
                 output.GetRasterBand(i).SetNoDataValue(cons.NODATA)
+            output.GetRasterBand(8).SetNoDataValue(cons.MASK_NODATA)
 
             # write output
             output.GetRasterBand(1).WriteArray(blue)
@@ -176,7 +180,7 @@ def hls2stack(hls, des, sensor='S30', overwrite=False, verbose=False):
                                                                     BANDS[5]))
             output.GetRasterBand(7).SetDescription('{} {} Cirrus'.format(sensor,
                                                                     BANDS[6]))
-            output.GetRasterBand(8).SetDescription('{} {} Mask'.format(sensor,
+            output.GetRasterBand(8).SetDescription('{} {} Fmask'.format(sensor,
                                                                     BANDS[7]))
         except:
             _error = 6
@@ -206,18 +210,27 @@ def hls2stack(hls, des, sensor='S30', overwrite=False, verbose=False):
     return _error
 
 
-def hlsQA(QA):
+def hlsQA(QA, fmask=False):
     """ intepret HLS QA and return a mask array
 
     Args:
         QA (ndarray): QA band array
+        fmask (bool): output in fmask format
 
     Returns:
         mask (ndarray): mask array
 
     """
-    QA[QA==255] = 0
-    mask = np.mod(QA, 32) > 0
+    if fmask:
+        mask = np.zeros(QA.shape, QA.dtype)
+        mask[np.mod(QA, 8) > 0] = 4
+        mask[np.mod(np.right_shift(QA, 3), 2) > 0] = 2
+        mask[np.mod(np.right_shift(QA, 4), 2) > 0] = 3
+        mask[np.mod(np.right_shift(QA, 5), 2) > 0] = 1
+        mask[QA == 255] = 255
+    else:
+        QA[QA == 255] = 0
+        mask = np.mod(QA, 32) > 0
     return mask
 
 
