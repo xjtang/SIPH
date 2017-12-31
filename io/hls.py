@@ -131,7 +131,7 @@ def hls2stack(hls, des, sensor='S30', overwrite=False, verbose=False):
             swir1[invalid] = cons.NODATA
             swir2[invalid] = cons.NODATA
             cirrus[invalid] = cons.NODATA
-            QA[invalid] = cons.MASK_NODATA
+            mask[invalid] = cons.MASK_NODATA
         except:
             _error = 5
             log.error('Failed to clean up data.')
