@@ -75,7 +75,7 @@ def hls_to_stack(pattern, ori, des, overwrite=False, recursive=False,
         log.info('Processing {}'.format(img[1]))
         if hls2stack(os.path.join(img[0], img[1]),
                         '{}.gtif'.format(os.path.join(des, hn2ln(img[1]))),
-                        hn2ln(img[1])[0:3], overwrite) == 0:
+                        hn2ln(img[1])[0:3], True, overwrite) == 0:
             count += 1
 
     # done

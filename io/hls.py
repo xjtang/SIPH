@@ -8,11 +8,12 @@ import numpy as np
 from osgeo import gdal
 from pyhdf.SD import SD, SDC
 
+from ..io import hdr2geo
 from ..common import log
 from ..common import constants as cons
 
 
-def hls2stack(hls, des, sensor='S30', overwrite=False, verbose=False):
+def hls2stack(hls, des, sensor='S30', _hdr=True, overwrite=False, verbose=False):
     """ read HLS product and convert to stack image with selected bands
 
     Args:
@@ -72,14 +73,17 @@ def hls2stack(hls, des, sensor='S30', overwrite=False, verbose=False):
         if verbose:
             log.info('Reading geo information...')
         try:
-            hls_img = gdal.Open(hls, gdal.GA_ReadOnly)
-            hls_sub = hls_img.GetSubDatasets()
-            hls_temp = gdal.Open(hls_sub[1][0], gdal.GA_ReadOnly)
-            geo = {'proj': hls_temp.GetProjection()}
-            geo['geotrans'] = hls_temp.GetGeoTransform()
-            hls_img = None
-            hls_sub = None
-            hls_temp = None
+            if _hdr:
+                geo = hdr2geo('{}.hdr'.format(hls))
+            else:
+                hls_img = gdal.Open(hls, gdal.GA_ReadOnly)
+                hls_sub = hls_img.GetSubDatasets()
+                hls_temp = gdal.Open(hls_sub[1][0], gdal.GA_ReadOnly)
+                geo = {'proj': hls_temp.GetProjection()}
+                geo['geotrans'] = hls_temp.GetGeoTransform()
+                hls_img = None
+                hls_sub = None
+                hls_temp = None
         except:
             _error = 3
             log.error('Failed to read geo info from {}'.format(hls))
