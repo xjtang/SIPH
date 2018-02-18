@@ -1,4 +1,4 @@
-""" Module for logging in VNRT process
+""" Module for logging
 """
 import logging
 
@@ -9,6 +9,6 @@ log_handler = logging.StreamHandler()
 log_handler.setFormatter(log_formatter)
 log_handler.setLevel(logging.INFO)
 
-log = logging.getLogger('VNRT')
+log = logging.getLogger('SIPH')
 log.addHandler(log_handler)
 log.setLevel(logging.INFO)
