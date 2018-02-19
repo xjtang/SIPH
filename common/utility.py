@@ -5,8 +5,11 @@ from __future__ import division
 import os
 import re
 import fnmatch
+import random
+import numpy as np
 
 from calendar import isleap
+from datetime import date
 
 
 def date_to_doy(year,month,day,day_only=False):
@@ -148,3 +151,49 @@ def get_int(x):
 
     """
     return map(int, re.findall('\d+', x))
+
+
+def doy_to_ordinal(doy):
+    """ convert date of year to ordinal date
+
+    Args:
+        doy (int): day of year
+
+    Returns:
+        ordinal (int): ordinal date
+
+    """
+    _date = doy_to_date(doy)
+    return date.toordinal(date(_date[0], _date[1], _date[2]))
+
+
+def ordinal_to_doy(ordinal):
+    """ convert ordinal date to day of year
+
+    Args:
+        ordinal (int): ordinal date
+
+    Returns:
+        doy (int): day of year
+
+    """
+    _date = date.fromordinal(ordinal)
+    return date_to_doy(_date.year, _date.month, _date.day)
+
+
+def select_samples(population, n):
+    """ select sample from data withour replacement
+
+    Args:
+        population (ndarray/list): population
+        n (int): number of samples
+    Returns:
+        samples (ndarray/list): samples selected
+
+    """
+    random.seed()
+    if type(population) == list:
+        return [population[i] for i in random.sample(range(0,
+                                                        len(population)), n)]
+    else:
+        return population[random.sample(range(0, len(population)), n)]

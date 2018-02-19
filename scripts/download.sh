@@ -13,12 +13,6 @@
 # 	-m method, ftp or http
 #   des: destination
 
-# Settings:
-#$ -S /bin/bash
-#$ -l h_rt=24:00:00
-#$ -V
-#$ -N Download
-
 # default values
 sensor=V
 collection=1
@@ -86,13 +80,10 @@ while [[ $# > 0 ]]; do
 done
 
 # run python script
-module purge
-module load python/3.6.1
-cd /usr3/graduate/xjtang/Documents/
 if [ $method = "ftp" ]; then
-	python -m VNRT.tools.ftp_download -s $sensor -c $collection -p $product -t $h $v -y $year -d $dstart $dend $des
+	qsub -l eth_speed=10 -j y -N Download -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.tools.ftp_download -s $sensor -c $collection -p $product -t $h $v -y $year -d $dstart $dend $des
 elif [ $method = "http" ]; then
-	python -m VNRT.tools.http_download -u $username -w $password -s $sensor -c $collection -p $product -t $h $v -y $year -d $dstart $dend $des
+	qsub -l eth_speed=10 -j y -N Download -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.tools.http_download -u $username -w $password -s $sensor -c $collection -p $product -t $h $v -y $year -d $dstart $dend $des
 else
 	echo 'unknown method'
 fi

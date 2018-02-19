@@ -8,11 +8,12 @@ import numpy as np
 from osgeo import gdal
 from pyhdf.SD import SD, SDC
 
+from ..io import hdr2geo
 from ..common import log
 from ..common import constants as cons
 
 
-def hls2stack(hls, des, sensor='S30', overwrite=False, verbose=False):
+def hls2stack(hls, des, sensor='S30', _hdr=True, overwrite=False, verbose=False):
     """ read HLS product and convert to stack image with selected bands
 
     Args:
@@ -72,14 +73,17 @@ def hls2stack(hls, des, sensor='S30', overwrite=False, verbose=False):
         if verbose:
             log.info('Reading geo information...')
         try:
-            hls_img = gdal.Open(hls, gdal.GA_ReadOnly)
-            hls_sub = hls_img.GetSubDatasets()
-            hls_temp = gdal.Open(hls_sub[1][0], gdal.GA_ReadOnly)
-            geo = {'proj': hls_temp.GetProjection()}
-            geo['geotrans'] = hls_temp.GetGeoTransform()
-            hls_img = None
-            hls_sub = None
-            hls_temp = None
+            if _hdr:
+                geo = hdr2geo('{}.hdr'.format(hls))
+            else:
+                hls_img = gdal.Open(hls, gdal.GA_ReadOnly)
+                hls_sub = hls_img.GetSubDatasets()
+                hls_temp = gdal.Open(hls_sub[1][0], gdal.GA_ReadOnly)
+                geo = {'proj': hls_temp.GetProjection()}
+                geo['geotrans'] = hls_temp.GetGeoTransform()
+                hls_img = None
+                hls_sub = None
+                hls_temp = None
         except:
             _error = 3
             log.error('Failed to read geo info from {}'.format(hls))
@@ -88,8 +92,7 @@ def hls2stack(hls, des, sensor='S30', overwrite=False, verbose=False):
         # read actual data
         if verbose:
             log.info('Reading actual data...')
-        #try:
-        if True:
+        try:
             blue = hls_blue.get().astype(np.int16)
             green = hls_green.get().astype(np.int16)
             red = hls_red.get().astype(np.int16)
@@ -98,20 +101,22 @@ def hls2stack(hls, des, sensor='S30', overwrite=False, verbose=False):
             swir2 = hls_swir2.get().astype(np.int16)
             cirrus = hls_cirrus.get().astype(np.int16)
             QA = hls_QA.get().astype(np.int16)
-        #except:
-        #    _error = 3
-        #    log.error('Failed to read data from {}'.format(hls))
-        #    break
+        except:
+            _error = 3
+            log.error('Failed to read data from {}'.format(hls))
+            break
 
         # generate mask band
         if verbose:
             log.info('Generating mask band...')
         try:
-            mask = hlsQA(QA)
-            _total = np.sum(mask)
-            _size = np.shape(mask)
-            if verbose:
-                log.info('{}% masked'.format(_total/(_size[0]*_size[1])*100))
+            fmask = True
+            mask = hlsQA(QA, fmask)
+            if not fmask:
+                _total = np.sum(mask)
+                _size = np.shape(mask)
+                if verbose:
+                    log.info('{}% masked'.format(_total/(_size[0]*_size[1])*100))
         except:
             _error = 4
             log.error('Failed to generate mask band.')
@@ -121,18 +126,16 @@ def hls2stack(hls, des, sensor='S30', overwrite=False, verbose=False):
         if verbose:
             log.info('Cleaning up data...')
         try:
-            invalid = ~(((blue >= 0) & (blue <= 10000)) &
-                        ((green >= 0) & (green <= 10000)) &
-                        ((red >= 0) & (red <= 10000)) &
-                        ((nir >= 0) & (nir <= 10000)) &
-                        ((swir1 >= 0) & (swir1 <= 10000)) &
-                        ((swir2 >= 0) & (swir2 <= 10000)))
-            blue[invalid] <- cons.NODATA
-            green[invalid] <- cons.NODATA
-            red[invalid] <- cons.NODATA
-            nir[invalid] <- cons.NODATA
-            swir1[invalid] <- cons.NODATA
-            swir2[invalid] <- cons.NODATA
+            invalid = ((blue == -1000) | (green == -1000) | (red == -1000) |
+                        (nir == -1000) | (swir1 == -1000) | (swir2 == -1000))
+            blue[invalid] = cons.NODATA
+            green[invalid] = cons.NODATA
+            red[invalid] = cons.NODATA
+            nir[invalid] = cons.NODATA
+            swir1[invalid] = cons.NODATA
+            swir2[invalid] = cons.NODATA
+            cirrus[invalid] = cons.NODATA
+            mask[invalid] = cons.MASK_NODATA
         except:
             _error = 5
             log.error('Failed to clean up data.')
@@ -148,7 +151,11 @@ def hls2stack(hls, des, sensor='S30', overwrite=False, verbose=False):
                                     gdal.GDT_Int16)
             output.SetProjection(geo['proj'])
             output.SetGeoTransform(geo['geotrans'])
-            output.GetRasterBand(1).SetNoDataValue(cons.NODATA)
+            # set nodata value
+            for i in range(1,8):
+                output.GetRasterBand(i).SetNoDataValue(cons.NODATA)
+            output.GetRasterBand(8).SetNoDataValue(cons.MASK_NODATA)
+
             # write output
             output.GetRasterBand(1).WriteArray(blue)
             output.GetRasterBand(2).WriteArray(green)
@@ -174,7 +181,7 @@ def hls2stack(hls, des, sensor='S30', overwrite=False, verbose=False):
                                                                     BANDS[5]))
             output.GetRasterBand(7).SetDescription('{} {} Cirrus'.format(sensor,
                                                                     BANDS[6]))
-            output.GetRasterBand(8).SetDescription('{} {} Mask'.format(sensor,
+            output.GetRasterBand(8).SetDescription('{} {} Fmask'.format(sensor,
                                                                     BANDS[7]))
         except:
             _error = 6
@@ -204,18 +211,27 @@ def hls2stack(hls, des, sensor='S30', overwrite=False, verbose=False):
     return _error
 
 
-def hlsQA(QA):
+def hlsQA(QA, fmask=False):
     """ intepret HLS QA and return a mask array
 
     Args:
         QA (ndarray): QA band array
+        fmask (bool): output in fmask format
 
     Returns:
         mask (ndarray): mask array
 
     """
-    QA[QA==255] = 0
-    mask = np.mod(QA, 32) > 0
+    if fmask:
+        mask = np.zeros(QA.shape, QA.dtype)
+        mask[np.mod(QA, 8) > 0] = 4
+        mask[np.mod(np.right_shift(QA, 3), 2) > 0] = 2
+        mask[np.mod(np.right_shift(QA, 4), 2) > 0] = 3
+        mask[np.mod(np.right_shift(QA, 5), 2) > 0] = 1
+        mask[QA == 255] = 255
+    else:
+        QA[QA == 255] = 0
+        mask = np.mod(QA, 32) > 0
     return mask
 
 
@@ -234,3 +250,20 @@ def hn2ln(hn):
     """
     hn = hn.split('.')
     return '{}{}{}{}{}{}'.format(hn[1], hn[2], hn[3], hn[0], hn[4][1], hn[5])
+
+
+def ln2tn(ln):
+    """ convert Landsat style file name to style for Tmask
+        file name only, regardless of file type extension
+        e.g. S30T28PDC2016074HLS13.tif
+             to LNDT28PDC2016074S3013
+
+    Args:
+        ln (str): Landsat style file name
+
+    Returns:
+        tn (str): Tmask style file name
+
+    """
+    ln = os.path.splitext(ln)[0]
+    return '{}{}{}{}'.format('LND', ln[3:16], ln[0:3], ln[19:21])

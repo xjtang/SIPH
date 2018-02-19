@@ -1,8 +1,11 @@
-""" Module for preprocess VIIRS data
+""" Module for creating strata from masks
 
     Args:
         -p (pattern): searching pattern
         -b (batch): batch process, thisjob and totaljob
+        -m (mask): mask bands
+        -v (value): mask value
+        -r (reclass): reclassify results
         -R (recursive): recursive when seaching files
         --overwrite: overwrite or not
         ori: origin
@@ -13,18 +16,24 @@ import os
 import sys
 import argparse
 
-from .common import log, get_files, manage_batch
-from .io import viirs2gtif, vn2ln
+from osgeo import gdal
+
+from ...io import mask2strata, stack2array, array2stack, stackGeo
+from ...common import constants as cons
+from ...common import log, get_files, manage_batch, reclassify
 
 
-def viirs_preprocess(pattern, ori, des, overwrite=False, recursive=False,
-                        batch=[1,1]):
-    """ preprocess VIIRS data
+def create_strata(pattern, mask, value, ori, des, reclass=False,
+                    overwrite=False, recursive=False, batch=[1,1]):
+    """ create stratification from masks
 
     Args:
-        pattern (str): searching pattern, e.g. VNP*h5
+        pattern (str): searching pattern, e.g. S30*tif
+        mask (str): mask bands
+        value (int, list): mask values
         ori (str): place to look for inputs
         des (str): place to save outputs
+        reclass (bool): reclassify results
         overwrite (bool): overwrite or not
         recursive (bool): recursive when searching file, or not
         batch (list, int): batch processing, [thisjob, totaljob]
@@ -73,8 +82,14 @@ def viirs_preprocess(pattern, ori, des, overwrite=False, recursive=False,
     log.info('Start processing files...')
     for img in img_list:
         log.info('Processing {}'.format(img[1]))
-        if viirs2gtif(os.path.join(img[0], img[1]),
-                        '{}.gtif'.format(os.path.join(des, vn2ln(img[1]))),
+        geo = stackGeo(os.path.join(img[0], img[1]))
+        array = stack2array(os.path.join(img[0], img[1]), mask)
+        strata = mask2strata(array, value)
+        if reclass:
+            strata = reclassify(strata, cons.SCHEME)
+        if array2stack(strata, geo, os.path.join(des,
+                        '{}_strata.tif'.format(os.path.splitext(img[1])[0])),
+                        ['Strata'], cons.MASK_NODATA, gdal.GDT_Int16,
                         overwrite) == 0:
             count += 1
 
@@ -88,11 +103,18 @@ if __name__ == '__main__':
     # parse options
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--pattern', action='store', type=str,
-                        dest='pattern', default='VNP09GA*h5',
+                        dest='pattern', default='S*tif',
                         help='searching pattern')
     parser.add_argument('-b', '--batch', action='store', type=int, nargs=2,
                         dest='batch', default=[1,1],
                         help='batch process, [thisjob, totaljob]')
+    parser.add_argument('-m', '--mask', action='store', type=int, nargs='+',
+                        dest='mask', default=[9,10,11], help='mask bands')
+    parser.add_argument('-v', '--value', action='store', type=int, nargs='+',
+                        dest='value', default=[cons.MASK_CLOUD],
+                        help='mask value')
+    parser.add_argument('-r', '--reclass', action='store_true',
+                        help='reclassify or not')
     parser.add_argument('-R', '--recursive', action='store_true',
                         help='recursive or not')
     parser.add_argument('--overwrite', action='store_true',
@@ -103,21 +125,24 @@ if __name__ == '__main__':
 
     # check arguments
     if not 1 <= args.batch[0] <= args.batch[1]:
-        log.error('Invalid batch inputs: [{}, {}]'.format(args.batch[0],
-                    args.batch[1]))
+        log.error('Invalid batch inputs: {}'.format(args.batch))
         sys.exit(1)
 
     # print logs
-    log.info('Start preprocessing...')
+    log.info('Start creating strata...')
     log.info('Running job {}/{}'.format(args.batch[0], args.batch[1]))
     log.info('Looking for {}'.format(args.pattern))
     log.info('In {}'.format(args.ori))
     log.info('Saving in {}'.format(args.des))
+    log.info('Masks bands: {}'.format(args.mask))
+    log.info('Mask value: {}'.format(args.value))
+    if args.reclass:
+        log.info('Reclassify results.')
     if args.recursive:
         log.info('Recursive seaching.')
     if args.overwrite:
         log.info('Overwriting old files.')
 
-    # run function to preprocess data
-    viirs_preprocess(args.pattern, args.ori, args.des, args.overwrite,
-                        args.recursive, args.batch)
+    # run function to create strata
+    create_strata(args.pattern, args.mask, args.value, args.ori, args.des,
+                    args.reclass, args.overwrite, args.recursive, args.batch)

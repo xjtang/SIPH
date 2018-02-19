@@ -2,6 +2,8 @@
 """
 import numpy as np
 
+from scipy import ndimage as nd
+
 
 def enlarge(array, scaling):
     """ enlarge an array by a scaling factor
@@ -15,7 +17,7 @@ def enlarge(array, scaling):
         scaled (ndarray): scaled array
 
     """
-    return np.kron(array, np.ones((scaling, scaling)))
+    return np.kron(array, np.ones((scaling, scaling))).astype(array.dtype)
 
 
 def crop(array, window):
@@ -63,3 +65,59 @@ def sidebyside(array1, array2):
     s[1] = 1
     return np.concatenate((array1, np.zeros(s), array2),
                             axis=1).astype(array1.dtype)
+
+
+def reclassify(array, scheme):
+    """ reclassify array
+
+    Args:
+        array (ndarray): input array
+        scheme (list): classification scheme
+
+    Returns:
+        reclassed (ndarray): reclassified array
+
+    """
+    reclassed = np.copy(array)
+    for i in range(0, len(scheme)):
+        for j in scheme[i][1]:
+            reclassed[array == j] = scheme[i][0]
+    return reclassed
+
+
+def tablize(array):
+    """ convert to a table with x y pixel coordinates
+
+    Args:
+        array (ndarray): input array
+
+    Returns:
+        table (ndarray): output table
+
+    """
+    table = np.zeros((array.shape[0] * array.shape[1], 3), array.dtype)
+    for i in range(0, array.shape[0]):
+        table[(array.shape[1] * i):(array.shape[1] * (i + 1)), 0] = i
+        table[(array.shape[1] * i):(array.shape[1] * (i + 1)), 1] = range(0,
+                                                                array.shape[1])
+        table[(array.shape[1] * i):(array.shape[1] * (i + 1)), 2] = array[i, :]
+    return table
+
+
+def dilate(array, value=1, iterations=1):
+        """ dilate a raster
+
+        Args:
+            array (ndarray): input array
+            value (int): what value to dilate
+            iterations (int): dilate how many pixels
+
+        Returns:
+            array (ndarray): output array
+
+        """
+        array2 = (array == value)
+        array2 = nd.binary_dilation(array2,
+                                    iterations=iterations).astype(array2.dtype)
+        array[array2] = value
+        return array

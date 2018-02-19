@@ -1,24 +1,22 @@
 #!/bin/bash
 
-# bash script to convert csv to shapefile
+# bash script to preprocess data for Tmask
 
 # Input Arguments:
 #		-p searching pattern
-#		-n number of jobs
+#   -n number of jobs
 #		-R recursive
 #		--overwrite overwrite
-#		-e EPSG
 #		ori: origin
 #		des: destination
 
 # default values
-pattern=M*csv
+pattern=L*tif
 njob=1
 overwrite=''
 recursive=''
-epsg=3857
 
-## parse input arguments
+# parse input arguments
 while [[ $# > 0 ]]; do
 	InArg="$1"
 	case $InArg in
@@ -26,12 +24,8 @@ while [[ $# > 0 ]]; do
 			pattern=$2
 			shift
 			;;
-		-n)
+    -n)
 			njob=$2
-			shift
-			;;
-    -e)
-			epsg=$2
 			shift
 			;;
 		-R)
@@ -51,6 +45,6 @@ done
 # submit jobs
 echo 'Total jobs to submit is' $njob
 for i in $(seq 1 $njob); do
-  echo 'Submitting job no.' $i 'out of' $njob
-    qsub -j y -N CSV2SHP_$i -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.fusion.swath_footprint ${overwrite}${recursive}-p $pattern -b $i $njob -e $epsg $ori $des
+    echo 'Submitting job no.' $i 'out of' $njob
+    qsub -j y -N HLS_$i -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.hls.pre_tmask ${overwrite}${recursive}-p $pattern -b $i $njob $ori $des
 done

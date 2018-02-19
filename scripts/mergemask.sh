@@ -1,24 +1,23 @@
 #!/bin/bash
 
-# bash script to convert csv to shapefile
+# bash script to merge image with masks
 
 # Input Arguments:
 #		-p searching pattern
 #		-n number of jobs
 #		-R recursive
 #		--overwrite overwrite
-#		-e EPSG
 #		ori: origin
+#		mask: mask source
 #		des: destination
 
 # default values
-pattern=M*csv
+pattern=S30*tif
 njob=1
 overwrite=''
 recursive=''
-epsg=3857
 
-## parse input arguments
+# parse input arguments
 while [[ $# > 0 ]]; do
 	InArg="$1"
 	case $InArg in
@@ -30,10 +29,6 @@ while [[ $# > 0 ]]; do
 			njob=$2
 			shift
 			;;
-    -e)
-			epsg=$2
-			shift
-			;;
 		-R)
 			recursive='-R '
 			;;
@@ -42,7 +37,8 @@ while [[ $# > 0 ]]; do
 			;;
 		*)
       ori=$1
-			des=$2
+      mask=$2
+			des=$3
 			break
 	esac
 	shift
@@ -51,6 +47,6 @@ done
 # submit jobs
 echo 'Total jobs to submit is' $njob
 for i in $(seq 1 $njob); do
-  echo 'Submitting job no.' $i 'out of' $njob
-    qsub -j y -N CSV2SHP_$i -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.fusion.swath_footprint ${overwrite}${recursive}-p $pattern -b $i $njob -e $epsg $ori $des
+    echo 'Submitting job no.' $i 'out of' $njob
+    qsub -j y -N HLS_$i -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.hls.mask_merge ${overwrite}${recursive}-p $pattern -b $i $njob $ori $mask $des
 done

@@ -75,7 +75,7 @@ def result2mask(result, value, side=cons.RESULT_SIDE):
     return result / value
 
 
-def nodata_mask(array, nodata=-9999):
+def nodata_mask(array, nodata=cons.NODATA):
     """ generate nodata mask from image array
 
     Args:
@@ -87,4 +87,52 @@ def nodata_mask(array, nodata=-9999):
 
     """
 
-    return np.amax(array == -9999, 2).astype(np.uint8)
+    return np.amax(array == nodata, 2).astype(np.uint8)
+
+
+def clean_up(array, w, t=2, nodata=cons.NODATA):
+    """ clean up salt and pepper effect in result images
+
+    Args:
+        array (ndarray): image array
+        w (int): window size, how much extent out from the center pixel
+        t (int): clean up threhold
+        nodata (int): nodata value
+
+    Returns:
+        array2 (ndarray): cleaned up array
+
+    """
+    array2 = np.copy(array)
+    for i in range(w, array.shape[0] - w):
+        for j in range(w, array.shape[1] - w):
+            if array[i, j] == nodata:
+                continue
+            piece = array[(i - w):(i + w + 1), (j - w):(j + w + 1)]
+            if (piece == array[i, j]).sum() <= t:
+                value, count = np.unique(piece, return_counts=True)
+                if value[count.argmax()] == nodata:
+                    count[count.argmax()] = 0
+                array2[i, j] = value[count.argmax()]
+    return array2
+
+
+def thematic_map(array, values, colors, overarray=0):
+    """ transform array into thematic map
+
+    Args:
+        array (ndarray): input array
+        values (list, int): list of values in the array
+        colors (list, int): list of colors corresponding to the values
+
+    Returns:
+        tm (ndarray): thematic map
+
+    """
+    if type(overarray) == int:
+        tm = np.zeros((3,array.shape[0],array.shape[1]), np.uint8) + cons.IMGBIT
+    else:
+        tm = overarray
+    for i, x in enumerate(values):
+        tm[array == x, :] = colors[i]
+    return tm

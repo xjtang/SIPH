@@ -100,5 +100,5 @@ done
 echo 'Total jobs to submit is' $njob
 for i in $(seq 1 $njob); do
   echo 'Submitting job no.' $i 'out of' $njob
-  qsub -N stack2image_$i -V -b y cd /usr3/graduate/xjtang/Documents/';' python -m VNRT.tools.export_image ${overwrite}${recursive}${w}-p $pattern -b $i $njob -c $r $g $b -s $s1 $s2 -m $mask -f $format -r $result -v $rvalue $ori $des
+  qsub -j y -N stack2image_$i -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.tools.export_image ${overwrite}${recursive}${w}-p $pattern -b $i $njob -c $r $g $b -s $s1 $s2 -m $mask -f $format -r $result -v $rvalue $ori $des
 done

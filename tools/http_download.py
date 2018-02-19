@@ -31,7 +31,7 @@ except:
 from calendar import isleap
 from datetime import datetime as dt
 
-from ..common import *
+from ..common import log, doy_to_date
 from ..common import constants as cons
 
 
@@ -108,7 +108,9 @@ def locate_data(url, sensor, collection, product, tile, year, day):
     # handle sensor, collection, product and yaer
     if sensor == 'V':
         url = '{}VIIRS/{}.{:03}/'.format(url, product, collection)
+        fmt = 'h5'
     else:
+        fmt = 'hdf'
         if product[1] == 'O':
             url = '{}MOLT/{}.{:03}/'.format(url, product, collection)
         elif product[1] == 'Y':
@@ -132,8 +134,8 @@ def locate_data(url, sensor, collection, product, tile, year, day):
             continue
 
         # search for image name
-        pattern = re.compile('{}\.A{}{:03}\.h{:02}v{:02}\.{:03}\..{{13}}\.h5'.format(
-                                product, year, i, tile[0], tile[1], collection))
+        pattern = re.compile('{}\.A{}{:03}\.h{:02}v{:02}\.{:03}\..{{13}}\.{}'.format(
+                                product, year, i, tile[0], tile[1], collection, fmt))
         m = re.search(pattern, page)
         if m:
             url_list.append('{}{}'.format(link, m.group()))
@@ -258,10 +260,10 @@ if __name__ == '__main__':
             log.error('Invalid product.')
             sys.exit(1)
     elif args.sensor == 'M':
-        if args.platform not in [5, 6]:
+        if args.collection not in [5, 6]:
             log.error('Invalid collection, use 5 or 6 for MODIS.')
             sys.exit(1)
-        if args.product not in ['MOD09GA', 'MYD09GA']:
+        if args.product not in ['MOD09GA', 'MYD09GA', 'MOD09GQ', 'MYD09GQ']:
             log.error('Invalid product.')
             sys.exit(1)
     else:
