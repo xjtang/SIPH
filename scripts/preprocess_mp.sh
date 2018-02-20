@@ -4,6 +4,7 @@
 
 # Input Arguments:
 #		-p searching pattern
+#		-d data product vi or lc
 #		-n number of jobs
 #		-R recursive
 #		--overwrite overwrite
@@ -15,6 +16,7 @@ pattern=MOD13Q1*hdf
 njob=1
 overwrite=''
 recursive=''
+product=vi
 
 # parse input arguments
 while [[ $# > 0 ]]; do
@@ -26,6 +28,10 @@ while [[ $# > 0 ]]; do
 			;;
 		-n)
 			njob=$2
+			shift
+			;;
+		-d)
+			product=$2
 			shift
 			;;
 		-R)
@@ -46,5 +52,5 @@ done
 echo 'Total jobs to submit is' $njob
 for i in $(seq 1 $njob); do
     echo 'Submitting job no.' $i 'out of' $njob
-    qsub -j y -N VIPre_$i -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.chart.preprocess ${overwrite}${recursive}-p $pattern -b $i $njob $ori $des
+    qsub -j y -N VIPre_$i -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.chart.preprocess ${overwrite}${recursive}-p $pattern -d $product -b $i $njob $ori $des
 done
