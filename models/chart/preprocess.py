@@ -1,7 +1,8 @@
-""" Module for preprocess MODIS VI data
+""" Module for preprocess MODIS data products (vi or lc)
 
     Args:
         -p (pattern): searching pattern
+        -d (product): vi or lc
         -b (batch): batch process, thisjob and totaljob
         -R (recursive): recursive when seaching files
         --overwrite: overwrite or not
@@ -14,17 +15,18 @@ import sys
 import argparse
 
 from ...common import log, get_files, manage_batch
-from ...io import modisvi2stack
+from ...io import modisvi2stack, modislc2stack
 
 
-def modis_vi_preprocess(pattern, ori, des, overwrite=False, recursive=False,
-                        batch=[1,1]):
-    """ preprocess MODIS VI data
+def modis_product_preprocess(pattern, ori, des, product, overwrite=False,
+                                recursive=False, batch=[1,1]):
+    """ preprocess MODIS data product
 
     Args:
         pattern (str): searching pattern, e.g. MOD13Q1*hdf
         ori (str): place to look for inputs
         des (str): place to save outputs
+        product (str): lc or vi
         overwrite (bool): overwrite or not
         recursive (bool): recursive when searching file, or not
         batch (list, int): batch processing, [thisjob, totaljob]
@@ -73,8 +75,12 @@ def modis_vi_preprocess(pattern, ori, des, overwrite=False, recursive=False,
     log.info('Start processing files...')
     for img in img_list:
         log.info('Processing {}'.format(img[1]))
-        if modisvi2stack(os.path.join(img[0], img[1]), des, overwrite) == 0:
-            count += 1
+        if product == 'vi':
+            if modisvi2stack(os.path.join(img[0], img[1]), des, overwrite) == 0:
+                count += 1
+        else:
+            if modislc2stack(os.path.join(img[0], img[1]), des, overwrite) == 0:
+                count += 1
 
     # done
     log.info('Process completed.')
@@ -88,6 +94,9 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--pattern', action='store', type=str,
                         dest='pattern', default='MOD13Q1*hdf',
                         help='searching pattern')
+    parser.add_argument('-d', '--product', action='store', type=str,
+                        dest='product', default='vi',
+                        help='which product, vi or lc')
     parser.add_argument('-b', '--batch', action='store', type=int, nargs=2,
                         dest='batch', default=[1,1],
                         help='batch process, [thisjob, totaljob]')
@@ -111,11 +120,12 @@ if __name__ == '__main__':
     log.info('Looking for {}'.format(args.pattern))
     log.info('In {}'.format(args.ori))
     log.info('Saving in {}'.format(args.des))
+    log.info('Product is {}'.format(args.product))
     if args.recursive:
         log.info('Recursive seaching.')
     if args.overwrite:
         log.info('Overwriting old files.')
 
     # run function to preprocess data
-    modis_vi_preprocess(args.pattern, args.ori, args.des, args.overwrite,
-                        args.recursive, args.batch)
+    modis_product_preprocess(args.pattern, args.ori, args.des, args.product,
+                                args.overwrite, args.recursive, args.batch)
