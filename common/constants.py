@@ -20,6 +20,7 @@ MGA_QA_BAND = 1
 MGA_VZA_BAND = 2
 MGA_SR_BANDS = [11, 12, 15, 14]
 MGQ_BANDS = [1, 2]
+MVI_BANDS = [0, 1, 3, 4, 6, 5, 11]
 
 # HLS
 L30_BANDS = ('band02', 'band03', 'band04', 'band05', 'band06', 'band07',
