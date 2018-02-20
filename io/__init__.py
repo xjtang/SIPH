@@ -9,7 +9,7 @@ from .cache import cache2map
 from .hls import hls2stack, hlsQA, hn2ln, ln2tn
 from .mask import mn2ln, bit2mask, mask2array, mask2strata
 from .sentinel import sen2stack, sn2ln
-from .modis import modis2stack, modis2composite, modisvi2stack
+from .modis import modis2stack, modis2composite, modisvi2stack, modislc2stack
 
 
 __all__ = [
@@ -40,5 +40,6 @@ __all__ = [
     'modis2stack',
     'modis2composite',
     'ln2tn',
-    'modisvi2stack'
+    'modisvi2stack',
+    'modislc2stack'
 ]

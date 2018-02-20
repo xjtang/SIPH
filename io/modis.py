@@ -453,8 +453,8 @@ def modisvi2stack(VI, des, overwrite=False, verbose=False):
     try:
         # initialize output
         _driver = gdal.GetDriverByName('GTiff')
-        output = _driver.Create(des_vi, vi_geo['samples'], vi_geo['lines'],
-                                7, gdal.GDT_Int16)
+        output = _driver.Create(des_vi, vi_geo['samples'], vi_geo['lines'], 7,
+                                gdal.GDT_Int16)
         output.SetProjection(vi_geo['proj'])
         output.SetGeoTransform(vi_geo['geotrans'])
         output.GetRasterBand(1).SetNoDataValue(cons.NODATA)
@@ -489,6 +489,106 @@ def modisvi2stack(VI, des, overwrite=False, verbose=False):
     vi_ndvi = None
     vi_evi = None
     vi_qa = None
+    output = None
+
+    # done
+    if verbose:
+        log.info('Process completed.')
+    return 0
+
+
+def modislc2stack(LC, des, mergeclass=False, overwrite=False, verbose=False):
+    """ read MODIS land cover product and convert to geotiff
+
+    Args:
+        LC (str): path to input MxD13x1 file
+        des (str): path to output
+        mergeclass (bool): merge class or not
+        overwrite (bool): overwrite or not
+        verbose (bool): verbose or not
+
+    Returns:
+        0: successful
+        1: error due to des
+        2: error in reading input
+        4: error in merging class
+        5: error in writing output
+
+    """
+    # set destinations
+    des_lc = os.path.join(des,'{}.tif'.format(mn2ln(os.path.basename(LC))))
+
+    # check if output already exists
+    if (not overwrite) and os.path.isfile(des_lc):
+        log.error('{} already exists.'.format(os.path.basename(des_lc)))
+        return 1
+
+    # read input image
+    if verbose:
+        log.info('Reading input: {}'.format(LC))
+    try:
+        lc_img = gdal.Open(LC, gdal.GA_ReadOnly)
+        lc_sub = lc_img.GetSubDatasets()
+        lc_igbp = gdal.Open(lc_sub[cons.MLC_BAND][0], gdal.GA_ReadOnly)
+    except:
+        log.error('Failed to read input {}'.format(LC))
+        return 2
+
+    # read geo info
+    if verbose:
+        log.info('Reading geo information...')
+    try:
+        lc_geo = stackGeo(lc_sub[cons.MLC_BAND][0])
+    except:
+        log.error('Failed to read geo info.')
+        return 2
+
+    # read actual data
+    if verbose:
+        log.info('Reading actual data...')
+    try:
+        igbp = lc_igbp.GetRasterBand(1).ReadAsArray().astype(np.int8)
+    except:
+        log.error('Failed to read data.')
+        return 2
+
+    # clean up data
+    if mergeclass:
+        if verbose:
+            log.info('Merging class')
+        try:
+            invalid = ~(((red>0) & (red<=10000)) & ((nir>0) & (nir<=10000)))
+        except:
+            log.error('Failed to merge class.')
+            return 3
+
+    # write output
+    if verbose:
+        log.info('Writing output: {}'.format(lc_vi))
+    try:
+        # initialize output
+        _driver = gdal.GetDriverByName('GTiff')
+        output = _driver.Create(des_lc, lc_geo['samples'], lc_geo['lines'], 1,
+                                gdal.GDT_Int16)
+        output.SetProjection(lc_geo['proj'])
+        output.SetGeoTransform(lc_geo['geotrans'])
+        output.GetRasterBand(1).SetNoDataValue(255)
+        # write output
+        output.GetRasterBand(1).WriteArray(igbp)
+        # assign band name
+        if mergeclass:
+            output.GetRasterBand(1).SetDescription('MODIS Land Cover Merged')
+        else:
+            output.GetRasterBand(1).SetDescription('MODIS Land Cover IGBP')
+    except:
+        log.error('Failed to write output to {}'.format(lc_vi))
+        return 4
+
+    # close files
+    if verbose:
+        log.info('Closing files...')
+    lc_img = None
+    lc_igbp = None
     output = None
 
     # done
