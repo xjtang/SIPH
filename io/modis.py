@@ -557,7 +557,7 @@ def modislc2stack(LC, des, mergeclass=False, overwrite=False, verbose=False):
         if verbose:
             log.info('Merging class')
         try:
-            reclassify(igbp, cons.MLC_RECLASS)
+            igbp = reclassify(igbp, cons.MLC_RECLASS)
         except:
             log.error('Failed to merge class.')
             return 3
