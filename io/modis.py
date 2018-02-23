@@ -58,7 +58,8 @@ def modis2stack(MOD09GA, des, MOD09GQ='NA', overwrite=False, verbose=False):
         mga_red = gdal.Open(mga_sub[cons.MGA_SR_BANDS[0]][0], gdal.GA_ReadOnly)
         mga_nir = gdal.Open(mga_sub[cons.MGA_SR_BANDS[1]][0], gdal.GA_ReadOnly)
         mga_swir = gdal.Open(mga_sub[cons.MGA_SR_BANDS[2]][0], gdal.GA_ReadOnly)
-        mga_green = gdal.Open(mga_sub[cons.MGA_SR_BANDS[3]][0], gdal.GA_ReadOnly)
+        mga_swir2 = gdal.Open(mga_sub[cons.MGA_SR_BANDS[3]][0], gdal.GA_ReadOnly)
+        mga_green = gdal.Open(mga_sub[cons.MGA_SR_BANDS[4]][0], gdal.GA_ReadOnly)
     except:
         log.error('Failed to read input {}'.format(MOD09GA))
         return 2
@@ -92,6 +93,7 @@ def modis2stack(MOD09GA, des, MOD09GQ='NA', overwrite=False, verbose=False):
         red = mga_red.GetRasterBand(1).ReadAsArray().astype(np.int16)
         nir = mga_nir.GetRasterBand(1).ReadAsArray().astype(np.int16)
         swir = mga_swir.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        swir2 = mga_swir2.GetRasterBand(1).ReadAsArray().astype(np.int16)
         green = mga_green.GetRasterBand(1).ReadAsArray().astype(np.int16)
         qa = mga_qa.GetRasterBand(1).ReadAsArray().astype(np.uint16)
         vza = mga_vza.GetRasterBand(1).ReadAsArray().astype(np.int16)
@@ -128,22 +130,22 @@ def modis2stack(MOD09GA, des, MOD09GQ='NA', overwrite=False, verbose=False):
         return 3
 
     # clean up data
-    if verbose:
-        log.info('Cleaning up data...')
-    try:
-        invalid = ~(((red>0) & (red<=10000)) & ((nir>0) & (nir<=10000)))
-        red[invalid] = cons.NODATA
-        nir[invalid] = cons.NODATA
-        ndvi[invalid] = cons.NODATA
-        vza[~((vza >= 0) & (vza <= 18000))] = cons.NODATA
-        if MOD09GQ != 'NA':
-            invalid = ~(((red2>0) & (red2<=10000)) & ((nir2>0) & (nir2<=10000)))
-            red2[invalid] = cons.NODATA
-            nir2[invalid] = cons.NODATA
-            ndvi2[invalid] = cons.NODATA
-    except:
-        log.error('Failed to clean up data.')
-        return 4
+    # if verbose:
+    #     log.info('Cleaning up data...')
+    # try:
+    #     invalid = ~(((red>0) & (red<=10000)) & ((nir>0) & (nir<=10000)))
+    #     red[invalid] = cons.NODATA
+    #     nir[invalid] = cons.NODATA
+    #     ndvi[invalid] = cons.NODATA
+    #     vza[~((vza >= 0) & (vza <= 18000))] = cons.NODATA
+    #     if MOD09GQ != 'NA':
+    #         invalid = ~(((red2>0) & (red2<=10000)) & ((nir2>0) & (nir2<=10000)))
+    #         red2[invalid] = cons.NODATA
+    #         nir2[invalid] = cons.NODATA
+    #         ndvi2[invalid] = cons.NODATA
+    # except:
+    #     log.error('Failed to clean up data.')
+    #     return 4
 
     # write output
     if verbose:
@@ -152,7 +154,7 @@ def modis2stack(MOD09GA, des, MOD09GQ='NA', overwrite=False, verbose=False):
         # initialize output
         _driver = gdal.GetDriverByName('GTiff')
         output = _driver.Create(des_ga, mga_geo['samples'], mga_geo['lines'],
-                                8, gdal.GDT_Int16)
+                                9, gdal.GDT_Int16)
         output.SetProjection(mga_geo['proj'])
         output.SetGeoTransform(mga_geo['geotrans'])
         output.GetRasterBand(1).SetNoDataValue(cons.NODATA)
@@ -160,20 +162,22 @@ def modis2stack(MOD09GA, des, MOD09GQ='NA', overwrite=False, verbose=False):
         output.GetRasterBand(1).WriteArray(red)
         output.GetRasterBand(2).WriteArray(nir)
         output.GetRasterBand(3).WriteArray(swir)
-        output.GetRasterBand(4).WriteArray(green)
-        output.GetRasterBand(5).WriteArray(ndvi)
-        output.GetRasterBand(6).WriteArray(enlarge(vza, 2))
-        output.GetRasterBand(7).WriteArray(enlarge(mask, 2))
-        output.GetRasterBand(8).WriteArray(enlarge(mask2, 2))
+        output.GetRasterBand(4).WriteArray(swir2)
+        output.GetRasterBand(5).WriteArray(green)
+        output.GetRasterBand(6).WriteArray(ndvi)
+        output.GetRasterBand(7).WriteArray(enlarge(vza, 2))
+        output.GetRasterBand(8).WriteArray(enlarge(mask, 2))
+        output.GetRasterBand(9).WriteArray(enlarge(mask2, 2))
         # assign band name
         output.GetRasterBand(1).SetDescription('MODIS 500m Red')
         output.GetRasterBand(2).SetDescription('MODIS 500m NIR')
         output.GetRasterBand(3).SetDescription('MODIS 500m SWIR')
-        output.GetRasterBand(4).SetDescription('MODIS 500m GREEN')
-        output.GetRasterBand(5).SetDescription('MODIS 500m NDVI')
-        output.GetRasterBand(6).SetDescription('MODIS 1km VZA')
-        output.GetRasterBand(7).SetDescription('MODIS 1km MASK')
-        output.GetRasterBand(8).SetDescription('MODIS 1km MASK with VZA')
+        output.GetRasterBand(4).SetDescription('MODIS 500m SWIR2')
+        output.GetRasterBand(5).SetDescription('MODIS 500m GREEN')
+        output.GetRasterBand(6).SetDescription('MODIS 500m NDVI')
+        output.GetRasterBand(7).SetDescription('MODIS 1km VZA')
+        output.GetRasterBand(8).SetDescription('MODIS 1km MASK')
+        output.GetRasterBand(9).SetDescription('MODIS 1km MASK with VZA')
     except:
         log.error('Failed to write output to {}'.format(des_ga))
         return 5
@@ -184,7 +188,7 @@ def modis2stack(MOD09GA, des, MOD09GQ='NA', overwrite=False, verbose=False):
             # initialize output
             _driver = gdal.GetDriverByName('GTiff')
             output = _driver.Create(des_gq, mgq_geo['samples'],
-                                    mgq_geo['lines'], 8, gdal.GDT_Int16)
+                                    mgq_geo['lines'], 9, gdal.GDT_Int16)
             output.SetProjection(mgq_geo['proj'])
             output.SetGeoTransform(mgq_geo['geotrans'])
             output.GetRasterBand(1).SetNoDataValue(cons.NODATA)
@@ -192,20 +196,22 @@ def modis2stack(MOD09GA, des, MOD09GQ='NA', overwrite=False, verbose=False):
             output.GetRasterBand(1).WriteArray(red2)
             output.GetRasterBand(2).WriteArray(nir2)
             output.GetRasterBand(3).WriteArray(enlarge(swir, 2))
-            output.GetRasterBand(4).WriteArray(enlarge(green, 2))
-            output.GetRasterBand(5).WriteArray(ndvi2)
-            output.GetRasterBand(6).WriteArray(enlarge(vza, 4))
-            output.GetRasterBand(7).WriteArray(enlarge(mask, 4))
-            output.GetRasterBand(8).WriteArray(enlarge(mask2, 4))
+            output.GetRasterBand(4).WriteArray(enlarge(swir2, 2))
+            output.GetRasterBand(5).WriteArray(enlarge(green, 2))
+            output.GetRasterBand(6).WriteArray(ndvi2)
+            output.GetRasterBand(7).WriteArray(enlarge(vza, 4))
+            output.GetRasterBand(8).WriteArray(enlarge(mask, 4))
+            output.GetRasterBand(9).WriteArray(enlarge(mask2, 4))
             # assign band name
             output.GetRasterBand(1).SetDescription('MODIS 250m Red')
             output.GetRasterBand(2).SetDescription('MODIS 250m NIR')
             output.GetRasterBand(3).SetDescription('MODIS 500m SWIR')
-            output.GetRasterBand(4).SetDescription('MODIS 500m GREEN')
-            output.GetRasterBand(5).SetDescription('MODIS 250m NDVI')
-            output.GetRasterBand(6).SetDescription('MODIS 1km VZA')
-            output.GetRasterBand(7).SetDescription('MODIS 1km Mask')
-            output.GetRasterBand(8).SetDescription('MODIS 1km MASK with VZA')
+            output.GetRasterBand(4).SetDescription('MODIS 500m SWIR2')
+            output.GetRasterBand(5).SetDescription('MODIS 500m GREEN')
+            output.GetRasterBand(6).SetDescription('MODIS 250m NDVI')
+            output.GetRasterBand(7).SetDescription('MODIS 1km VZA')
+            output.GetRasterBand(8).SetDescription('MODIS 1km Mask')
+            output.GetRasterBand(9).SetDescription('MODIS 1km MASK with VZA')
         except:
             log.error('Failed to write output to {}'.format(des_gq))
             return 5
@@ -217,6 +223,7 @@ def modis2stack(MOD09GA, des, MOD09GQ='NA', overwrite=False, verbose=False):
     mga_red = None
     mga_nir = None
     mga_swir = None
+    mga_swir2 = None
     mga_green = None
     mga_qa = None
     mga_vza = None
@@ -311,23 +318,23 @@ def modis2composite(MOD, MYD, des, overwrite=False, verbose=False):
         comp = np.zeros(terra.shape, np.int16)
         for i in range(0, terra.shape[0]):
             for j in range(0,terra.shape[1]):
-                if aqua[i, j, 4] == cons.NODATA:
+                if aqua[i, j, 5] == cons.NODATA:
                     comp[i, j, :] = terra[i, j, :]
                 else:
-                    if terra[i, j, 4] == cons.NODATA:
+                    if terra[i, j, 5] == cons.NODATA:
                         comp[i, j, :] = aqua[i, j, :]
                     else:
-                        if aqua[i, j, 7] == 1:
+                        if aqua[i, j, 8] == 1:
                             comp[i, j, :] = terra[i, j, :]
                         else:
-                            if terra[i, j, 7] == 1:
+                            if terra[i, j, 8] == 1:
                                 comp[i, j, :] = aqua[i, j, :]
                             else:
-                                if terra[i, j, 5] == cons.NODATA:
-                                    terra[i, j, 5] = 20000
-                                if aqua[i, j, 5] == cons.NODATA:
-                                    aqua[i, j, 5] = 20000
-                                if terra[i, j, 5] > aqua[i, j, 5]:
+                                if terra[i, j, 6] == cons.NODATA:
+                                    terra[i, j, 6] = 20000
+                                if aqua[i, j, 6] == cons.NODATA:
+                                    aqua[i, j, 6] = 20000
+                                if terra[i, j, 6] > aqua[i, j, 6]:
                                     comp[i, j, :] = aqua[i, j, :]
                                 else:
                                     comp[i, j, :] = terra[i, j, :]
