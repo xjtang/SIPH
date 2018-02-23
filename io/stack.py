@@ -96,6 +96,7 @@ def array2stack(array, geo, des, bands='NA', nodata='NA', _type=gdal.GDT_Int16,
         nodata (int): nodata value
         _type (object): gdal data type
         overwrite (bool): overwrite or not
+        driver_name (str): name of the output driver
 
     Returns:
         0: successful

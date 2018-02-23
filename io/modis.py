@@ -511,8 +511,8 @@ def modislc2stack(LC, des, mergeclass=False, overwrite=False, verbose=False):
         0: successful
         1: error due to des
         2: error in reading input
-        4: error in merging class
-        5: error in writing output
+        3: error in merging class
+        4: error in writing output
 
     """
     # set destinations
