@@ -70,12 +70,12 @@ def compare_maps(map1, map2, des, bitshift=3, overwrite=False):
         return 3
 
     # write output
-    log.info('Writing output: {}'.format(lc_vi))
+    log.info('Writing output: {}'.format(des))
     try:
         array2stack(array3, geo, des, ['Change'], 255, gdal.GDT_Int16,
                     overwrite)
     except:
-        log.error('Failed to write output to {}'.format(lc_vi))
+        log.error('Failed to write output to {}'.format(des))
         return 4
 
     # done
