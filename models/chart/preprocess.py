@@ -79,7 +79,8 @@ def modis_product_preprocess(pattern, ori, des, product, overwrite=False,
             if modisvi2stack(os.path.join(img[0], img[1]), des, overwrite) == 0:
                 count += 1
         else:
-            if modislc2stack(os.path.join(img[0], img[1]), des, overwrite) == 0:
+            if modislc2stack(os.path.join(img[0], img[1]), des, False,
+                                overwrite) == 0:
                 count += 1
 
     # done
