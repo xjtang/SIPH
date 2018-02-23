@@ -8,7 +8,7 @@ import numpy as np
 from osgeo import gdal
 
 from . import stackGeo, stack2array, array2stack
-from ..common import log, enlarge
+from ..common import log, enlarge, reclassify
 from ..common import constants as cons
 
 
@@ -557,7 +557,7 @@ def modislc2stack(LC, des, mergeclass=False, overwrite=False, verbose=False):
         if verbose:
             log.info('Merging class')
         try:
-            invalid = ~(((red>0) & (red<=10000)) & ((nir>0) & (nir<=10000)))
+            reclassify(igbp, cons.MLC_RECLASS)
         except:
             log.error('Failed to merge class.')
             return 3
