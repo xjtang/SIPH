@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# bash script to preprocess MODIS VI data
+# bash script to preprocess MODIS data product
 
 # Input Arguments:
 #		-p searching pattern
