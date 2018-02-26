@@ -440,19 +440,19 @@ def modisvi2stack(VI, des, overwrite=False, verbose=False):
         return 3
 
     # clean up data
-    if verbose:
-        log.info('Cleaning up data...')
-    try:
-        invalid = ~(((red>0) & (red<=10000)) & ((nir>0) & (nir<=10000)))
-        red[invalid] = cons.NODATA
-        nir[invalid] = cons.NODATA
-        swir[invalid] = cons.NODATA
-        blue[invalid] = cons.NODATA
-        ndvi[invalid] = cons.NODATA
-        evi[invalid] = cons.NODATA
-    except:
-        log.error('Failed to clean up data.')
-        return 4
+    # if verbose:
+    #     log.info('Cleaning up data...')
+    # try:
+    #     invalid = ~(((red>0) & (red<=10000)) & ((nir>0) & (nir<=10000)))
+    #     red[invalid] = cons.NODATA
+    #     nir[invalid] = cons.NODATA
+    #     swir[invalid] = cons.NODATA
+    #     blue[invalid] = cons.NODATA
+    #     ndvi[invalid] = cons.NODATA
+    #     evi[invalid] = cons.NODATA
+    # except:
+    #     log.error('Failed to clean up data.')
+    #     return 4
 
     # write output
     if verbose:
@@ -596,6 +596,169 @@ def modislc2stack(LC, des, mergeclass=False, overwrite=False, verbose=False):
         log.info('Closing files...')
     lc_img = None
     lc_igbp = None
+    output = None
+
+    # done
+    if verbose:
+        log.info('Process completed.')
+    return 0
+
+
+def nbar2stack(nbar, des, overwrite=False, verbose=False):
+    """ read MODIS NBAR product and convert to geotiff
+
+    Args:
+        nbar (str): path to input MCD43A4 file
+        des (str): path to output
+        overwrite (bool): overwrite or not
+        verbose (bool): verbose or not
+
+    Returns:
+        0: successful
+        1: error due to des
+        2: error in reading input
+        3: error in calculating indices
+        4: error in generating mask
+        5: error in writing output
+
+    """
+    # set destinations
+    des_nbar = os.path.join(des,'{}.tif'.format(mn2ln(os.path.basename(nbar))))
+
+    # check if output already exists
+    if (not overwrite) and os.path.isfile(des_nbar):
+        log.error('{} already exists.'.format(os.path.basename(des_nbar)))
+        return 1
+
+    # read input image
+    if verbose:
+        log.info('Reading input: {}'.format(nbar))
+    try:
+        nbar_img = gdal.Open(nbar, gdal.GA_ReadOnly)
+        nbar_sub = nbar_img.GetSubDatasets()
+        nbar_red = gdal.Open(nbar_sub[7][0], gdal.GA_ReadOnly)
+        nbar_nir = gdal.Open(nbar_sub[8][0], gdal.GA_ReadOnly)
+        nbar_blue = gdal.Open(nbar_sub[9][0], gdal.GA_ReadOnly)
+        nbar_green = gdal.Open(nbar_sub[10][0], gdal.GA_ReadOnly)
+        nbar_swir = gdal.Open(nbar_sub[12][0], gdal.GA_ReadOnly)
+        nbar_swir2 = gdal.Open(nbar_sub[13][0], gdal.GA_ReadOnly)
+        nbar_qa_red = gdal.Open(nbar_sub[0][0], gdal.GA_ReadOnly)
+        nbar_qa_nir = gdal.Open(nbar_sub[1][0], gdal.GA_ReadOnly)
+        nbar_qa_blue = gdal.Open(nbar_sub[2][0], gdal.GA_ReadOnly)
+        nbar_qa_green = gdal.Open(nbar_sub[3][0], gdal.GA_ReadOnly)
+        nbar_qa_swir = gdal.Open(nbar_sub[5][0], gdal.GA_ReadOnly)
+        nbar_qa_swir2 = gdal.Open(nbar_sub[6][0], gdal.GA_ReadOnly)
+    except:
+        log.error('Failed to read input {}'.format(nbar))
+        return 2
+
+    # read geo info
+    if verbose:
+        log.info('Reading geo information...')
+    try:
+        geo = stackGeo(nbar_sub[0][0])
+    except:
+        log.error('Failed to read geo info.')
+        return 2
+
+    # read actual data
+    if verbose:
+        log.info('Reading actual data...')
+    try:
+        red = nbar_red.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        nir = nbar_nir.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        blue = nbar_blue.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        green = nbar_green.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        swir = nbar_swir.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        swir2 = nbar_swir2.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        qa_red = nbar_qa_red.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        qa_nir = nbar_qa_nir.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        qa_blue = nbar_qa_blue.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        qa_green = nbar_qa_green.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        qa_swir = nbar_qa_swir.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        qa_swir2 = nbar_qa_swir2.GetRasterBand(1).ReadAsArray().astype(np.int16)
+    except:
+        log.error('Failed to read data.')
+        return 2
+
+    # calcualte indices
+    if verbose:
+        log.info('Calculating EVI and LSWI...')
+    try:
+        evi = EVI_COEF[0] * ((nir - red) /
+                (nir + EVI_COEF[1]*red - EVI_COEF[2]*blue + EVI_COEF[3]))
+        lswi = (nir - swir2) / (nir + swir2)
+    except:
+        log.error('Failed to calculate indices.')
+        return 3
+
+    # generate mask band
+    if verbose:
+        log.info('Generating mask band...')
+    try:
+        mask_evi = ((qa_red != 0) + (qa_nir != 0) + (qa_blue != 0)) > 0
+        mask_lswi = ((qa_swir2 != 0) + (qa_nir != 0)) > 0
+        _total = np.sum(mask_evi)
+        _size = np.shape(mask_evi)
+        if verbose:
+            log.info('{}% masked'.format(_total/(_size[0]*_size[1])*100))
+    except:
+        log.error('Failed to generate mask band.')
+        return 4
+
+    # write output
+    if verbose:
+        log.info('Writing output: {}'.format(des_nbar))
+    try:
+        # initialize output
+        _driver = gdal.GetDriverByName('GTiff')
+        output = _driver.Create(des_nbar, geo['samples'], geo['lines'], 10,
+                                gdal.GDT_Int16)
+        output.SetProjection(geo['proj'])
+        output.SetGeoTransform(geo['geotrans'])
+        output.GetRasterBand(1).SetNoDataValue(32767)
+        # write output
+        output.GetRasterBand(1).WriteArray(blue)
+        output.GetRasterBand(2).WriteArray(green)
+        output.GetRasterBand(3).WriteArray(red)
+        output.GetRasterBand(4).WriteArray(nir)
+        output.GetRasterBand(5).WriteArray(swir)
+        output.GetRasterBand(6).WriteArray(swir2)
+        output.GetRasterBand(7).WriteArray(evi)
+        output.GetRasterBand(8).WriteArray(lswi)
+        output.GetRasterBand(9).WriteArray(mask_evi)
+        output.GetRasterBand(10).WriteArray(mask_lswi)
+        # assign band name
+        output.GetRasterBand(1).SetDescription('MODIS NBAR Blue')
+        output.GetRasterBand(2).SetDescription('MODIS NBAR Green')
+        output.GetRasterBand(3).SetDescription('MODIS NBAR Red')
+        output.GetRasterBand(4).SetDescription('MODIS NBAR NIR')
+        output.GetRasterBand(5).SetDescription('MODIS NBAR SWIR')
+        output.GetRasterBand(6).SetDescription('MODIS NBAR SWIR2')
+        output.GetRasterBand(7).SetDescription('MODIS NBAR EVI')
+        output.GetRasterBand(8).SetDescription('MODIS NBAR LSWI')
+        output.GetRasterBand(9).SetDescription('MODIS NBAR EVI MASK')
+        output.GetRasterBand(10).SetDescription('MODIS NBAR LSWI MASK')
+    except:
+        log.error('Failed to write output to {}'.format(des_nbar))
+        return 5
+
+    # close files
+    if verbose:
+        log.info('Closing files...')
+    nbar_img = None
+    nbar_red = None
+    nbar_nir = None
+    nbar_swir = None
+    nbar_blue = None
+    nbar_green = None
+    nbar_swir2 = None
+    nbar_qa_red = None
+    nbar_qa_nir = None
+    nbar_qa_swir = None
+    nbar_qa_blue = None
+    nbar_qa_green = None
+    nbar_qa_swir2 = None
     output = None
 
     # done
