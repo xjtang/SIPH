@@ -685,8 +685,9 @@ def nbar2stack(nbar, des, overwrite=False, verbose=False):
     if verbose:
         log.info('Calculating EVI and LSWI...')
     try:
-        evi = EVI_COEF[0] * ((nir - red) /
-                (nir + EVI_COEF[1]*red - EVI_COEF[2]*blue + EVI_COEF[3]))
+        evi = cons.EVI_COEF[0] * ((nir - red) /
+                (nir + cons.EVI_COEF[1]*red - cons.EVI_COEF[2]*blue + 
+                cons.EVI_COEF[3]))
         lswi = (nir - swir2) / (nir + swir2)
     except:
         log.error('Failed to calculate indices.')
