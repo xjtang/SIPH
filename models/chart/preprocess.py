@@ -1,8 +1,8 @@
-""" Module for preprocess MODIS data products (vi or lc)
+""" Module for preprocess MODIS data products (vi, lc, or nbar)
 
     Args:
         -p (pattern): searching pattern
-        -d (product): vi or lc
+        -d (product): vi, lc or nbar
         -b (batch): batch process, thisjob and totaljob
         -R (recursive): recursive when seaching files
         --overwrite: overwrite or not
@@ -15,7 +15,7 @@ import sys
 import argparse
 
 from ...common import log, get_files, manage_batch
-from ...io import modisvi2stack, modislc2stack
+from ...io import modisvi2stack, modislc2stack, nbar2stack
 
 
 def modis_product_preprocess(pattern, ori, des, product, overwrite=False,
@@ -26,7 +26,7 @@ def modis_product_preprocess(pattern, ori, des, product, overwrite=False,
         pattern (str): searching pattern, e.g. MOD13Q1*hdf
         ori (str): place to look for inputs
         des (str): place to save outputs
-        product (str): lc or vi
+        product (str): lc, vi, or nbar
         overwrite (bool): overwrite or not
         recursive (bool): recursive when searching file, or not
         batch (list, int): batch processing, [thisjob, totaljob]
@@ -78,10 +78,16 @@ def modis_product_preprocess(pattern, ori, des, product, overwrite=False,
         if product == 'vi':
             if modisvi2stack(os.path.join(img[0], img[1]), des, overwrite) == 0:
                 count += 1
-        else:
+        elif product == 'lc':
             if modislc2stack(os.path.join(img[0], img[1]), des, True,
                                 overwrite) == 0:
                 count += 1
+        elif product == 'nbar':
+            if nbar2stack(os.path.join(img[0], img[1]), des, overwrite) == 0:
+                count += 1
+        else:
+            log.error('Unsupported product {}'.format(product))
+            return 4
 
     # done
     log.info('Process completed.')
@@ -97,7 +103,7 @@ if __name__ == '__main__':
                         help='searching pattern')
     parser.add_argument('-d', '--product', action='store', type=str,
                         dest='product', default='vi',
-                        help='which product, vi or lc')
+                        help='which product, vi, lc, or nbar')
     parser.add_argument('-b', '--batch', action='store', type=int, nargs=2,
                         dest='batch', default=[1,1],
                         help='batch process, [thisjob, totaljob]')
