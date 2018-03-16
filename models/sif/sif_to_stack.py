@@ -22,7 +22,7 @@ from ...common import log, get_files, manage_batch
 
 def sif_to_stack(pattern, ori, des, overwrite=False, recursive=False,
                     batch=[1,1]):
-    """ converting sentinel images to stacked images
+    """ converting SIF images to stacked images
 
     Args:
         pattern (str): searching pattern, e.g. *B01.jp2
@@ -120,6 +120,6 @@ if __name__ == '__main__':
     if args.overwrite:
         log.info('Overwriting old files.')
 
-    # run function to convert sentinel
+    # run function to convert SIF
     sif_to_stack(args.pattern, args.ori, args.des, args.overwrite,
                     args.recursive, args.batch)
