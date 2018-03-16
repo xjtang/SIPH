@@ -58,7 +58,7 @@ def sif2stack(_file, des, overwrite=False, verbose=False):
     if verbose:
         log.info('Creating geo information...')
     geo = {'proj': cons.SIF_PROJ}
-    geo['geotrans'] = (-180, 0.5, 0, 90, 0.5, 0)
+    geo['geotrans'] = (-180, 0.5, 0, 90, 0, -0.5)
     geo['lines'] = 360
     geo['samples'] = 720
     geo['bands'] = 11
