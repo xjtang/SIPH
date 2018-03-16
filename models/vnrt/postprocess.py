@@ -63,6 +63,7 @@ def vnrt_postprocess(ori, des, w=1, t=2, d=False, overwrite=False):
         array2 = None
     except:
         log.error('Failed to clean up.')
+        return 3
 
     # clean up date images as well
     if d:
@@ -82,6 +83,7 @@ def vnrt_postprocess(ori, des, w=1, t=2, d=False, overwrite=False):
                     log.info('Cleaned up {}'.format(img[1]))
                 except:
                     log.warning('Failed to clean up {}'.format(img[1]))
+                    return 4
         else:
             log.warning('Found no date image.')
 

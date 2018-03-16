@@ -37,8 +37,8 @@ def post_stratification(ori, des, strata=[1], dilation=1, overwrite=False):
         1: error due to des
         2: error reading input
         3: error preprocessing
-        3: error stratifying
-        4: error writing output
+        4: error stratifying
+        5: error writing output
 
     """
     # check if output already exists
