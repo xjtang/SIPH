@@ -6,3 +6,4 @@ fiona>=1.7.8
 h5py>=2.7.0
 scipy>=0.19.1
 python-hdf4>=0.9
+netCDF4>=1.3.1
