@@ -77,15 +77,15 @@ def sif2stack(_file, des, overwrite=False, verbose=False):
     if verbose:
         log.info('Cleaning up data...')
     try:
-        sif[sif <= cons.SIF_NODATA] = cons.NODATA
-        sif_std[sif_std <= cons.SIF_NODATA] = cons.NODATA
-        sif_da[sif_da <= cons.SIF_NODATA] = cons.NODATA
-        sif_par[sif_par <= cons.SIF_NODATA] = cons.NODATA
-        sif_par_std[sif_par_std <= cons.SIF_NODATA] = cons.NODATA
-        ndvi[ndvi <= cons.SIF_NODATA] = cons.NODATA
-        ndvi_std[ndvi_std <= cons.SIF_NODATA] = cons.NODATA
-        csza[csza <= cons.SIF_NODATA] = cons.NODATA
-        nob[nob <= cons.SIF_NODATA] = cons.NODATA
+        sif[sif <= cons.SIF_NODATA] = cons.NODATA / cons.SIF_SF
+        sif_std[sif_std <= cons.SIF_NODATA] = cons.NODATA / cons.SIF_SF
+        sif_da[sif_da <= cons.SIF_NODATA] = cons.NODATA / cons.SIF_SF
+        sif_par[sif_par <= cons.SIF_NODATA] = cons.NODATA / cons.SIF_SF
+        sif_par_std[sif_par_std <= cons.SIF_NODATA] = cons.NODATA / cons.SIF_SF
+        ndvi[ndvi <= cons.SIF_NODATA] = cons.NODATA / cons.SIF_SF
+        ndvi_std[ndvi_std <= cons.SIF_NODATA] = cons.NODATA / cons.SIF_SF
+        csza[csza <= cons.SIF_NODATA] = cons.NODATA / cons.SIF_SF
+        nob[nob <= cons.SIF_NODATA] = cons.NODATA / cons.SIF_SF
 
         sif = (sif * cons.SIF_SF).astype(np.int16)
         sif_std = (sif_std * cons.SIF_SF).astype(np.int16)
@@ -132,8 +132,8 @@ def sif2stack(_file, des, overwrite=False, verbose=False):
 
         # assign band name
         output.GetRasterBand(1).SetDescription('SIF')
-        output.GetRasterBand(2).SetDescription('SIF Daily Average')
-        output.GetRasterBand(3).SetDescription('SIF Std')
+        output.GetRasterBand(2).SetDescription('SIF Std')
+        output.GetRasterBand(3).SetDescription('SIF Daily Average')
         output.GetRasterBand(4).SetDescription('SIF Par Normalized')
         output.GetRasterBand(5).SetDescription('SIF Par Normalized Std')
         output.GetRasterBand(6).SetDescription('NDVI')
