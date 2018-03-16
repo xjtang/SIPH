@@ -4,6 +4,8 @@ import os
 import csv
 import ast
 
+from netCDF4 import Dataset
+
 
 def csv2list(_file, header=False, fixType=True):
     """ read a csv file based table to a list
@@ -96,3 +98,21 @@ def hdr2geo(_file):
                                 ast.literal_eval(minfo[4]), 0.0,
                                 ast.literal_eval(minfo[6]) * (-1))
     return geo
+
+
+def nc2array(_file, var=0):
+    """ read a netCDF file and return an numpy array
+
+    Args:
+        _file (str): path to input netCDF file
+        var (str): which variable, if NA grab the first one, if int grab nkey
+
+    Returns:
+        array (ndarray): output array
+
+    """
+    nc = Dataset(_file)
+    if type(var) == int:
+        var = nc.variables.keys()[var]
+    array = nc.variables[var][:]
+    return array
