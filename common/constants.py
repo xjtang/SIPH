@@ -55,6 +55,13 @@ SCHEME = [[1, [0, 222, 444]],
             [4, [2, 20, 22, 200, 202, 220, 224, 242, 422]],
             [5, [24, 42, 204, 240, 402, 420]]]
 
+# SIF
+SIF_NODATA = -999
+SIF_SF = 10000
+SIF_PROJ = '''GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.25
+            7223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM[
+            "Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.01745329251
+            994328,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]'''
 
 # download
 _HTTP = 'https://e4ftl01.cr.usgs.gov/'
