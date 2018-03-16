@@ -3,7 +3,7 @@
 from .viirs import viirs2gtif, viirsQA, vn2ln, viirsGeo
 from .stack import (stack2array, stack2image, stackGeo, array2stack, stackMerge,
                     stack2table)
-from .datafile import csv2list, csv2dict, hdr2geo
+from .datafile import csv2list, csv2dict, hdr2geo, nc2array
 from .shape import csv2shape
 from .cache import cache2map
 from .hls import hls2stack, hlsQA, hn2ln, ln2tn
@@ -11,6 +11,7 @@ from .mask import mn2ln, bit2mask, mask2array, mask2strata
 from .sentinel import sen2stack, sn2ln
 from .modis import (modis2stack, modis2composite, modisvi2stack, modislc2stack,
                     nbar2stack)
+from .sif import sifn2ln, sif2stack
 
 
 __all__ = [
@@ -43,5 +44,8 @@ __all__ = [
     'ln2tn',
     'modisvi2stack',
     'modislc2stack',
-    'nbar2stack'
+    'nbar2stack',
+    'nc2array',
+    'sifn2ln',
+    'sif2stack'
 ]
