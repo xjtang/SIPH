@@ -20,6 +20,21 @@ def enlarge(array, scaling):
     return np.kron(array, np.ones((scaling, scaling))).astype(array.dtype)
 
 
+def enlarge2(array, x, y):
+    """ enlarge an array by different scaling factor for x and y
+
+    Args:
+        array (ndarray): array to be scaled
+        x (int): amount of scaling on x
+        y (int): amount of scaling on y
+
+    Returns:
+        scaled (ndarray): scaled array
+
+    """
+    return np.kron(array, np.ones((x, y))).astype(array.dtype)
+
+
 def crop(array, window):
     """ crop a part of an array
 
