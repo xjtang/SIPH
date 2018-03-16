@@ -688,7 +688,7 @@ def nbar2stack(nbar, des, overwrite=False, verbose=False):
         evi = (cons.SCALE_FACTOR * cons.EVI_COEF[0] * ((nir - red) /
                 (nir + cons.EVI_COEF[1]*red - cons.EVI_COEF[2]*blue +
                 cons.EVI_COEF[3]))).astype(np.int16)
-        lswi = ((nir - swir2)) / (nir + swir2) *
+        lswi = ((nir - swir2) / (nir + swir2) *
                     cons.SCALE_FACTOR).astype(np.int16)
     except:
         log.error('Failed to calculate indices.')
