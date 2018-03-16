@@ -177,4 +177,4 @@ def sifn2ln(fn):
         return 'F{}LATLON{}DO{}'.format(fn[7][1:], d, fn[5][5:])
     else:
         d = date_to_doy(int(fn[9][0:4]), int(fn[9][4:6]), int(fn[9][6:8]))
-        return 'F{}050DGE{}MA{}'.format(fn[8][1:], d, fn[5][5:])
+        return 'F{}050DGE{}MA{}'.format(fn[8][-2:], d, fn[5][5:])
