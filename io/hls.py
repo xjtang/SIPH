@@ -8,7 +8,7 @@ import numpy as np
 from osgeo import gdal
 from pyhdf.SD import SD, SDC
 
-from ..io import hdr2geo
+from . import hdr2geo
 from ..common import log
 from ..common import constants as cons
 
@@ -20,6 +20,7 @@ def hls2stack(hls, des, sensor='S30', _hdr=True, overwrite=False, verbose=False)
         img (str): path to input HLS file
         des (str): path to output
         sensor (str): which sensor, S30 or L30
+        _hdr (bool): read header file or not
         overwrite (bool): overwrite or not
         verbose (bool): verbose or not
 
