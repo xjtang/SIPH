@@ -70,8 +70,8 @@ def sif2grid(sif_list, des, res, overwrite=False, verbose=False):
                 if qf[i] == 2:
                     ndvi = (nir[i] - red[i]) / (nir[i] + red[i])
                     csza = math.cos(math.radians(sza[i]))
-                    x = int(math.floor((lat[i] + 90) / res))
-                    y = int(math.floor((-lon[i] + 180) / res))
+                    x = int(math.floor((-lat[i] + 90) / res))
+                    y = int(math.floor((lon[i] + 180) / res))
                     data[x][y][0].append(sif[i])
                     data[x][y][1].append(sif_da[i])
                     data[x][y][2].append(sif[i]/csza)
