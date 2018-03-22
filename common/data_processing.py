@@ -120,19 +120,19 @@ def tablize(array):
 
 
 def dilate(array, value=1, iterations=1):
-        """ dilate a raster
+    """ dilate a raster
 
-        Args:
-            array (ndarray): input array
-            value (int): what value to dilate
-            iterations (int): dilate how many pixels
+    Args:
+        array (ndarray): input array
+        value (int): what value to dilate
+        iterations (int): dilate how many pixels
 
-        Returns:
-            array (ndarray): output array
+    Returns:
+        array (ndarray): output array
 
-        """
-        array2 = (array == value)
-        array2 = nd.binary_dilation(array2,
-                                    iterations=iterations).astype(array2.dtype)
-        array[array2] = value
-        return array
+    """
+    array2 = (array == value)
+    array2 = nd.binary_dilation(array2,
+                                iterations=iterations).astype(array2.dtype)
+    array[array2] = value
+    return array
