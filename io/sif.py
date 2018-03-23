@@ -64,8 +64,7 @@ def sif2grid(sif_list, des, res, overwrite=False, verbose=False):
         # assign values to data array
         if verbose:
             log.info('Assigning data: {}'.format(x))
-        if True:
-        #try:
+        try:
             for i in range(0, len(sif)):
                 if qf[i] == 2:
                     ndvi = (nir[i] - red[i]) / (nir[i] + red[i])
@@ -77,9 +76,9 @@ def sif2grid(sif_list, des, res, overwrite=False, verbose=False):
                     data[x][y][2].append(sif[i]/csza)
                     data[x][y][3].append(ndvi)
                     data[x][y][4].append(csza)
-        #except:
-        #    log.error('Failed to assign data from {}'.format(_file))
-        #    return 2
+        except:
+            log.error('Failed to assign data from {}'.format(_file))
+            return 2
 
     # initialize outputs
     sif_grid = np.zeros((lines, samples)) + cons.NODATA / cons.SIF_SF
