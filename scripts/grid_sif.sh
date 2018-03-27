@@ -5,6 +5,7 @@
 # Input Arguments:
 #		-p searching pattern
 #		-n number of jobs
+#		-c composite time interval
 #   -g grid resoultion
 #		-R recursive
 #		--overwrite overwrite
@@ -15,6 +16,7 @@
 pattern=ret*.nc
 njob=1
 res=0.5
+comp=d
 overwrite=''
 recursive=''
 
@@ -28,6 +30,10 @@ while [[ $# > 0 ]]; do
 			;;
 		-n)
 			njob=$2
+			shift
+			;;
+		-c)
+			comp=$2
 			shift
 			;;
     -g)
@@ -52,5 +58,5 @@ done
 echo 'Total jobs to submit is' $njob
 for i in $(seq 1 $njob); do
     echo 'Submitting job no.' $i 'out of' $njob
-    qsub -j y -N SIF_$i -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.sif.grid_sif ${overwrite}${recursive}-p $pattern -g $res -b $i $njob $ori $des
+    qsub -j y -N SIF_$i -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.sif.grid_sif ${overwrite}${recursive}-p $pattern -c $comp -g $res -b $i $njob $ori $des
 done

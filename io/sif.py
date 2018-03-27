@@ -337,7 +337,7 @@ def sif2stack(_file, des, overwrite=False, verbose=False):
     return 0
 
 
-def sifn2ln(fn, res=0.5):
+def sifn2ln(fn, res=0.5, ti='DO', mdoy=0):
     """ convert SIF style file name to Landsat style
         file name only, regardless of file type extension
         e.g. ret_f_nr5_nsvd12_v26_waves734_nolog.grid_SIF_v27_20110101_31.nc
@@ -348,6 +348,8 @@ def sifn2ln(fn, res=0.5):
     Args:
         fn (str): SIF style file name
         res (float): gridding resolution
+        ti (str): time interval
+        mdoy (int): mandatory doy
 
     Returns:
         ln (str): Landsat style file name
@@ -357,9 +359,32 @@ def sifn2ln(fn, res=0.5):
     fn = fn.split('_')
     res = '{0:0=3d}'.format(int(res * 100))
     if fn[-1] == 'all':
-        d = fn[6].split('.')[1]
-        d = date_to_doy(int(d[0:4]), int(d[4:6]), int(d[6:8]))
-        return 'F{}{}DGE{}DO{}'.format(fn[7][1:], res, d, fn[5][5:])
+        if mdoy == 0:
+            d = fn[6].split('.')[1]
+            d = date_to_doy(int(d[0:4]), int(d[4:6]), int(d[6:8]))
+        else:
+            d = mdoy
+        return 'F{}{}DGE{}{}{}'.format(fn[7][1:], res, d, ti, fn[5][5:])
     else:
         d = date_to_doy(int(fn[9][0:4]), int(fn[9][4:6]), int(fn[9][6:8]))
         return 'F{}{}DGE{}MA{}'.format(fn[8][-2:], res, d, fn[5][5:])
+
+
+def sifn2date(fn):
+    """ get date from SIF style file name
+
+    Args:
+        fn (str): SIF style file name
+
+    Returns:
+        ln (str): Landsat style file name
+
+    """
+    fn = os.path.splitext(fn)[0]
+    fn = fn.split('_')
+    if fn[-1] == 'all':
+            d = fn[6].split('.')[1]
+            doy = date_to_doy(int(d[0:4]), int(d[4:6]), int(d[6:8]))
+    else:
+        doy = date_to_doy(int(fn[9][0:4]), int(fn[9][4:6]), int(fn[9][6:8]))
+    return doy

@@ -3,6 +3,7 @@
     Args:
         -p (pattern): searching pattern
         -g (grid): gridding resolution in degree
+        -c (comp): compositing time interval (d or w)
         -b (batch): batch process, thisjob and totaljob
         -R (recursive): recursive when seaching files
         --overwrite: overwrite or not
@@ -16,18 +17,19 @@ import argparse
 
 from osgeo import gdal
 
-from ...io import sifn2ln, sif2grid
+from ...io import sifn2ln, sif2grid, sifn2date
 from ...common import constants as cons
 from ...common import log, get_files, manage_batch
 
 
-def sif_to_grid(pattern, res, ori, des, overwrite=False, recursive=False,
+def sif_to_grid(pattern, res, comp, ori, des, overwrite=False, recursive=False,
                     batch=[1,1]):
     """ grid SIF netCDF and save as stacked images
 
     Args:
         pattern (str): searching pattern, e.g. *.nc
         res (float): grid resolution
+        comp (str): compositing time interval
         ori (str): place to look for inputs
         des (str): place to save outputs
         overwrite (bool): overwrite or not
@@ -39,6 +41,7 @@ def sif_to_grid(pattern, res, ori, des, overwrite=False, recursive=False,
         1: error due to des
         2: error when searching files
         3: found no file
+        4: error when handling compositing
 
     """
     # check if output exists, if not try to create one
@@ -65,22 +68,56 @@ def sif_to_grid(pattern, res, ori, des, overwrite=False, recursive=False,
         else:
             log.info('Found {} files.'.format(n))
 
+    # compositing
+    if comp == 'w':
+        # not the best way to do this, a bit inefficient
+        sif_list2 = []
+        date_list = []
+        md = []
+        for i, x in enumerate(sif_list):
+            date_list.append(sifn2date(x[1]))
+        for year in range(int(min(date_list)/1000), int(max(date_list)/1000)+1):
+            for week in range(0, 52):
+                sif_week = []
+                for i, x in enumerate(sif_list):
+                    doy = date_list[i]
+                    if (doy > (year*1000+week*7))&(doy <= year*1000+week*7+7):
+                        sif_week.append(os.path.join(x[0], x[1]))
+                    if (week == 51)&(doy > year*1000+364)&(doy < year*1000):
+                        sif_week.append(os.path.join(x[0], x[1]))
+                if len(sif_week) > 0:
+                    sif_list2.append(sif_week)
+                    md.append(year*1000+week*7+1)
+    elif comp == 'd':
+        sif_list2 = [[os.path.join(x[0], x[1])] for x in sif_list]
+    else:
+        log.error('Invalid compositing time interval {}'.format(comp))
+        return 4
+
     # handle batch processing
     if batch[1] > 1:
         log.info('Handling batch process...')
-        sif_list = manage_batch(sif_list, batch[0], batch[1])
-        n = len(sif_list)
+        sif_list2 = manage_batch(sif_list2, batch[0], batch[1])
+        if comp == 'w':
+            md = manage_batch(md, batch[0], batch[1])
+        n = len(sif_list2)
         log.info('{} files to be processed by this job.'.format(n))
 
     # loop through all files
     count = 0
     log.info('Start processing files...')
-    for sif in sif_list:
-        log.info('Processing {}'.format(sif[1]))
-        if sif2grid([os.path.join(sif[0], sif[1])],
-                        '{}.tif'.format(os.path.join(des, sifn2ln(sif[1],
-                        res))), res, overwrite) == 0:
-            count += 1
+    for i, sif in enumerate(sif_list2):
+        log.info('Processing {}'.format(sif[0]))
+        if comp == 'd':
+            if sif2grid(sif, '{}.tif'.format(os.path.join(des,
+                        sifn2ln(os.path.basename(sif[0]), res))), res,
+                        overwrite) == 0:
+                count += 1
+        elif comp == 'w':
+            if sif2grid(sif, '{}.tif'.format(os.path.join(des,
+                        sifn2ln(os.path.basename(sif[0]), res, 'WA', md[i]))),
+                        res, overwrite) == 0:
+                count += 1
 
     # done
     log.info('Process completed.')
@@ -96,6 +133,8 @@ if __name__ == '__main__':
                         help='searching pattern')
     parser.add_argument('-g', '--grid', action='store', type=float, dest='grid',
                         default=0.5, help='gridding resolution')
+    parser.add_argument('-c', '--comp', action='store', type=str, dest='comp',
+                        default='d', help='compositing time interval (d or w)')
     parser.add_argument('-b', '--batch', action='store', type=int, nargs=2,
                         dest='batch', default=[1,1],
                         help='batch process, [thisjob, totaljob]')
@@ -116,6 +155,7 @@ if __name__ == '__main__':
     # print logs
     log.info('Start gridding SIF...')
     log.info('Resolution {}'.format(args.grid))
+    log.info('Compositing by {}'.format(args.comp))
     log.info('Running job {}/{}'.format(args.batch[0], args.batch[1]))
     log.info('Looking for {}'.format(args.pattern))
     log.info('In {}'.format(args.ori))
@@ -126,5 +166,5 @@ if __name__ == '__main__':
         log.info('Overwriting old files.')
 
     # run function to grid SIF
-    sif_to_grid(args.pattern, args.grid, args.ori, args.des, args.overwrite,
-                    args.recursive, args.batch)
+    sif_to_grid(args.pattern, args.grid, args.comp, args.ori, args.des,
+                args.overwrite, args.recursive, args.batch)

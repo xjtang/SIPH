@@ -11,7 +11,7 @@ from .mask import mn2ln, bit2mask, mask2array, mask2strata
 from .sentinel import sen2stack, sn2ln
 from .modis import (modis2stack, modis2composite, modisvi2stack, modislc2stack,
                     nbar2stack)
-from .sif import sifn2ln, sif2stack, sif2grid
+from .sif import sifn2ln, sif2stack, sif2grid, sifn2date
 
 
 __all__ = [
@@ -48,5 +48,6 @@ __all__ = [
     'nc2array',
     'sifn2ln',
     'sif2stack',
-    'sif2grid'
+    'sif2grid',
+    'sifn2date'
 ]
