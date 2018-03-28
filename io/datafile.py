@@ -20,7 +20,7 @@ def csv2list(_file, header=False, fixType=True):
 
     """
     # read file
-    with open(_file, 'rb') as f:
+    with open(_file, 'r') as f:
         reader = csv.reader(f)
         if header:
             next(reader)
@@ -51,7 +51,7 @@ def csv2dict(_file, fixType=True):
 
     """
     # read file
-    with open(_file, 'rb') as f:
+    with open(_file, 'r') as f:
         reader = csv.DictReader(f)
         table = list(reader)
 
