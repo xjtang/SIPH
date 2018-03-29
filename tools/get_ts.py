@@ -41,7 +41,7 @@ def grab_ts(x, y, ori, des, overwrite=False):
         log.error('{} already exists.'.format(des.split('/')[-1]))
         return 1
 
-    # read input images
+    # read input config file
     log.info('Reading config file...')
     try:
         with open(ori, 'r') as stream:
@@ -54,7 +54,7 @@ def grab_ts(x, y, ori, des, overwrite=False):
 
     # looking for cache file
     log.info('Locating line cache...')
-    cache_file = get_files(cache_path, 'yatsm*{}*npz'.format(y))
+    cache_file = get_files(cache_path, 'yatsm*r{}_*npz'.format(y))
     if len(cache_file) == 0:
         log.error('Found no cache for line {}'.format(y))
         return 3
