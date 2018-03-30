@@ -670,7 +670,7 @@ def pheno2stack(pheno, des, overwrite=False, verbose=False):
     try:
         # initialize output
         _driver = gdal.GetDriverByName('GTiff')
-        output = _driver.Create(des_pheno, geo['samples'], geo['lines'], 10,
+        output = _driver.Create(des_pheno, geo['samples'], geo['lines'], 4,
                                 gdal.GDT_Int16)
         output.SetProjection(geo['proj'])
         output.SetGeoTransform(geo['geotrans'])
