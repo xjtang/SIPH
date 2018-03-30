@@ -15,7 +15,7 @@ import sys
 import argparse
 
 from ...common import log, get_files, manage_batch
-from ...io import modisvi2stack, modislc2stack, nbar2stack
+from ...io import modisvi2stack, modislc2stack, nbar2stack, pheno2stack
 
 
 def modis_product_preprocess(pattern, ori, des, product, overwrite=False,
@@ -83,6 +83,9 @@ def modis_product_preprocess(pattern, ori, des, product, overwrite=False,
                 count += 1
         elif product == 'nbar':
             if nbar2stack(os.path.join(img[0], img[1]), des, overwrite) == 0:
+                count += 1
+        elif product == 'pheno':
+            if pheno2stack(os.path.join(img[0], img[1]), des, overwrite) == 0:
                 count += 1
         else:
             log.error('Unsupported product {}'.format(product))

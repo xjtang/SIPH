@@ -604,6 +604,110 @@ def modislc2stack(LC, des, mergeclass=False, overwrite=False, verbose=False):
     return 0
 
 
+def pheno2stack(pheno, des, overwrite=False, verbose=False):
+    """ read MODIS phenology product and convert to geotiff
+
+    Args:
+        pheno (str): path to input MCD12Q2 file
+        des (str): path to output
+        overwrite (bool): overwrite or not
+        verbose (bool): verbose or not
+
+    Returns:
+        0: successful
+        1: error due to des
+        2: error in reading input
+        3: error in calculating indices
+
+    """
+    # set destinations
+    des_pheno = os.path.join(des,
+                                '{}.tif'.format(mn2ln(os.path.basename(pheno))))
+
+    # check if output already exists
+    if (not overwrite) and os.path.isfile(des_pheno):
+        log.error('{} already exists.'.format(os.path.basename(des_pheno)))
+        return 1
+
+    # read input image
+    if verbose:
+        log.info('Reading input: {}'.format(pheno))
+    try:
+        pheno_img = gdal.Open(pheno, gdal.GA_ReadOnly)
+        pheno_sub = pheno_img.GetSubDatasets()
+        pheno_inc = gdal.Open(pheno_sub[0][0], gdal.GA_ReadOnly)
+        pheno_max = gdal.Open(pheno_sub[1][0], gdal.GA_ReadOnly)
+        pheno_dec = gdal.Open(pheno_sub[2][0], gdal.GA_ReadOnly)
+        pheno_min = gdal.Open(pheno_sub[3][0], gdal.GA_ReadOnly)
+    except:
+        log.error('Failed to read input {}'.format(pheno))
+        return 2
+
+    # read geo info
+    if verbose:
+        log.info('Reading geo information...')
+    try:
+        geo = stackGeo(pheno_sub[0][0])
+    except:
+        log.error('Failed to read geo info.')
+        return 2
+
+    # read actual data
+    if verbose:
+        log.info('Reading actual data...')
+    try:
+        inc = pheno_inc.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        _max = pheno_max.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        dec = pheno_dec.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        _min = pheno_min.GetRasterBand(1).ReadAsArray().astype(np.int16)
+    except:
+        log.error('Failed to read data.')
+        return 2
+
+    # write output
+    if verbose:
+        log.info('Writing output: {}'.format(des_nbar))
+    try:
+        # initialize output
+        _driver = gdal.GetDriverByName('GTiff')
+        output = _driver.Create(des_pheno, geo['samples'], geo['lines'], 10,
+                                gdal.GDT_Int16)
+        output.SetProjection(geo['proj'])
+        output.SetGeoTransform(geo['geotrans'])
+        output.GetRasterBand(1).SetNoDataValue(32767)
+        output.GetRasterBand(2).SetNoDataValue(32767)
+        output.GetRasterBand(3).SetNoDataValue(32767)
+        output.GetRasterBand(4).SetNoDataValue(32767)
+        # write output
+        output.GetRasterBand(1).WriteArray(inc)
+        output.GetRasterBand(2).WriteArray(_max)
+        output.GetRasterBand(3).WriteArray(dec)
+        output.GetRasterBand(4).WriteArray(_min)
+        # assign band name
+        output.GetRasterBand(1).SetDescription('MODIS Greenness Increase')
+        output.GetRasterBand(2).SetDescription('MODIS Greenness Maximum')
+        output.GetRasterBand(3).SetDescription('MODIS Greenness Decrease')
+        output.GetRasterBand(4).SetDescription('MODIS Greenness Minimum')
+    except:
+        log.error('Failed to write output to {}'.format(des_nbar))
+        return 3
+
+    # close files
+    if verbose:
+        log.info('Closing files...')
+    pheno_img = None
+    pheno_inc = None
+    pheno_max = None
+    pheno_dec = None
+    pheno_min = None
+    output = None
+
+    # done
+    if verbose:
+        log.info('Process completed.')
+    return 0
+
+
 def nbar2stack(nbar, des, overwrite=False, verbose=False):
     """ read MODIS NBAR product and convert to geotiff
 
