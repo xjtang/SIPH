@@ -134,8 +134,12 @@ def locate_data(url, sensor, collection, product, tile, year, day):
             continue
 
         # search for image name
-        pattern = re.compile('{}\.A{}{:03}\.h{:02}v{:02}\.{:03}\..{{13}}\.{}'.format(
-                                product, year, i, tile[0], tile[1], collection, fmt))
+        if product[-2] == 'C':
+            pattern = re.compile('{}\.A{}{:03}\.{:03}\..{{13}}\.{}'.format(
+                                    product, year, i, collection, fmt))
+        else:
+            pattern = re.compile('{}\.A{}{:03}\.h{:02}v{:02}\.{:03}\..{{13}}\.{}'.format(
+                                    product, year, i, tile[0], tile[1], collection, fmt))
         m = re.search(pattern, page)
         if m:
             url_list.append('{}{}'.format(link, m.group()))
