@@ -264,7 +264,7 @@ if __name__ == '__main__':
             log.error('Invalid collection, use 5 or 6 for MODIS.')
             sys.exit(1)
         if args.product not in ['MOD09GA', 'MYD09GA', 'MOD09GQ', 'MYD09GQ',
-                                'MOD13Q1', 'MOD13A1', 'MCD43A4']:
+                                'MOD13Q1', 'MOD13A1', 'MCD43A4', 'MCD43C4']:
             log.error('Invalid product.')
             sys.exit(1)
     else:
