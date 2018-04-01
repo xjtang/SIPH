@@ -15,7 +15,8 @@ import sys
 import argparse
 
 from ...common import log, get_files, manage_batch
-from ...io import modisvi2stack, modislc2stack, nbar2stack, pheno2stack
+from ...io import (modisvi2stack, modislc2stack, nbar2stack, pheno2stack,
+                    nbarcmg2stack)
 
 
 def modis_product_preprocess(pattern, ori, des, product, overwrite=False,
