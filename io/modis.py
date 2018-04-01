@@ -272,8 +272,12 @@ def mn2ln(mn):
 
     """
     mn = mn.split('.')
-    return '{}0{}0{}{}{}{}'.format(mn[0][0:3], mn[2][1:3], mn[2][4:6],
-                                    mn[1][1:], mn[3][-1], mn[0][3:])
+    if mn[0][5] == 'C':
+        return '{}CMG005{}{}{}'.format(mn[0][0:3], mn[1][1:], mn[2][-1],
+                                        mn[0][3:])
+    else:
+        return '{}0{}0{}{}{}{}'.format(mn[0][0:3], mn[2][1:3], mn[2][4:6],
+                                        mn[1][1:], mn[3][-1], mn[0][3:])
 
 
 def modis2composite(MOD, MYD, des, overwrite=False, verbose=False):
