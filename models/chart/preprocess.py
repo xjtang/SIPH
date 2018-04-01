@@ -87,6 +87,9 @@ def modis_product_preprocess(pattern, ori, des, product, overwrite=False,
         elif product == 'pheno':
             if pheno2stack(os.path.join(img[0], img[1]), des, overwrite) == 0:
                 count += 1
+        elif product == 'nbarcmg':
+            if nbarcmg2stack(os.path.join(img[0], img[1]), des, overwrite) == 0:
+                count += 1
         else:
             log.error('Unsupported product {}'.format(product))
             return 4
