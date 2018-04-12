@@ -12,6 +12,7 @@ from .sentinel import sen2stack, sn2ln
 from .modis import (modis2stack, modis2composite, modisvi2stack, modislc2stack,
                     nbar2stack, pheno2stack, nbarcmg2stack)
 from .sif import sifn2ln, sif2stack, sif2grid, sifn2date
+from .goes import gn2ln, goes2stack
 
 
 __all__ = [
@@ -51,5 +52,7 @@ __all__ = [
     'sif2grid',
     'sifn2date',
     'pheno2stack',
-    'nbarcmg2stack'
+    'nbarcmg2stack',
+    'gn2ln',
+    'goes2stack'
 ]
