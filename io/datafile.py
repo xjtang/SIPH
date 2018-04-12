@@ -111,7 +111,7 @@ def nc2array(_file, var=0):
         array (ndarray): output array
 
     """
-    nc = Dataset(_file)
+    nc = Dataset(_file, 'r')
     if type(var) == int:
         var = nc.variables.keys()[var]
     array = nc.variables[var][:]
