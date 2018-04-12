@@ -1,11 +1,11 @@
 """ Module for io libarary
 """
+from .datafile import csv2list, csv2dict, hdr2geo, nc2array
 from .sif import sifn2ln, sif2stack, sif2grid, sifn2date
 from .goes import gn2ln, goes2stack
 from .viirs import viirs2gtif, viirsQA, vn2ln, viirsGeo
 from .stack import (stack2array, stack2image, stackGeo, array2stack, stackMerge,
                     stack2table)
-from .datafile import csv2list, csv2dict, hdr2geo, nc2array
 from .shape import csv2shape
 from .cache import cache2map
 from .hls import hls2stack, hlsQA, hn2ln, ln2tn
