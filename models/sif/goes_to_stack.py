@@ -66,7 +66,7 @@ def goes_to_stack(pattern, ori, des, overwrite=False, recursive=False,
     # handle batch processing
     if batch[1] > 1:
         log.info('Handling batch process...')
-        sif_list = manage_batch(goes_list, batch[0], batch[1])
+        goes_list = manage_batch(goes_list, batch[0], batch[1])
         n = len(goes_list)
         log.info('{} files to be processed by this job.'.format(n))
 
