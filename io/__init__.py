@@ -1,5 +1,7 @@
 """ Module for io libarary
 """
+from .sif import sifn2ln, sif2stack, sif2grid, sifn2date
+from .goes import gn2ln, goes2stack
 from .viirs import viirs2gtif, viirsQA, vn2ln, viirsGeo
 from .stack import (stack2array, stack2image, stackGeo, array2stack, stackMerge,
                     stack2table)
@@ -11,8 +13,6 @@ from .mask import mn2ln, bit2mask, mask2array, mask2strata
 from .sentinel import sen2stack, sn2ln
 from .modis import (modis2stack, modis2composite, modisvi2stack, modislc2stack,
                     nbar2stack, pheno2stack, nbarcmg2stack)
-from .sif import sifn2ln, sif2stack, sif2grid, sifn2date
-from .goes import gn2ln, goes2stack
 
 
 __all__ = [
