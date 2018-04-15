@@ -925,7 +925,13 @@ def nbarcmg2stack(nbar, des, overwrite=False, verbose=False):
     if verbose:
         log.info('Reading geo information...')
     try:
-        geo = stackGeo(nbar_sub[0][0])
+        # geo = stackGeo(nbar_sub[0][0])
+        geo = {'proj': cons.SIF_PROJ}
+        geo['geotrans'] = (-180, 0.05, 0, -90, 0, 0.05)
+        geo['lines'] = 3600
+        geo['samples'] = 7200
+        geo['bands'] = 8
+        geo['nodata'] = 32767
     except:
         log.error('Failed to read geo info.')
         return 2
