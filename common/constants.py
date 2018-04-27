@@ -3,6 +3,7 @@
 # common
 NODATA = -9999
 SCALE_FACTOR = 10000
+GS = (100, 300)
 
 # images
 IMGBIT = 255
@@ -37,7 +38,7 @@ MLC_RECLASS = [[1, [0]],
 L30_BANDS = ('band02', 'band03', 'band04', 'band05', 'band06', 'band07',
                 'band09', 'QA')
 S30_BANDS = ('B02', 'B03', 'B04', 'B8A', 'B11', 'B12', 'B10', 'QA')
-T_BANDS = (2, 4, 5, 8)
+T_BANDS = (2, 4, 5, 12)
 MASK_NODATA = 255
 MASK_CLOUD = 4
 MASK_SHADOW = 2
