@@ -21,7 +21,7 @@ from ...common import constants as cons
 from ...io import stackGeo, yatsm2map, array2stack
 
 
-def yatsm2map(ori, des, img, _type='cls', option=[0], overwrite=False,
+def yatsm_to_maps(ori, des, img, _type='cls', option=[0], overwrite=False,
                 recursive=False):
     """ generate map from YATSM results
 
@@ -67,20 +67,22 @@ def yatsm2map(ori, des, img, _type='cls', option=[0], overwrite=False,
     # generate results
     log.info('Start generating map...')
     for i in range(0, geo['lines']):
-        try:
+        if True:
+        #try:
             # locate line cache file
             yatsm = get_files(ori, 'yatsm_r{}.npz'.format(i), recursive)
             # read line cache
             if len(yatsm) > 0:
                 result[i,:] = yatsm2map(os.path.join(yatsm[0][0], yatsm[0][1]),
-                                                        _type, option)
+                                                        _type, geo['samples'],
+                                                        option)
                 count += 1
             else:
                 log.warning('Found no YATSM file for line {}'.format(i + 1))
                 continue
-        except:
-            log.warning('Failed to process line {}.'.format(i + 1))
-            continue
+        #except:
+        #    log.warning('Failed to process line {}.'.format(i + 1))
+        #    continue
         progress = show_progress(i, geo['lines'], 5)
         if progress >= 0:
             log.info('{}% done.'.format(progress))
@@ -129,5 +131,5 @@ if __name__ == '__main__':
         log.info('Overwriting old files.')
 
     # run function to generatet maps from YATSM results
-    yatsm2map(args.ori, args.des, args.img, args.type, args.option,
+    yatsm_to_maps(args.ori, args.des, args.img, args.type, args.option,
                 args.overwrite, args.recursive)
