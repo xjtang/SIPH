@@ -20,7 +20,7 @@ from ...common import log, get_files, get_int, show_progress
 from ...common import constants as cons
 from ...io import stackGeo, yatsm2map, array2stack
 
-def yatsm2map(ori, des, img, _type='cls', option=[], overwrite=False,
+def yatsm2map(ori, des, img, _type='cls', option=[0], overwrite=False,
                 recursive=False):
     """ Classify time series segments
 

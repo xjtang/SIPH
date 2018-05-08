@@ -8,7 +8,7 @@ from . import ordinal_to_doy
 from . import constants as cons
 
 
-def ts2map(ts_set, _type='change', option=[]):
+def ts2map(ts_set, _type='change', option=[0]):
     """ generate map class of various type from YATSM time series segments
 
     Args:
@@ -19,9 +19,6 @@ def ts2map(ts_set, _type='change', option=[]):
         map (int): map value
 
     """
-    # map = option[2]
-    if len(option) == 0:
-        option = [0]
     if _type == 'change':
         # change map
         map = ts_set[0]['break']
