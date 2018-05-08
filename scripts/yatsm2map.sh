@@ -46,4 +46,4 @@ done
 
 # submit jobs
 echo 'Submitting single job.'
-qsub -j y -N CHART -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.chart.yatsm_to_maps ${overwrite}${recursive}-t $type -o $option $ori $des $img
+qsub -j y -N CHART -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.chart.yatsm_to_maps ${overwrite}${recursive}-o $option -t $type $ori $des $img
