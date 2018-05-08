@@ -6,7 +6,7 @@ from ..common import log, show_progress, ts2map, ts2class, ts2doc, ts2dod
 from ..common import constants as cons
 
 
-def yatsm2map(_file, _type, samples, option=[0], verbose=False):
+def yatsm2map(_file, _type, option=[0], verbose=False):
     """ calculate map results form cache file
 
     Args:

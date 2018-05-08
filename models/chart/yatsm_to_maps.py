@@ -16,13 +16,14 @@ import numpy as np
 
 from osgeo import gdal
 
-from ...common import log, get_files, get_int, show_progress
+from ...common import log, get_files, show_progress
 from ...common import constants as cons
 from ...io import stackGeo, yatsm2map, array2stack
 
+
 def yatsm2map(ori, des, img, _type='cls', option=[0], overwrite=False,
                 recursive=False):
-    """ Classify time series segments
+    """ generate map from YATSM results
 
     Args:
         ori (str): place to look for inputs
@@ -72,8 +73,7 @@ def yatsm2map(ori, des, img, _type='cls', option=[0], overwrite=False,
             # read line cache
             if len(yatsm) > 0:
                 result[i,:] = yatsm2map(os.path.join(yatsm[0][0], yatsm[0][1]),
-                                                        _type, geo['samples'],
-                                                        option)
+                                                        _type, option)
                 count += 1
             else:
                 log.warning('Found no YATSM file for line {}'.format(i + 1))
@@ -117,9 +117,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # print logs
-    log.info('Start classfying...')
+    log.info('Start generating map...')
     log.info('YATSM files in {}'.format(args.ori))
-    log.info('Saving in {}'.format(args.des))
+    log.info('Saving as {}'.format(args.des))
     log.info('Copy spatial reference from {}'.format(args.img))
     log.info('Making {} map.'.format(args.type))
     log.info('Options: {}'.format(args.option))
