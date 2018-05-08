@@ -7,7 +7,7 @@ from .viirs import viirs2gtif, viirsQA, vn2ln, viirsGeo
 from .stack import (stack2array, stack2image, stackGeo, array2stack, stackMerge,
                     stack2table)
 from .shape import csv2shape
-from .cache import cache2map
+from .cache import cache2map, yatsm2map
 from .hls import hls2stack, hlsQA, hn2ln, ln2tn
 from .mask import mn2ln, bit2mask, mask2array, mask2strata
 from .sentinel import sen2stack, sn2ln
@@ -54,5 +54,6 @@ __all__ = [
     'pheno2stack',
     'nbarcmg2stack',
     'gn2ln',
-    'goes2stack'
+    'goes2stack',
+    'yatsm2map'
 ]

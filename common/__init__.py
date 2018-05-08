@@ -8,7 +8,7 @@ from .data_processing import (enlarge, crop, mirror, sidebyside, reclassify,
                                 tablize, dilate, enlarge2)
 from .image_processing import (apply_mask, result2mask, apply_stretch,
                                 nodata_mask, clean_up, thematic_map)
-from .result_processing import ts2class, ts2doc, ts2dod
+from .result_processing import ts2class, ts2doc, ts2dod, ts2map
 
 
 __all__ = [
@@ -38,5 +38,6 @@ __all__ = [
     'reclassify',
     'select_samples',
     'dilate',
-    'enlarge2'
+    'enlarge2',
+    'ts2map'
 ]
