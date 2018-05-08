@@ -67,8 +67,7 @@ def yatsm_to_maps(ori, des, img, _type='cls', option=[0], overwrite=False,
     # generate results
     log.info('Start generating map...')
     for i in range(0, geo['lines']):
-        if True:
-        #try:
+        try:
             # locate line cache file
             yatsm = get_files(ori, 'yatsm_r{}.npz'.format(i), recursive)
             # read line cache
@@ -80,9 +79,9 @@ def yatsm_to_maps(ori, des, img, _type='cls', option=[0], overwrite=False,
             else:
                 log.warning('Found no YATSM file for line {}'.format(i + 1))
                 continue
-        #except:
-        #    log.warning('Failed to process line {}.'.format(i + 1))
-        #    continue
+        except:
+            log.warning('Failed to process line {}.'.format(i + 1))
+            continue
         progress = show_progress(i, geo['lines'], 5)
         if progress >= 0:
             log.info('{}% done.'.format(progress))
