@@ -444,19 +444,19 @@ def modisvi2stack(VI, des, overwrite=False, verbose=False):
         return 3
 
     # clean up data
-    # if verbose:
-    #     log.info('Cleaning up data...')
-    # try:
-    #     invalid = ~(((red>0) & (red<=10000)) & ((nir>0) & (nir<=10000)))
-    #     red[invalid] = cons.NODATA
-    #     nir[invalid] = cons.NODATA
-    #     swir[invalid] = cons.NODATA
-    #     blue[invalid] = cons.NODATA
-    #     ndvi[invalid] = cons.NODATA
-    #     evi[invalid] = cons.NODATA
-    # except:
-    #     log.error('Failed to clean up data.')
-    #     return 4
+    if verbose:
+        log.info('Cleaning up data...')
+    try:
+        red[(red < 0) | (red > 10000)] = cons.NODATA
+        nir[(nir < 0) | (nir > 10000)] = cons.NODATA
+        swir[(swir < 0) | (swir > 10000)] = cons.NODATA
+        blue[(blue < 0) | (blue > 10000)] = cons.NODATA
+        ndvi[(ndvi < 0) | (ndvi > 10000)] = cons.NODATA
+        evi[(evi < 0) | (evi > 10000)] = cons.NODATA
+        mask[evi==cons.NODATA] = 1
+    except:
+        log.error('Failed to clean up data.')
+        return 4
 
     # write output
     if verbose:
@@ -469,6 +469,12 @@ def modisvi2stack(VI, des, overwrite=False, verbose=False):
         output.SetProjection(vi_geo['proj'])
         output.SetGeoTransform(vi_geo['geotrans'])
         output.GetRasterBand(1).SetNoDataValue(cons.NODATA)
+        output.GetRasterBand(2).SetNoDataValue(cons.NODATA)
+        output.GetRasterBand(3).SetNoDataValue(cons.NODATA)
+        output.GetRasterBand(4).SetNoDataValue(cons.NODATA)
+        output.GetRasterBand(5).SetNoDataValue(cons.NODATA)
+        output.GetRasterBand(6).SetNoDataValue(cons.NODATA)
+        output.GetRasterBand(7).SetNoDataValue(cons.NODATA)
         # write output
         output.GetRasterBand(1).WriteArray(ndvi)
         output.GetRasterBand(2).WriteArray(evi)
