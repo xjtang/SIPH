@@ -423,7 +423,7 @@ def modisvi2stack(VI, des, overwrite=False, verbose=False):
         evi = vi_evi.GetRasterBand(1).ReadAsArray().astype(np.int16)
         red = vi_red.GetRasterBand(1).ReadAsArray().astype(np.int16)
         nir = vi_nir.GetRasterBand(1).ReadAsArray().astype(np.int16)
-        swir = vi_swir.GetRasterBand(1).ReadAsArray().astype(np.uint16)
+        swir = vi_swir.GetRasterBand(1).ReadAsArray().astype(np.int16)
         blue = vi_blue.GetRasterBand(1).ReadAsArray().astype(np.int16)
         qa = vi_qa.GetRasterBand(1).ReadAsArray().astype(np.int16)
     except:
