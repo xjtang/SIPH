@@ -136,3 +136,19 @@ def thematic_map(array, values, colors, overarray=0):
     for i, x in enumerate(values):
         tm[array == x, :] = colors[i]
     return tm
+
+
+def nchange(array):
+    """ calculate number of change in the third dimension
+
+    Args:
+        array (ndarray): input array
+
+    Returns:
+        nchange (ndarray): number of change
+
+    """
+    nchange = np.zeros(array.shape[-2])
+    for i in range(1, array.shape[2]):
+        nchange = nchange + (array[:, :, i] != array[:, :, i - 1])
+    return nchange

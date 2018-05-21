@@ -7,7 +7,7 @@ from .utility import (date_to_doy, doy_to_date, get_files, show_progress,
 from .data_processing import (enlarge, crop, mirror, sidebyside, reclassify,
                                 tablize, dilate, enlarge2)
 from .image_processing import (apply_mask, result2mask, apply_stretch,
-                                nodata_mask, clean_up, thematic_map)
+                                nodata_mask, clean_up, thematic_map, nchange)
 from .result_processing import ts2class, ts2doc, ts2dod, ts2map
 
 
