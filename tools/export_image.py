@@ -8,6 +8,7 @@
         -f (format): output image format (e.g. rgb)
         -m (mask): mask band, 0 for no mask
         -r (result): result file, 'NA' for no result
+        -v (rvalue): result value, 0 use date of image
         -w (window): chop window
         -R (recursive): recursive when seaching files
         --overwrite: overwrite or not
