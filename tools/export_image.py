@@ -10,6 +10,7 @@
         -r (result): result file, 'NA' for no result
         -v (rvalue): result value, 0 use date of image
         -w (window): chop window
+        -d (adddate): add date to output
         -R (recursive): recursive when seaching files
         --overwrite: overwrite or not
         ori: origin
@@ -20,13 +21,14 @@ import os
 import sys
 import argparse
 
-from ..io import stack2image
+from ..io import stack2image, addTextToImage
 from ..common import log, get_files, manage_batch, get_date
 
 
 def batch_stack2image(pattern, ori, des, bands=[3,2,1], stretch=[0,5000],
                         _format='rgb', mask=0, result='NA', rvalue=0, window=0,
-                        overwrite=False, recursive=True, batch=[1,1]):
+                        adddate=False, overwrite=False, recursive=True,
+                        batch=[1,1]):
     """ Generage regular image file from stack image
 
     Args:
@@ -40,6 +42,7 @@ def batch_stack2image(pattern, ori, des, bands=[3,2,1], stretch=[0,5000],
         result (str): path to result image
         rvalue (int): result value, 0 to use date
         window (list, int): chop image, [xmin, ymin, xmax, ymax], 0 for no chop
+        adddate (bool): add date to output or not
         overwrite (bool): overwrite or not
         recursive (bool): recursive when searching file, or not
         batch (list, int): batch processing, [thisjob, totaljob]
@@ -89,9 +92,9 @@ def batch_stack2image(pattern, ori, des, bands=[3,2,1], stretch=[0,5000],
     for img in img_list:
         log.info('Processing {}'.format(img[1]))
         # if result is a folder, find the result file that has the same date
+        d = get_date(img[1])
         if os.path.isdir(result):
             # search for corresponding result file
-            d = get_date(img[1])
             rfile = get_files(result,'*{}*.tif'.format(d))
             if len(rfile) == 0:
                 log.warning('Found no result for date {}'.format(d))
@@ -100,11 +103,14 @@ def batch_stack2image(pattern, ori, des, bands=[3,2,1], stretch=[0,5000],
                 result2 = os.path.join(rfile[0][0], rfile[0][1])
         else:
             result2 = result
-        if stack2image('{}/{}'.format(img[0], img[1]),
-                    '{}/{}.png'.format(des, img[1].split('.')[0]), bands,
-                    stretch, mask, result2, rvalue, _format, window, overwrite,
-                    False) == 0:
-            count += 1
+        des2 = os.path.join(des, '{}.png'.format(img[1].split('.')[0]))
+        if stack2image(os.path.join(img[0], img[1]), des2, bands, stretch, mask,
+                    result2, rvalue, _format, window, overwrite, False) == 0:
+            if adddate:
+                if addTextToImage(des2, des2,
+                                    '{} {}'.format(str(d)[0:4], str(d)[4:]),
+                                    True, False) == 0:
+                    count += 1
 
     # done
     log.info('Process completed.')
@@ -135,6 +141,8 @@ if __name__ == '__main__':
                         dest='rvalue', default=0, help='result value')
     parser.add_argument('-w', '--window', action='store', type=int, nargs=4,
                         dest='window', default=0, help='chop window')
+    parser.add_argument('-d', '--adddate', action='store_true',
+                        help='add date to image or not')
     parser.add_argument('-R', '--recursive', action='store_true',
                         help='recursive or not')
     parser.add_argument('--overwrite', action='store_true',
@@ -171,6 +179,8 @@ if __name__ == '__main__':
         log.info('Mask band: {}'.format(args.mask))
     else:
         log.info('No mask band.')
+    if args.adddate:
+        log.info('Add date.')
     if args.recursive:
         log.info('Recursive seaching.')
     if args.overwrite:
@@ -179,4 +189,5 @@ if __name__ == '__main__':
     # run function to export image files
     batch_stack2image(args.pattern, args.ori, args.des, args.comp, args.stretch,
                         args.format, args.mask, args.result, args.rvalue,
-                        args.window, args.overwrite, args.recursive, args.batch)
+                        args.window, args.adddate, args.overwrite,
+                        args.recursive, args.batch)
