@@ -83,6 +83,6 @@ SLOPE_THRES = 1.8
 LENGTH_THRES = 365
 
 # text
-TEXT_FONT = '/Library/Fonts/Arial.ttf'
+TEXT_FONT = './share/Arial.ttf'
 TEXT_SIZE = 200
 TEXT_COL = (255, 255, 255)
