@@ -105,7 +105,7 @@ if __name__ == '__main__':
     log.info('Start preprocessing...')
     log.info('Looking for {}'.format(args.pattern))
     log.info('In {}'.format(args.ori))
-    log.info('Saving as {}'.format(args.des))
+    log.info('Saving in {}'.format(args.des))
     if args.recursive:
         log.info('Recursive seaching.')
     if args.overwrite:

@@ -11,5 +11,5 @@ __all__ = [
     'io',
     'tools',
     'visualization',
-    'models',
+    'models'
 ]
