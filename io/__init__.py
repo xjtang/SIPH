@@ -6,7 +6,7 @@ from .goes import gn2ln, goes2stack
 from .viirs import viirs2gtif, viirsQA, vn2ln, viirsGeo
 from .stack import stack2array, stackGeo, array2stack, stackMerge, stack2table
 from .shape import csv2shape
-from .cache import cache2map, yatsm2map
+from .yatsm import cache2map, yatsm2map, yatsm2records, yatsm2pixels
 from .hls import hls2stack, hlsQA, hn2ln, ln2tn
 from .mask import mn2ln, bit2mask, mask2array, mask2strata
 from .sentinel import sen2stack, sn2ln
@@ -56,5 +56,7 @@ __all__ = [
     'gn2ln',
     'goes2stack',
     'yatsm2map',
-    'addTextToImage'
+    'addTextToImage',
+    'yatsm2records',
+    'yatsm2pixels'
 ]
