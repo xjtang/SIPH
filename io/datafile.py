@@ -1,6 +1,5 @@
 """ Module for IO of non-image files
 """
-import os
 import csv
 import ast
 
