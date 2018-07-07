@@ -136,3 +136,21 @@ def dilate(array, value=1, iterations=1):
                                 iterations=iterations).astype(array2.dtype)
     array[array2] = value
     return array
+
+
+def ndarray_append(array, _dtype):
+    """ append a field to a structured array
+
+    Args:
+        array (ndarray): input array
+        _type (dtype): dtype of the field to be appended
+
+    Returns:
+        array2 (ndarray): output array
+
+    """
+    _dtype = np.dtype(array.dtype.descr + _dtype)
+    array2 = np.zeros(array.shape, dtype=_dtype)
+    for x in array.dtype.names:
+        array2[x] = array[x]
+    return array2
