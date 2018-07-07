@@ -84,7 +84,8 @@ def prepare_tmask(pattern, ori, des, overwrite=False, recursive=False,
             array[array == -1000] = -9999
             if array2stack(array, geo, os.path.join(des, ln2tn(img[1]),
                             '{}_SFstack'.format(ln2tn(img[1]))), bands,
-                            cons.NODATA, gdal.GDT_Int16, overwrite,'ENVI') == 0:
+                            cons.NODATA, gdal.GDT_Int16, overwrite, 'ENVI',
+                            ['INTERLEAVE=BIP']) == 0:
                 count += 1
             else:
                 log.warning('Failed to write output for {}'.format(img[1]))

@@ -102,7 +102,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # print logs
-    log.info('Start preprocessing...')
+    log.info('Start stacking land cover product...')
     log.info('Looking for {}'.format(args.pattern))
     log.info('In {}'.format(args.ori))
     log.info('Saving in {}'.format(args.des))

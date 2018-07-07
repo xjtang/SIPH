@@ -68,7 +68,7 @@ def get_nob_between_dates(pattern, _type, img1, img2, ori, des, overwrite=False,
     # initialize output
     log.info('Initializing output...')
     try:
-        result = np.zeros((lines, samples), np.int16) + cons.NODATA
+        result = np.zeros((lines, samples), np.int8) + cons.NODATA
     except:
         log.error('Failed to initialize output of size {},{}.'.format(lines,
                     samples))
