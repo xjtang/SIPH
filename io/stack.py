@@ -16,6 +16,9 @@ def stackMerge(stacks, des, _type=gdal.GDT_Int16, overwrite=False):
 
     Args:
         stacks (list, str): path and filename of stacks
+        des (str): destination
+        _type (int): gdal data type
+        overwrite (bool): overwrite or not
 
     Returns:
         0: successful
@@ -30,6 +33,8 @@ def stackMerge(stacks, des, _type=gdal.GDT_Int16, overwrite=False):
 
     # read spatial reference from first image
     geo = stackGeo(stacks[0])
+    if _type == -9999:
+        _type = geo['type']
 
     # get total number of bands
     nband = 0
@@ -38,21 +43,29 @@ def stackMerge(stacks, des, _type=gdal.GDT_Int16, overwrite=False):
         nband += img2.RasterCount
 
     # write output
-    _driver = gdal.GetDriverByName('GTiff')
-    output = _driver.Create(des, geo['samples'], geo['lines'], nband, _type)
-    output.SetProjection(geo['proj'])
-    output.SetGeoTransform(geo['geotrans'])
-    count = 1
-    for img in stacks:
-        img2 = gdal.Open(img, gdal.GA_ReadOnly)
-        for i in range(0, img2.RasterCount):
-            array = img2.GetRasterBand(i+1).ReadAsArray()
-            nodata = img2.GetRasterBand(i+1).GetNoDataValue()
-            band = img2.GetRasterBand(i+1).GetDescription()
-            output.GetRasterBand(count).WriteArray(array)
-            output.GetRasterBand(count).SetNoDataValue(nodata)
-            output.GetRasterBand(count).SetDescription(band)
-            count += 1
+    try:
+        _driver = gdal.GetDriverByName('GTiff')
+        if geo['samples'] * geo['lines'] > 10000 * 10000:
+            output = _driver.Create(des, geo['samples'], geo['lines'], nband,
+                                    _type, ['COMPRESS=PACKBITS'])
+        else:
+            output = _driver.Create(des, geo['samples'], geo['lines'], nband, _type)
+        output.SetProjection(geo['proj'])
+        output.SetGeoTransform(geo['geotrans'])
+        count = 1
+        for img in stacks:
+            img2 = gdal.Open(img, gdal.GA_ReadOnly)
+            for i in range(0, img2.RasterCount):
+                array = img2.GetRasterBand(i+1).ReadAsArray()
+                nodata = img2.GetRasterBand(i+1).GetNoDataValue()
+                band = img2.GetRasterBand(i+1).GetDescription()
+                output.GetRasterBand(count).WriteArray(array)
+                output.GetRasterBand(count).SetNoDataValue(nodata)
+                output.GetRasterBand(count).SetDescription(band)
+                count += 1
+    except:
+        log.error('Failed to write output to {}'.format(des))
+        return 2
 
     # done
     return 0
@@ -74,6 +87,7 @@ def stackGeo(img):
     geo['lines'] = img2.RasterYSize
     geo['samples'] = img2.RasterXSize
     geo['bands'] = img2.RasterCount
+    geo['type'] = img2.GetRasterBand(1).DataType
     try:
         geo['nodata'] = img2.GetRasterBand(1).GetNoDataValue()
     except:
@@ -83,7 +97,7 @@ def stackGeo(img):
 
 
 def array2stack(array, geo, des, bands='NA', nodata='NA', _type=gdal.GDT_Int16,
-                overwrite=False, driver_name='GTiff'):
+                overwrite=False, driver_name='GTiff', ops=[]):
     """ Save array as stack image
 
     Args:
@@ -92,9 +106,10 @@ def array2stack(array, geo, des, bands='NA', nodata='NA', _type=gdal.GDT_Int16,
         des (str): destination to save the output stack image
         bands (list, str): description of each band, NA for no description
         nodata (int): nodata value
-        _type (object): gdal data type
+        _type (int): gdal data type
         overwrite (bool): overwrite or not
         driver_name (str): name of the output driver
+        ops (list, str): options for output file
 
     Returns:
         0: successful
@@ -117,11 +132,7 @@ def array2stack(array, geo, des, bands='NA', nodata='NA', _type=gdal.GDT_Int16,
     # write output
     try:
         _driver = gdal.GetDriverByName(driver_name)
-        if driver_name == 'ENVI':
-            output = _driver.Create(des, samples, lines, nband, _type,
-                                    options=['INTERLEAVE=BIP'])
-        else:
-            output = _driver.Create(des, samples, lines, nband, _type)
+        output = _driver.Create(des, samples, lines, nband, _type, options=ops)
         output.SetProjection(geo['proj'])
         output.SetGeoTransform(geo['geotrans'])
         for i in range(0, nband):
