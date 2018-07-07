@@ -3,7 +3,7 @@
 """
 from . import common, io, tools, visualization, models
 
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 
 
 __all__ = [
