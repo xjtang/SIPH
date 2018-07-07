@@ -5,6 +5,7 @@ from __future__ import division
 import os
 import re
 import fnmatch
+import math
 import random
 import numpy as np
 
@@ -197,3 +198,18 @@ def select_samples(population, n):
                                                         len(population)), n)]
     else:
         return population[random.sample(range(0, len(population)), n)]
+
+
+def split_doy(doy):
+    """ split doy into year and day
+
+    Args:
+        doy (int): day of year
+
+    Returns:
+        (year, day) (int): year, day
+
+    """
+    year = int(math.floor(doy/1000))
+    day = doy - (year * 1000)
+    return (year, day)
