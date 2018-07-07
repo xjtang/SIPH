@@ -5,6 +5,40 @@ import ast
 
 from netCDF4 import Dataset
 
+from ..common import log
+
+
+def list2csv(_data, _file, overwrite=False):
+    """ write a list of lists into csv file
+
+    Args:
+        _data (list): a list of lists
+        _file (str): output file
+        overwrite (bool): overwrite or not
+
+    Returns:
+        0: successful
+        1: output already exists
+        2: error during process
+
+    """
+    # check if output already exists
+    if (not overwrite) and os.path.isfile(_file):
+        log.error('{} already exists.'.format(_file))
+        return 1
+
+    # write to csv
+    try:
+        with open(_file, 'w') as output:
+            _writer = csv.writer(output, lineterminator='\n')
+            _writer.writerows(_data)
+    except:
+        log.error('Failed to write output to {}'.format(_file))
+        return 2
+
+    # done
+    return 0
+
 
 def csv2list(_file, header=False, fixType=True):
     """ read a csv file based table to a list
