@@ -90,11 +90,11 @@ def blend_lc(pattern, ori, lc, des, overwrite=False, recursive=False,
 
     # loop through all files
     count = 0
-    blended = []
     py, px = (-1, -1)
     log.info('Start blending pixels...')
     for yatsm in yatsm_list:
         try:
+            blended = []
             py = get_int(yatsm[1])[0]
             log.info('Processing line {}'.format(py))
             pixels = yatsm2pixels(os.path.join(yatsm[0], yatsm[1]))
