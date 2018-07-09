@@ -134,7 +134,7 @@ def fuse_lc(pixel, modis, modis_year=[2001, 2016]):
         _weight = []
         for y in range(_start[0], _end[0] + 1):
             if y in range(modis_year[0], modis_year[1] + 1):
-                _class.append(x['class'])
+                _class.append(modis[y - modis_year[0]])
             else:
                 _class.append(-9999)
             nday = 365
