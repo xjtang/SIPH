@@ -14,7 +14,7 @@ import numpy as np
 
 from osgeo import gdal
 
-from ...common import log, get_files, show_progress
+from ...common import log, get_files, show_progress, split_doy, ordinal_to_doy
 from ...common import constants as cons
 from ...io import stackGeo, array2stack, yatsm2records
 
@@ -33,8 +33,8 @@ def get_blend(ori, des, img, overwrite=False, recursive=False):
         0: successful
         1: error due to des
         2: error when reading example image
-        3: error in writing output
-        4: nothing is processed
+        3: nothing is processed
+        4: error in writing output
 
     """
     # check if output already exists
@@ -58,6 +58,9 @@ def get_blend(ori, des, img, overwrite=False, recursive=False):
     # generate results
     log.info('Start generating map...')
     for i in range(0, geo['lines']):
+        progress = show_progress(i + 1, geo['lines'], 5)
+        if progress >= 0:
+            log.info('{}% done.'.format(progress))
         try:
             # locate line cache file
             yatsm = get_files(ori, 'yatsm_lc_r{}.npz'.format(i), recursive)
@@ -74,20 +77,17 @@ def get_blend(ori, des, img, overwrite=False, recursive=False):
         except:
             log.warning('Failed to process line {}.'.format(i + 1))
             continue
-        progress = show_progress(i, geo['lines'], 5)
-        if progress >= 0:
-            log.info('{}% done.'.format(progress))
+
+    # see if anything is processed
+    if count == 0:
+        log.error('Nothing is processed.')
+        return 3
 
     # write output
     log.info('Writing output to: {}'.format(des))
     bands = ['Blended Land Cover Map {}'.format(x) for x in range(2001, 2017)]
     if array2stack(result, geo, des, bands, 255, gdal.GDT_Byte, overwrite) > 0:
         log.error('Failed to write output to {}'.format(des))
-        return 3
-
-    # see if anything is processed
-    if count == 0:
-        log.error('Nothing is processed.')
         return 4
 
     # done
@@ -96,8 +96,17 @@ def get_blend(ori, des, img, overwrite=False, recursive=False):
     return 0
 
 
-def blend2map(x):
-    return 0
+def blend2map(ts):
+    map = np.zeros(2016 - 2001 + 1, np.int8) + 254
+    for x in ts:
+        _start = list(split_doy(ordinal_to_doy(x['start'])))
+        _end = list(split_doy(ordinal_to_doy(x['end'])))
+        if _start[1] > 270:
+            _start[0] += 1
+        for y in range(_start[0], _end[0] + 1):
+            if y in range(2001, 2017):
+                map[y - 2001] = x['class']
+    return map
 
 
 if __name__ == '__main__':
