@@ -14,7 +14,8 @@ import numpy as np
 
 from osgeo import gdal
 
-from ...common import log, get_files, show_progress, split_doy, ordinal_to_doy
+from ...common import (log, get_files, show_progress, split_doy, ordinal_to_doy,
+                        doy_to_ordinal)
 from ...common import constants as cons
 from ...io import stackGeo, array2stack, yatsm2records
 
@@ -61,7 +62,8 @@ def get_blend(ori, des, img, overwrite=False, recursive=False):
         progress = show_progress(i + 1, geo['lines'], 5)
         if progress >= 0:
             log.info('{}% done.'.format(progress))
-        try:
+        if True:
+        #try:
             # locate line cache file
             yatsm = get_files(ori, 'yatsm_lc_r{}.npz'.format(i), recursive)
             # read line cache
@@ -74,9 +76,9 @@ def get_blend(ori, des, img, overwrite=False, recursive=False):
             else:
                 log.warning('Found no blended file for line {}'.format(i + 1))
                 continue
-        except:
-            log.warning('Failed to process line {}.'.format(i + 1))
-            continue
+        #except:
+        #    log.warning('Failed to process line {}.'.format(i + 1))
+        #    continue
 
     # see if anything is processed
     if count == 0:
@@ -98,6 +100,14 @@ def get_blend(ori, des, img, overwrite=False, recursive=False):
 
 def blend2map(ts):
     map = np.zeros(2016 - 2001 + 1, np.int8) + 254
+    if ordinal_to_doy(ts[0]['start']) > 2001270:
+        ts = np.append(ts[0], ts)
+        ts[0]['start'] = doy_to_ordinal(2001001)
+        ts[0]['end'] = ts[1]['start']
+    if ordinal_to_doy(ts[-1]['end']) < 2016001:
+        ts = np.append(ts, ts[0])
+        ts[-1]['start'] = ts[-2]['end']
+        ts[-1]['end'] = doy_to_ordinal(2016365)
     for x in ts:
         _start = list(split_doy(ordinal_to_doy(x['start'])))
         _end = list(split_doy(ordinal_to_doy(x['end'])))
