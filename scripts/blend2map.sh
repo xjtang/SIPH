@@ -12,11 +12,16 @@
 # default values
 overwrite=''
 recursive=''
+lc=NA
 
 # parse input arguments
 while [[ $# > 0 ]]; do
 	InArg="$1"
 	case $InArg in
+		-l)
+			lc=$2
+			shift
+			;;
 		-R)
 			recursive='-R '
 			;;
@@ -34,4 +39,4 @@ done
 
 # submit jobs
 echo 'Submitting job to generate map from blended results.'
-qsub -j y -N CHART -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.chart.blend_to_maps ${overwrite}${recursive}$ori $des $img
+qsub -j y -N CHART -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.chart.blend_to_maps -l $lc ${overwrite}${recursive}$ori $des $img
