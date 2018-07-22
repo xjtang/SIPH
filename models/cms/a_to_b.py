@@ -20,14 +20,16 @@ from ...common import log, get_files, get_int
 from ...io import stackGeo, stack2array, array2stack
 
 
-def atob(pattern, ori, des, _class, overwrite=False, recursive=False):
+def atob(pattern, ori, des, _class, stack=False, overwrite=False,
+            recursive=False):
     """ figuring out when one class changed to another in series of maps
 
     Args:
-        pattern (str): searching pattern, e.g. M*tif
+        pattern (str): searching pattern, e.g. *tif
         ori (str): place to look for inputs
         des (str): path and file name of output
         class (list, int): [class1, class2], -9999 for all other classes
+        stack(bool): single stack input
         overwrite (bool): overwrite or not
         recursive (bool): recursive when searching file, or not
 
@@ -45,26 +47,31 @@ def atob(pattern, ori, des, _class, overwrite=False, recursive=False):
         log.error('{} already exists.'.format(os.path.basename(des)))
         return 1
 
-    # locate files
-    log.info('Locating files...')
-    try:
-        img_list = get_files(ori, pattern, recursive)
-        img_list = [os.path.join(x[0], x[1]) for x in img_list]
-        n = len(img_list)
-    except:
-        log.error('Failed to search for {}'.format(pattern))
-        return 2
+    if stack:
+        img_list = [[os.path.dirname(ori),
+                        os.path.basename(ori)] for i in range(0,
+                        stackGeo(ori)['bands'])]
     else:
-        if n == 0:
-            log.error('Found no {}'.format(pattern))
-            return 3
+        # locate files
+        log.info('Locating files...')
+        try:
+            img_list = get_files(ori, pattern, recursive)
+            img_list = [os.path.join(x[0], x[1]) for x in img_list]
+            n = len(img_list)
+        except:
+            log.error('Failed to search for {}'.format(pattern))
+            return 2
         else:
-            log.info('Found {} files.'.format(n))
+            if n == 0:
+                log.error('Found no {}'.format(pattern))
+                return 3
+            else:
+                log.info('Found {} files.'.format(n))
 
-    # get files in order
-    log.info('Sorting files...')
-    img_id = [get_int(x)[0] for x in img_list]
-    img_list = [[img_list[x], img_id[x]] for x in np.argsort(img_id)]
+        # get files in order
+        log.info('Sorting files...')
+        img_id = [get_int(x)[0] for x in img_list]
+        img_list = [[img_list[x], img_id[x]] for x in np.argsort(img_id)]
 
     # initialize output
     log.info('Initializing output...')
@@ -75,7 +82,7 @@ def atob(pattern, ori, des, _class, overwrite=False, recursive=False):
         log.error('Failed to initialize output.')
         return 4
 
-    # loop through files
+    # work through maps
     log.info('Working through maps...')
     try:
         for img in img_list:
@@ -117,6 +124,8 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--pattern', action='store', type=str,
                         dest='pattern', default='*tif',
                         help='searching pattern')
+    parser.add_argument('-s', '--stack', action='store_true',
+                        help='input is a single stack, or not')
     parser.add_argument('-R', '--recursive', action='store_true',
                         help='recursive or not')
     parser.add_argument('--overwrite', action='store_true',
@@ -133,11 +142,13 @@ if __name__ == '__main__':
     log.info('In {}'.format(args.ori))
     log.info('Saving as {}'.format(args.des))
     log.info('From class {} to class {}.'.format(args.classes[0], args.classes[1]))
+    if args.stack:
+        log.info('Single stack input.')
     if args.recursive:
         log.info('Recursive seaching.')
     if args.overwrite:
         log.info('Overwriting old files.')
 
     # run function to analyze images
-    atob(args.pattern, args.ori, args.des, args.classes, args.overwrite,
-            args.recursive)
+    atob(args.pattern, args.ori, args.des, args.classes, args.stack,
+            args.overwrite, args.recursive)
