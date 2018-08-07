@@ -19,7 +19,7 @@ def yatsm2records(_file, verbose=False):
     """
     yatsm = np.load(_file)
     ks = yatsm.keys()
-    if 'records' in ks:
+    if 'record' in ks:
         records = yatsm['record']
     else:
         records = yatsm[ks[0]]
