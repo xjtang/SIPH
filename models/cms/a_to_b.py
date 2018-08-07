@@ -29,7 +29,7 @@ def atob(pattern, ori, des, _class, stack=False, overwrite=False,
         ori (str): place to look for inputs
         des (str): path and file name of output
         class (list, int): [class1, class2], -9999 for all other classes
-        stack(bool): single stack input
+        stack (bool): single stack input
         overwrite (bool): overwrite or not
         recursive (bool): recursive when searching file, or not
 
