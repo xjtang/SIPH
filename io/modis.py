@@ -430,6 +430,15 @@ def modisvi2stack(VI, des, overwrite=False, verbose=False):
         log.error('Failed to read data.')
         return 2
 
+    # calculate nbr
+    if verbose:
+        log.info('Calculating NBR...')
+    try:
+        nbr = ((nir-swir) / (nir+swir) * cons.SCALE_FACTOR).astype(np.int16)
+    except:
+        log.error('Failed to calculate NBR.')
+        return 3
+
     # generate mask band
     if verbose:
         log.info('Generating mask band...')
@@ -451,9 +460,9 @@ def modisvi2stack(VI, des, overwrite=False, verbose=False):
         nir[(nir < 0) | (nir > 10000)] = cons.NODATA
         swir[(swir < 0) | (swir > 10000)] = cons.NODATA
         blue[(blue < 0) | (blue > 10000)] = cons.NODATA
-        ndvi[(ndvi < 0) | (ndvi > 10000)] = cons.NODATA
-        evi[(evi < 0) | (evi > 10000)] = cons.NODATA
-        mask[evi==cons.NODATA] = 1
+        ndvi[(ndvi < -10000) | (ndvi > 10000)] = cons.NODATA
+        evi[(evi < -10000) | (evi > 10000)] = cons.NODATA
+        nbr[(nbr < -10000) | (nbr > 10000)] = cons.NODATA
     except:
         log.error('Failed to clean up data.')
         return 4
@@ -464,7 +473,7 @@ def modisvi2stack(VI, des, overwrite=False, verbose=False):
     try:
         # initialize output
         _driver = gdal.GetDriverByName('GTiff')
-        output = _driver.Create(des_vi, vi_geo['samples'], vi_geo['lines'], 7,
+        output = _driver.Create(des_vi, vi_geo['samples'], vi_geo['lines'], 8,
                                 gdal.GDT_Int16)
         output.SetProjection(vi_geo['proj'])
         output.SetGeoTransform(vi_geo['geotrans'])
@@ -475,22 +484,25 @@ def modisvi2stack(VI, des, overwrite=False, verbose=False):
         output.GetRasterBand(5).SetNoDataValue(cons.NODATA)
         output.GetRasterBand(6).SetNoDataValue(cons.NODATA)
         output.GetRasterBand(7).SetNoDataValue(cons.NODATA)
+        output.GetRasterBand(8).SetNoDataValue(cons.NODATA)
         # write output
         output.GetRasterBand(1).WriteArray(ndvi)
         output.GetRasterBand(2).WriteArray(evi)
-        output.GetRasterBand(3).WriteArray(red)
-        output.GetRasterBand(4).WriteArray(nir)
-        output.GetRasterBand(5).WriteArray(swir)
-        output.GetRasterBand(6).WriteArray(blue)
-        output.GetRasterBand(7).WriteArray(mask)
+        output.GetRasterBand(3).WriteArray(nbr)
+        output.GetRasterBand(4).WriteArray(red)
+        output.GetRasterBand(5).WriteArray(nir)
+        output.GetRasterBand(6).WriteArray(swir)
+        output.GetRasterBand(7).WriteArray(blue)
+        output.GetRasterBand(8).WriteArray(mask)
         # assign band name
         output.GetRasterBand(1).SetDescription('MODIS VI 16day NDVI')
         output.GetRasterBand(2).SetDescription('MODIS VI 16day EVI')
-        output.GetRasterBand(3).SetDescription('MODIS VI 16day Red')
-        output.GetRasterBand(4).SetDescription('MODIS VI 16day NIR')
-        output.GetRasterBand(5).SetDescription('MODIS VI 16day SWIR')
-        output.GetRasterBand(6).SetDescription('MODIS VI 16day Blue')
-        output.GetRasterBand(7).SetDescription('MODIS VI 16day MASK')
+        output.GetRasterBand(3).SetDescription('MODIS VI 16day NBR')
+        output.GetRasterBand(4).SetDescription('MODIS VI 16day Red')
+        output.GetRasterBand(5).SetDescription('MODIS VI 16day NIR')
+        output.GetRasterBand(6).SetDescription('MODIS VI 16day SWIR')
+        output.GetRasterBand(7).SetDescription('MODIS VI 16day Blue')
+        output.GetRasterBand(8).SetDescription('MODIS VI 16day MASK')
     except:
         log.error('Failed to write output to {}'.format(des_vi))
         return 5
@@ -802,7 +814,11 @@ def nbar2stack(nbar, des, overwrite=False, verbose=False):
         evi = (cons.SCALE_FACTOR * cons.EVI_COEF[0] * ((nir - red) /
                 (nir + cons.EVI_COEF[1]*red - cons.EVI_COEF[2]*blue +
                 cons.EVI_COEF[3]))).astype(np.int16)
-        lswi = ((nir - swir2) / (nir + swir2) *
+        lswi = ((nir - swir1) / (nir + swir1) *
+                    cons.SCALE_FACTOR).astype(np.int16)
+        ndvi = ((nir - red) / (nir + red) *
+                    cons.SCALE_FACTOR).astype(np.int16)
+        nbr = ((nir - swir2) / (nir + swir2) *
                     cons.SCALE_FACTOR).astype(np.int16)
     except:
         log.error('Failed to calculate indices.')
@@ -813,9 +829,12 @@ def nbar2stack(nbar, des, overwrite=False, verbose=False):
         log.info('Generating mask band...')
     try:
         mask_evi = ((qa_red != 0) + (qa_nir != 0) + (qa_blue != 0)) > 0
-        mask_lswi = ((qa_swir2 != 0) + (qa_nir != 0)) > 0
-        _total = np.sum(mask_evi)
-        _size = np.shape(mask_evi)
+        mask_lswi = ((qa_swir1 != 0) + (qa_nir != 0)) > 0
+        mask_ndvi = ((qa_nir != 0) + (qa_red != 0)) > 0
+        mask_nbr = ((qa_swir2 != 0) + (qa_nir != 0)) > 0
+        mask_main = ((qa_red != 0) + (qa_nir != 0) + (qa_swir2 != 0)) > 0
+        _total = np.sum(mask_main)
+        _size = np.shape(mask_main)
         if verbose:
             log.info('{}% masked'.format(_total/(_size[0]*_size[1])*100))
     except:
@@ -828,11 +847,12 @@ def nbar2stack(nbar, des, overwrite=False, verbose=False):
     try:
         # initialize output
         _driver = gdal.GetDriverByName('GTiff')
-        output = _driver.Create(des_nbar, geo['samples'], geo['lines'], 10,
+        output = _driver.Create(des_nbar, geo['samples'], geo['lines'], 15,
                                 gdal.GDT_Int16)
         output.SetProjection(geo['proj'])
         output.SetGeoTransform(geo['geotrans'])
-        output.GetRasterBand(1).SetNoDataValue(32767)
+        for i in range(1, 15 + 1):
+            output.GetRasterBand(i).SetNoDataValue(32767)
         # write output
         output.GetRasterBand(1).WriteArray(blue)
         output.GetRasterBand(2).WriteArray(green)
@@ -840,10 +860,15 @@ def nbar2stack(nbar, des, overwrite=False, verbose=False):
         output.GetRasterBand(4).WriteArray(nir)
         output.GetRasterBand(5).WriteArray(swir)
         output.GetRasterBand(6).WriteArray(swir2)
-        output.GetRasterBand(7).WriteArray(evi)
-        output.GetRasterBand(8).WriteArray(lswi)
-        output.GetRasterBand(9).WriteArray(mask_evi)
-        output.GetRasterBand(10).WriteArray(mask_lswi)
+        output.GetRasterBand(7).WriteArray(ndvi)
+        output.GetRasterBand(8).WriteArray(evi)
+        output.GetRasterBand(9).WriteArray(lswi)
+        output.GetRasterBand(10).WriteArray(nbr)
+        output.GetRasterBand(11).WriteArray(mask_ndvi)
+        output.GetRasterBand(12).WriteArray(mask_evi)
+        output.GetRasterBand(13).WriteArray(mask_lswi)
+        output.GetRasterBand(14).WriteArray(mask_nbr)
+        output.GetRasterBand(15).WriteArray(mask_main)
         # assign band name
         output.GetRasterBand(1).SetDescription('MODIS NBAR Blue')
         output.GetRasterBand(2).SetDescription('MODIS NBAR Green')
@@ -851,10 +876,15 @@ def nbar2stack(nbar, des, overwrite=False, verbose=False):
         output.GetRasterBand(4).SetDescription('MODIS NBAR NIR')
         output.GetRasterBand(5).SetDescription('MODIS NBAR SWIR')
         output.GetRasterBand(6).SetDescription('MODIS NBAR SWIR2')
-        output.GetRasterBand(7).SetDescription('MODIS NBAR EVI')
-        output.GetRasterBand(8).SetDescription('MODIS NBAR LSWI')
-        output.GetRasterBand(9).SetDescription('MODIS NBAR EVI MASK')
-        output.GetRasterBand(10).SetDescription('MODIS NBAR LSWI MASK')
+        output.GetRasterBand(7).SetDescription('MODIS NBAR NDVI')
+        output.GetRasterBand(8).SetDescription('MODIS NBAR EVI')
+        output.GetRasterBand(9).SetDescription('MODIS NBAR LSWI')
+        output.GetRasterBand(10).SetDescription('MODIS NBAR NBR')
+        output.GetRasterBand(11).SetDescription('MODIS NBAR NDVI MASK')
+        output.GetRasterBand(12).SetDescription('MODIS NBAR EVI MASK')
+        output.GetRasterBand(13).SetDescription('MODIS NBAR LSWI MASK')
+        output.GetRasterBand(14).SetDescription('MODIS NBAR NBR MASK')
+        output.GetRasterBand(15).SetDescription('MODIS NBAR MAIN MASK')
     except:
         log.error('Failed to write output to {}'.format(des_nbar))
         return 5
