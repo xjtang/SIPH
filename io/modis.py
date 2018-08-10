@@ -812,9 +812,9 @@ def nbar2stack(nbar, des, overwrite=False, verbose=False):
         log.info('Calculating EVI and LSWI...')
     try:
         evi = (cons.SCALE_FACTOR * cons.EVI_COEF[0] * ((nir - red) /
-                (nir + cons.EVI_COEF[1]*red - cons.EVI_COEF[2]*blue +
+                (nir + cons.EVI_COEF[1] * red - cons.EVI_COEF[2] * blue +
                 cons.EVI_COEF[3]))).astype(np.int16)
-        lswi = ((nir - swir1) / (nir + swir1) *
+        lswi = ((nir - swir) / (nir + swir) *
                     cons.SCALE_FACTOR).astype(np.int16)
         ndvi = ((nir - red) / (nir + red) *
                     cons.SCALE_FACTOR).astype(np.int16)
@@ -829,7 +829,7 @@ def nbar2stack(nbar, des, overwrite=False, verbose=False):
         log.info('Generating mask band...')
     try:
         mask_evi = ((qa_red != 0) + (qa_nir != 0) + (qa_blue != 0)) > 0
-        mask_lswi = ((qa_swir1 != 0) + (qa_nir != 0)) > 0
+        mask_lswi = ((qa_swir != 0) + (qa_nir != 0)) > 0
         mask_ndvi = ((qa_nir != 0) + (qa_red != 0)) > 0
         mask_nbr = ((qa_swir2 != 0) + (qa_nir != 0)) > 0
         mask_main = ((qa_red != 0) + (qa_nir != 0) + (qa_swir2 != 0)) > 0
