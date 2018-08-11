@@ -32,8 +32,7 @@ def sum_strata(pattern, ori, des, overwrite=False, recursive=False):
         1: error due to des
         2: error when searching files
         3: found no file
-        4: error during processing
-        5: error writng output
+        4: error writng output
 
     """
     # check if output already exists
@@ -73,7 +72,7 @@ def sum_strata(pattern, ori, des, overwrite=False, recursive=False):
         np.savetxt(des, r, delimiter=',', fmt='%d')
     except:
         log.error('Failed to write output to: {}'.format(des))
-        return 5
+        return 4
 
     # done
     log.info('Process completed.')

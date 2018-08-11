@@ -40,7 +40,6 @@ def batch_area_over_threshold(pattern, ori, des, img, overwrite=False,
         1: error when initializing
         2: error when searching files
         3: found no file
-        4: error during processin
 
     """
     # get list of available cache files

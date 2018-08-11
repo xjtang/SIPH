@@ -36,7 +36,6 @@ def modis_composite(pattern, terra, aqua, des, overwrite=False, recursive=False,
         1: error due to des
         2: error when searching files
         3: found no file
-        4: error during processing
 
     """
     # check if output exists, if not try to create one

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# bash script to convert mask images to stacked images
+# bash script to convert Sentinel images to stacked images
 
 # Input Arguments:
 #		-p searching pattern

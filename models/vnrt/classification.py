@@ -34,8 +34,7 @@ def classification(ori, des, img, _type='cls', overwrite=False, recursive=False)
         0: successful
         1: error due to des
         2: error when reading example image
-        3: error in processing
-        4: error in writing output
+        3: error in writing output
 
     """
     # check if output already exists
@@ -89,7 +88,7 @@ def classification(ori, des, img, _type='cls', overwrite=False, recursive=False)
     if array2stack(result, geo, des, ['VNRT {} map'.format(_type)], cons.NODATA,
                     output_type, overwrite) > 0:
         log.error('Failed to write output to {}'.format(des))
-        return 4
+        return 3
 
     # done
     log.info('Process completed.')

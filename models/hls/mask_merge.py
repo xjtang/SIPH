@@ -39,7 +39,6 @@ def merge_mask(pattern, ori, des, mask, overwrite=False, recursive=False,
         1: error due to des
         2: error when searching files
         3: found no file
-        4: error during processing
 
     """
     # check if output exists, if not try to create one
@@ -79,9 +78,9 @@ def merge_mask(pattern, ori, des, mask, overwrite=False, recursive=False,
     for img in img_list:
         log.info('Processing {}'.format(img[1]))
         maja = get_files(mask, '*{}*MAJA*'.format(img[1][3:16]), recursive)
-        fmask = get_files(mask, '*{}*FMASK*'.format(img[1][3:16]), recursive)
+        fmask = get_files(mask, '*{}*FMAS2*'.format(img[1][3:16]), recursive)
         lasrc = get_files(mask, '*{}*LASRC*'.format(img[1][3:16]), recursive)
-        fmask2 = get_files(mask, '*{}*FMAS2*'.format(img[1][3:16]), recursive)
+        fmask2 = get_files(mask, '*{}*FMAS4*'.format(img[1][3:16]), recursive)
         sen2cor = get_files(mask, '*{}*S2COR*'.format(img[1][3:16]), recursive)
         tmask = get_files(mask, '*{}*TMASK*'.format(img[1][3:16]), recursive)
         if len(maja)*len(fmask)*len(lasrc)*len(fmask2)*len(sen2cor)*len(tmask)==0:

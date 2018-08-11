@@ -1,8 +1,43 @@
 """ Module for IO of non-image files
 """
-import os
 import csv
 import ast
+
+from netCDF4 import Dataset
+
+from ..common import log
+
+
+def list2csv(_data, _file, overwrite=False):
+    """ write a list of lists into csv file
+
+    Args:
+        _data (list): a list of lists
+        _file (str): output file
+        overwrite (bool): overwrite or not
+
+    Returns:
+        0: successful
+        1: output already exists
+        2: error during process
+
+    """
+    # check if output already exists
+    if (not overwrite) and os.path.isfile(_file):
+        log.error('{} already exists.'.format(_file))
+        return 1
+
+    # write to csv
+    try:
+        with open(_file, 'w') as output:
+            _writer = csv.writer(output, lineterminator='\n')
+            _writer.writerows(_data)
+    except:
+        log.error('Failed to write output to {}'.format(_file))
+        return 2
+
+    # done
+    return 0
 
 
 def csv2list(_file, header=False, fixType=True):
@@ -18,7 +53,7 @@ def csv2list(_file, header=False, fixType=True):
 
     """
     # read file
-    with open(_file, 'rb') as f:
+    with open(_file, 'r') as f:
         reader = csv.reader(f)
         if header:
             next(reader)
@@ -49,7 +84,7 @@ def csv2dict(_file, fixType=True):
 
     """
     # read file
-    with open(_file, 'rb') as f:
+    with open(_file, 'r') as f:
         reader = csv.DictReader(f)
         table = list(reader)
 
@@ -96,3 +131,21 @@ def hdr2geo(_file):
                                 ast.literal_eval(minfo[4]), 0.0,
                                 ast.literal_eval(minfo[6]) * (-1))
     return geo
+
+
+def nc2array(_file, var=0):
+    """ read a netCDF file and return an numpy array
+
+    Args:
+        _file (str): path to input netCDF file
+        var (str): which variable, if NA grab the first one, if int grab nkey
+
+    Returns:
+        array (ndarray): output array
+
+    """
+    nc = Dataset(_file, 'r')
+    if type(var) == int:
+        var = nc.variables.keys()[var]
+    array = nc.variables[var][:]
+    return array

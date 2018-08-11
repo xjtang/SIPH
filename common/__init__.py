@@ -3,12 +3,12 @@
 from .logger import log
 from .utility import (date_to_doy, doy_to_date, get_files, show_progress,
                         manage_batch, get_date, get_int, doy_to_ordinal,
-                        ordinal_to_doy, select_samples)
+                        ordinal_to_doy, select_samples, split_doy)
 from .data_processing import (enlarge, crop, mirror, sidebyside, reclassify,
-                                tablize, dilate)
+                                tablize, dilate, enlarge2, ndarray_append)
 from .image_processing import (apply_mask, result2mask, apply_stretch,
-                                nodata_mask, clean_up, thematic_map)
-from .result_processing import ts2class, ts2doc, ts2dod
+                                nodata_mask, clean_up, thematic_map, nchange)
+from .result_processing import ts2class, ts2doc, ts2dod, ts2map
 
 
 __all__ = [
@@ -37,5 +37,9 @@ __all__ = [
     'thematic_map',
     'reclassify',
     'select_samples',
-    'dilate'
+    'dilate',
+    'enlarge2',
+    'ts2map',
+    'split_doy',
+    'ndarray_append'
 ]

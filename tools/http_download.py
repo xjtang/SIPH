@@ -98,7 +98,7 @@ def locate_data(url, sensor, collection, product, tile, year, day):
         product (str): which product (e.g. MOD09GA)
         tile (list, int): tile, [h, v]
         year (int): which year
-        day (list, int): which day, 0 for all year, [start, stop] for range
+        day (list, int): days, [start, stop] for range
 
     Returns:
         list: list of links to the files
@@ -120,27 +120,57 @@ def locate_data(url, sensor, collection, product, tile, year, day):
 
     # handle date tile
     url_list = []
-    for i in range(day[0], day[1]+1):
-        # read html page
-        try:
-            _date = doy_to_date(year*1000+i)
-            day_string = '{}.{:02}.{:02}'.format(_date[0], _date[1], _date[2])
-            link = '{}{}/'.format(url, day_string)
-            req = urllib.Request(link)
-            response = urllib.urlopen(req)
-            page = str(response.read())
-        except:
-            log.warning('Cannot read {}'.format(link))
-            continue
-
-        # search for image name
-        pattern = re.compile('{}\.A{}{:03}\.h{:02}v{:02}\.{:03}\..{{13}}\.{}'.format(
-                                product, year, i, tile[0], tile[1], collection, fmt))
-        m = re.search(pattern, page)
-        if m:
-            url_list.append('{}{}'.format(link, m.group()))
-        else:
-            log.warning('Find nothing for day {}'.format(i))
+    if year == 9999:
+        # this is an annual product, download all
+        for i in range(2001, dt.now().year):
+            # read html page
+            try:
+                day_string = '{}.01.01'.format(i)
+                link = '{}{}/'.format(url, day_string)
+                req = urllib.Request(link)
+                response = urllib.urlopen(req)
+                page = str(response.read())
+            except:
+                log.warning('Cannot read {}'.format(link))
+                continue
+            # search for image name
+            if product[-2] == 'C':
+                pattern = re.compile('{}\.A{}\.{:03}\..{{13}}\.{}'.format(
+                                        product, i, collection, fmt))
+            else:
+                pattern = re.compile('{}\.A{}001\.h{:02}v{:02}\.{:03}\..{{13}}\.{}'.format(
+                                        product, i, tile[0], tile[1], collection, fmt))
+            m = re.search(pattern, page)
+            if m:
+                url_list.append('{}{}'.format(link, m.group()))
+            else:
+                log.warning('Find nothing for year {}'.format(i))
+    else:
+        # this is not an annual product, download specific year
+        for i in range(day[0], day[1]+1):
+            # read html page
+            try:
+                _date = doy_to_date(year*1000+i)
+                day_string = '{}.{:02}.{:02}'.format(_date[0], _date[1], _date[2])
+                link = '{}{}/'.format(url, day_string)
+                req = urllib.Request(link)
+                response = urllib.urlopen(req)
+                page = str(response.read())
+            except:
+                log.warning('Cannot read {}'.format(link))
+                continue
+            # search for image name
+            if product[-2] == 'C':
+                pattern = re.compile('{}\.A{}{:03}\.{:03}\..{{13}}\.{}'.format(
+                                        product, year, i, collection, fmt))
+            else:
+                pattern = re.compile('{}\.A{}{:03}\.h{:02}v{:02}\.{:03}\..{{13}}\.{}'.format(
+                                        product, year, i, tile[0], tile[1], collection, fmt))
+            m = re.search(pattern, page)
+            if m:
+                url_list.append('{}{}'.format(link, m.group()))
+            else:
+                log.warning('Find nothing for day {}'.format(i))
 
     # done
     if len(url_list) == 0:
@@ -163,7 +193,7 @@ def download_data(url, username, password, des, sensor, collection, product,
         product (str): which product (e.g. MOD09GA)
         tile (list, int): tile, [h, v]
         year (int): which year
-        day (list, int): which day, 0 for all yea, [start, stop] for range
+        day (list, int): days, [start, stop] for range
         update (bool): update existing image or not
 
     Returns:
@@ -263,7 +293,9 @@ if __name__ == '__main__':
         if args.collection not in [5, 6]:
             log.error('Invalid collection, use 5 or 6 for MODIS.')
             sys.exit(1)
-        if args.product not in ['MOD09GA', 'MYD09GA', 'MOD09GQ', 'MYD09GQ']:
+        if args.product not in ['MOD09GA', 'MYD09GA', 'MOD09GQ', 'MYD09GQ',
+                                'MOD13Q1', 'MOD13A1', 'MCD43A4', 'MCD43C4',
+                                'MCD12Q1', 'MCD12C1']:
             log.error('Invalid product.')
             sys.exit(1)
     else:
@@ -281,6 +313,8 @@ if __name__ == '__main__':
         all(0 < x <= (366 if isleap(args.year) else 365) for x in args.day)):
         log.error('Invalid day range.')
         sys.exit(1)
+    if args.product in ['MCD12Q1', 'MCD12C1']:
+        args.year = 9999
 
     # print logs
     log.info('Starting to download data...')
@@ -289,6 +323,8 @@ if __name__ == '__main__':
                 args.year, args.day[0], args.day[1]))
     log.info('From {}'.format(cons._HTTP))
     log.info('Saving in {}'.format(args.des))
+    if args.year == 9999:
+        log.info('This is an annual product, all data will be downloaded.')
     if args.update:
         log.info('Updating existing files.')
 

@@ -25,8 +25,7 @@ def sen2stack(sen, des, overwrite=False, verbose=False):
         0: successful
         1: error due to des
         2: error in reading input
-        3: error in cleaning up data
-        4: error in writing output
+        3: error in writing output
 
     """
     # check if output already exists
@@ -48,7 +47,7 @@ def sen2stack(sen, des, overwrite=False, verbose=False):
         cirrus = enlarge(stack2array('{}10.jp2'.format(sen), 1, np.int16), 6)
     except:
         log.error('Failed to read input {}'.format(img))
-        return 3
+        return 2
 
     # write output
     if verbose:
@@ -80,7 +79,7 @@ def sen2stack(sen, des, overwrite=False, verbose=False):
         output.GetRasterBand(7).SetDescription('S10 B10 Cirrus')
     except:
         log.error('Failed to write output to {}'.format(des))
-        return 4
+        return 3
 
     # done
     if verbose:

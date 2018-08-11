@@ -8,8 +8,49 @@ from . import ordinal_to_doy
 from . import constants as cons
 
 
+def ts2map(ts_set, _type='change', option=[0]):
+    """ generate map class of various type from YATSM time series segments
+
+    Args:
+        ts_set (list, ndarray): a set of time series segments for a pixel
+        _type (int): type of map to generate
+        option (list): map type specific options
+    Returns:
+        map (int): map value
+
+    """
+    if _type == 'change':
+        # change map
+        map = ts_set[0]['break']
+        if map > 0:
+            map = 1
+    elif _type == 'nchange':
+        # number of change
+        map = (ts_set[-1]['break'] > 0) + len(ts_set) - 1
+    elif _type == 'doc':
+        # date of change
+        if option[0] == 1:
+            if (len(ts_set) > 1) & (ts_set[-1]['break'] == 0):
+                map = ts_set[-2]['break']
+            else:
+                map = ts_set[-1]['break']
+        else:
+            map = ts_set[0]['break']
+        if map > 0:
+            map = ordinal_to_doy(map)
+    elif _type == 'los':
+        # length of segment
+        if option[0] == 1:
+            map = ts_set[-1]['end'] - ts_set[-1]['start']
+        else:
+            map = ts_set[0]['end'] - ts_set[0]['start']
+    else:
+        map = cons.NODATA
+    return map
+
+
 def ts2class(ts, _class, _last):
-    """ read a csv file based table to a list
+    """ convert YATSM time series segment to land cover class
 
     Args:
         ts (ndarray): time series segment record
@@ -49,7 +90,7 @@ def ts2class(ts, _class, _last):
 
 
 def ts2doc(ts, ts_last, cdate, _last):
-    """ read a csv file based table to a list
+    """ get date of change from YATSM time series segment
 
     Args:
         ts (ndarray): time series segment record
@@ -79,7 +120,7 @@ def ts2doc(ts, ts_last, cdate, _last):
 
 
 def ts2dod(ts, ts_last, ddate, _last):
-    """ read a csv file based table to a list
+    """ get date of detection from YATSM time series segment
 
     Args:
         ts (ndarray): time series segment record

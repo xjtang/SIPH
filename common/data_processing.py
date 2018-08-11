@@ -20,6 +20,21 @@ def enlarge(array, scaling):
     return np.kron(array, np.ones((scaling, scaling))).astype(array.dtype)
 
 
+def enlarge2(array, x, y):
+    """ enlarge an array by different scaling factor for x and y
+
+    Args:
+        array (ndarray): array to be scaled
+        x (int): amount of scaling on x
+        y (int): amount of scaling on y
+
+    Returns:
+        scaled (ndarray): scaled array
+
+    """
+    return np.kron(array, np.ones((x, y))).astype(array.dtype)
+
+
 def crop(array, window):
     """ crop a part of an array
 
@@ -105,19 +120,37 @@ def tablize(array):
 
 
 def dilate(array, value=1, iterations=1):
-        """ dilate a raster
+    """ dilate a raster
 
-        Args:
-            array (ndarray): input array
-            value (int): what value to dilate
-            iterations (int): dilate how many pixels
+    Args:
+        array (ndarray): input array
+        value (int): what value to dilate
+        iterations (int): dilate how many pixels
 
-        Returns:
-            array (ndarray): output array
+    Returns:
+        array (ndarray): output array
 
-        """
-        array2 = (array == value)
-        array2 = nd.binary_dilation(array2,
-                                    iterations=iterations).astype(array2.dtype)
-        array[array2] = value
-        return array
+    """
+    array2 = (array == value)
+    array2 = nd.binary_dilation(array2,
+                                iterations=iterations).astype(array2.dtype)
+    array[array2] = value
+    return array
+
+
+def ndarray_append(array, _dtype):
+    """ append a field to a structured array
+
+    Args:
+        array (ndarray): input array
+        _type (dtype): dtype of the field to be appended
+
+    Returns:
+        array2 (ndarray): output array
+
+    """
+    _dtype = np.dtype(array.dtype.descr + _dtype)
+    array2 = np.zeros(array.shape, dtype=_dtype)
+    for x in array.dtype.names:
+        array2[x] = array[x]
+    return array2
