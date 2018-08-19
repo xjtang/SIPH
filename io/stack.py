@@ -155,7 +155,7 @@ def array2stack(array, geo, des, bands='NA', nodata='NA', _type=gdal.GDT_Int16,
 
 
 def stack2array(img, band=0, _type=np.int16):
-    """ Convert stacked image to rgb picture file (e.g. png)
+    """ read stack image as ndarray
 
     Args:
         img (str): the link to the image stack file
