@@ -526,6 +526,175 @@ def modisvi2stack(VI, des, overwrite=False, verbose=False):
     return 0
 
 
+def modisvicmg2stack(VI, des, overwrite=False, verbose=False):
+    """ read MODIS vegetation index CMG product and convert to geotiff
+
+    Args:
+        VI (str): path to input MxD13x1 file
+        des (str): path to output
+        overwrite (bool): overwrite or not
+        verbose (bool): verbose or not
+
+    Returns:
+        0: successful
+        1: error due to des
+        2: error in reading input
+        3: error in QA
+        4: error in cleaning up data
+        5: error in writing output
+
+    """
+    # set destinations
+    des_vi = os.path.join(des,'{}.tif'.format(mn2ln(os.path.basename(VI))))
+
+    # check if output already exists
+    if (not overwrite) and os.path.isfile(des_vi):
+        log.error('{} already exists.'.format(os.path.basename(des_vi)))
+        return 1
+
+    # read input image
+    if verbose:
+        log.info('Reading input: {}'.format(VI))
+    try:
+        vi_img = gdal.Open(VI, gdal.GA_ReadOnly)
+        vi_sub = vi_img.GetSubDatasets()
+        vi_ndvi = gdal.Open(vi_sub[cons.MVIC_BANDS[0]][0], gdal.GA_ReadOnly)
+        vi_evi = gdal.Open(vi_sub[cons.MVIC_BANDS[1]][0], gdal.GA_ReadOnly)
+        vi_red = gdal.Open(vi_sub[cons.MVIC_BANDS[2]][0], gdal.GA_ReadOnly)
+        vi_nir = gdal.Open(vi_sub[cons.MVIC_BANDS[3]][0], gdal.GA_ReadOnly)
+        vi_swir = gdal.Open(vi_sub[cons.MVIC_BANDS[4]][0], gdal.GA_ReadOnly)
+        vi_blue = gdal.Open(vi_sub[cons.MVIC_BANDS[5]][0], gdal.GA_ReadOnly)
+        vi_qa = gdal.Open(vi_sub[cons.MVIC_BANDS[6]][0], gdal.GA_ReadOnly)
+    except:
+        log.error('Failed to read input {}'.format(VI))
+        return 2
+
+    # read geo info
+    if verbose:
+        log.info('Reading geo information...')
+    try:
+        # geo = stackGeo(nbar_sub[0][0])
+        geo = {'proj': cons.SIF_PROJ}
+        geo['geotrans'] = (-180, 0.05, 0, 90, 0, -0.05)
+        geo['lines'] = 3600
+        geo['samples'] = 7200
+        geo['bands'] = 8
+        geo['nodata'] = 32767
+    except:
+        log.error('Failed to read geo info.')
+        return 2
+
+    # read actual data
+    if verbose:
+        log.info('Reading actual data...')
+    try:
+        ndvi = vi_ndvi.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        evi = vi_evi.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        red = vi_red.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        nir = vi_nir.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        swir = vi_swir.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        blue = vi_blue.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        qa = vi_qa.GetRasterBand(1).ReadAsArray().astype(np.int16)
+    except:
+        log.error('Failed to read data.')
+        return 2
+
+    # calculate nbr
+    if verbose:
+        log.info('Calculating NBR...')
+    try:
+        nbr = ((nir-swir) / (nir+swir) * cons.SCALE_FACTOR).astype(np.int16)
+    except:
+        log.error('Failed to calculate NBR.')
+        return 3
+
+    # generate mask band
+    if verbose:
+        log.info('Generating mask band...')
+    try:
+        mask = (qa!=0)
+        _total = np.sum(mask)
+        _size = np.shape(mask)
+        if verbose:
+            log.info('{}% masked'.format(_total/(_size[0]*_size[1])*100))
+    except:
+        log.error('Failed to generate mask band.')
+        return 3
+
+    # clean up data
+    if verbose:
+        log.info('Cleaning up data...')
+    try:
+        red[(red < 0) | (red > 10000)] = cons.NODATA
+        nir[(nir < 0) | (nir > 10000)] = cons.NODATA
+        swir[(swir < 0) | (swir > 10000)] = cons.NODATA
+        blue[(blue < 0) | (blue > 10000)] = cons.NODATA
+        ndvi[(ndvi < -10000) | (ndvi > 10000)] = cons.NODATA
+        evi[(evi < -10000) | (evi > 10000)] = cons.NODATA
+        nbr[(nbr < -10000) | (nbr > 10000)] = cons.NODATA
+    except:
+        log.error('Failed to clean up data.')
+        return 4
+
+    # write output
+    if verbose:
+        log.info('Writing output: {}'.format(des_vi))
+    try:
+        # initialize output
+        _driver = gdal.GetDriverByName('GTiff')
+        output = _driver.Create(des_vi, vi_geo['samples'], vi_geo['lines'], 8,
+                                gdal.GDT_Int16)
+        output.SetProjection(vi_geo['proj'])
+        output.SetGeoTransform(vi_geo['geotrans'])
+        output.GetRasterBand(1).SetNoDataValue(cons.NODATA)
+        output.GetRasterBand(2).SetNoDataValue(cons.NODATA)
+        output.GetRasterBand(3).SetNoDataValue(cons.NODATA)
+        output.GetRasterBand(4).SetNoDataValue(cons.NODATA)
+        output.GetRasterBand(5).SetNoDataValue(cons.NODATA)
+        output.GetRasterBand(6).SetNoDataValue(cons.NODATA)
+        output.GetRasterBand(7).SetNoDataValue(cons.NODATA)
+        output.GetRasterBand(8).SetNoDataValue(cons.NODATA)
+        # write output
+        output.GetRasterBand(1).WriteArray(ndvi)
+        output.GetRasterBand(2).WriteArray(evi)
+        output.GetRasterBand(3).WriteArray(nbr)
+        output.GetRasterBand(4).WriteArray(red)
+        output.GetRasterBand(5).WriteArray(nir)
+        output.GetRasterBand(6).WriteArray(swir)
+        output.GetRasterBand(7).WriteArray(blue)
+        output.GetRasterBand(8).WriteArray(mask)
+        # assign band name
+        output.GetRasterBand(1).SetDescription('MODIS VI CMG 16day NDVI')
+        output.GetRasterBand(2).SetDescription('MODIS VI CMG 16day EVI')
+        output.GetRasterBand(3).SetDescription('MODIS VI CMG 16day NBR')
+        output.GetRasterBand(4).SetDescription('MODIS VI CMG 16day Red')
+        output.GetRasterBand(5).SetDescription('MODIS VI CMG 16day NIR')
+        output.GetRasterBand(6).SetDescription('MODIS VI CMG 16day SWIR')
+        output.GetRasterBand(7).SetDescription('MODIS VI CMG 16day Blue')
+        output.GetRasterBand(8).SetDescription('MODIS VI CMG 16day MASK')
+    except:
+        log.error('Failed to write output to {}'.format(des_vi))
+        return 5
+
+    # close files
+    if verbose:
+        log.info('Closing files...')
+    vi_img = None
+    vi_red = None
+    vi_nir = None
+    vi_swir = None
+    vi_blue = None
+    vi_ndvi = None
+    vi_evi = None
+    vi_qa = None
+    output = None
+
+    # done
+    if verbose:
+        log.info('Process completed.')
+    return 0
+
+
 def modislc2stack(LC, des, mergeclass=False, overwrite=False, verbose=False):
     """ read MODIS land cover product and convert to geotiff
 

@@ -16,7 +16,7 @@ import argparse
 
 from ...common import log, get_files, manage_batch
 from ...io import (modisvi2stack, modislc2stack, nbar2stack, pheno2stack,
-                    nbarcmg2stack)
+                    nbarcmg2stack, modisvicmg2stack)
 
 
 def modis_product_preprocess(pattern, ori, des, product, overwrite=False,
@@ -77,6 +77,10 @@ def modis_product_preprocess(pattern, ori, des, product, overwrite=False,
         log.info('Processing {}'.format(img[1]))
         if product == 'vi':
             if modisvi2stack(os.path.join(img[0], img[1]), des, overwrite) == 0:
+                count += 1
+        elif product == 'vicmg':
+            if modisvicmg2stack(os.path.join(img[0], img[1]), des, True,
+                                overwrite) == 0:
                 count += 1
         elif product == 'lc':
             if modislc2stack(os.path.join(img[0], img[1]), des, True,

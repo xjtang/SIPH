@@ -24,6 +24,7 @@ MGA_VZA_BAND = 2
 MGA_SR_BANDS = [11, 12, 16, 17, 14]
 MGQ_BANDS = [1, 2]
 MVI_BANDS = [0, 1, 3, 4, 6, 5, 11]
+MVIC_BANDS = [0, 1, 3, 4, 6, 5, 12]
 MLC_BAND = 0
 MLC_RECLASS = [[1, [0]],
                 [2, [1, 2, 3, 4, 5]],
