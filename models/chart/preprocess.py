@@ -79,11 +79,11 @@ def modis_product_preprocess(pattern, ori, des, product, overwrite=False,
             if modisvi2stack(os.path.join(img[0], img[1]), des, overwrite) == 0:
                 count += 1
         elif product == 'vicmg':
-            if modisvicmg2stack(os.path.join(img[0], img[1]), des, True,
+            if modisvicmg2stack(os.path.join(img[0], img[1]), des,
                                 overwrite) == 0:
                 count += 1
         elif product == 'lc':
-            if modislc2stack(os.path.join(img[0], img[1]), des, True,
+            if modislc2stack(os.path.join(img[0], img[1]), des, False,
                                 overwrite) == 0:
                 count += 1
         elif product == 'nbar':
