@@ -1,4 +1,4 @@
-""" Module for IO of VIIRS data
+""" Module for IO of MODIS data
 """
 from __future__ import division
 
@@ -574,12 +574,12 @@ def modisvicmg2stack(VI, des, overwrite=False, verbose=False):
         log.info('Reading geo information...')
     try:
         # geo = stackGeo(nbar_sub[0][0])
-        geo = {'proj': cons.SIF_PROJ}
-        geo['geotrans'] = (-180, 0.05, 0, 90, 0, -0.05)
-        geo['lines'] = 3600
-        geo['samples'] = 7200
-        geo['bands'] = 8
-        geo['nodata'] = 32767
+        vi_geo = {'proj': cons.SIF_PROJ}
+        vi_geo['geotrans'] = (-180, 0.05, 0, 90, 0, -0.05)
+        vi_geo['lines'] = 3600
+        vi_geo['samples'] = 7200
+        vi_geo['bands'] = 8
+        vi_geo['nodata'] = 32767
     except:
         log.error('Failed to read geo info.')
         return 2
