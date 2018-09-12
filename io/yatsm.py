@@ -75,14 +75,14 @@ def yatsm2map(_file, _type, samples, option=[0], verbose=False):
     # read in cache file
     if verbose:
         log.info('Reading in YATSM result file...')
-    records = yatsm2records(_file, True)
+    records = yatsm2records(_file, False)
 
     # record by record processing
     if verbose:
         log.info('Generating map...')
     ts_set = [records[0]]
     px = ts_set[0]['px']
-    for i in range(1, n):
+    for i in range(1, len(records)):
         ts = records[i]
         if px == ts['px']:
             ts_set.append(ts)
