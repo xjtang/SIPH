@@ -46,7 +46,6 @@ def stacking(pattern, ori, des, sort=False, overwrite=False, recursive=False):
     log.info('Locating files...')
     try:
         img_list = get_files(ori, pattern, recursive)
-        img_list = [os.path.join(x[0], x[1]) for x in img_list]
         n = len(img_list)
     except:
         log.error('Failed to search for {}'.format(pattern))
@@ -61,8 +60,9 @@ def stacking(pattern, ori, des, sort=False, overwrite=False, recursive=False):
     # sort images
     log.info('Sorting images...')
     if sort:
-        img_id = [get_int(x)[0] for x in img_list]
-        img_list = [[img_list[x], img_id[x]] for x in np.argsort(img_id)]
+        img_id = [get_int(x[1])[0] for x in img_list]
+        img_list = [img_list[x] for x in np.argsort(img_id)]
+    img_list = [os.path.join(x[0], x[1]) for x in img_list]
 
     # stack file
     log.info('Stacking images...')

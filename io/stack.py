@@ -61,7 +61,7 @@ def stackMerge(stacks, des, _type=gdal.GDT_Int16, overwrite=False):
                 band = img2.GetRasterBand(i+1).GetDescription()
                 output.GetRasterBand(count).WriteArray(array)
                 output.GetRasterBand(count).SetNoDataValue(nodata)
-                output.GetRasterBand(count).SetDescription(band)
+                output.GetRasterBand(count).SetDescription(os.path.basename(img))
                 count += 1
     except:
         log.error('Failed to write output to {}'.format(des))
