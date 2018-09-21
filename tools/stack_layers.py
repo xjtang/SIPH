@@ -12,6 +12,7 @@
 import os
 import sys
 import argparse
+import numpy as np
 
 from ..common import log, get_files, get_int
 from ..io import stackMerge, stackGeo, stack2array, array2stack
