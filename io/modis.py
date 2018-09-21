@@ -239,7 +239,7 @@ def modis2stack(MOD09GA, des, MOD09GQ='NA', overwrite=False, verbose=False):
 
 
 def modisQA(qa):
-    """ intepret MODISA and return a mask array
+    """ intepret MODIS QA and return a mask array
 
     Args:
         qa (ndarray): QA array
