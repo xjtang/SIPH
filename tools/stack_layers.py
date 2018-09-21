@@ -2,6 +2,7 @@
 
     Args:
         -p (pattern): searching pattern
+        -s (sort): sort image or not
         -R (recursive): recursive when seaching files
         --overwrite: overwrite or not
         ori: origin
@@ -12,17 +13,18 @@ import os
 import sys
 import argparse
 
-from ..common import log, get_files
+from ..common import log, get_files, get_int
 from ..io import stackMerge, stackGeo, stack2array, array2stack
 
 
-def stacking(pattern, ori, des, overwrite=False, recursive=False):
+def stacking(pattern, ori, des, sort=False, overwrite=False, recursive=False):
     """ stack raster layers
 
     Args:
         pattern (str): searching pattern, e.g. M*tif
         ori (str): place to look for inputs
         des (str): output path and filename
+        sort (bool): sort image or not
         overwrite (bool): overwrite or not
         recursive (bool): recursive when searching file, or not
 
@@ -55,6 +57,12 @@ def stacking(pattern, ori, des, overwrite=False, recursive=False):
         else:
             log.info('Found {} files.'.format(n))
 
+    # sort images
+    log.info('Sorting images...')
+    if sort:
+        img_id = [get_int(x)[0] for x in img_list]
+        img_list = [[img_list[x], img_id[x]] for x in np.argsort(img_id)]
+
     # stack file
     log.info('Stacking images...')
     try:
@@ -74,6 +82,8 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--pattern', action='store', type=str,
                         dest='pattern', default='*tif',
                         help='searching pattern')
+    parser.add_argument('-s', '--sort', action='store_true',
+                        help='recursive or not')
     parser.add_argument('-R', '--recursive', action='store_true',
                         help='recursive or not')
     parser.add_argument('--overwrite', action='store_true',
@@ -87,10 +97,13 @@ if __name__ == '__main__':
     log.info('Looking for {}'.format(args.pattern))
     log.info('In {}'.format(args.ori))
     log.info('Saving as {}'.format(args.des))
+    if args.sort:
+        log.info('Sorting image.')
     if args.recursive:
         log.info('Recursive seaching.')
     if args.overwrite:
         log.info('Overwriting old file.')
 
     # run function to stack raster layers
-    stacking(args.pattern, args.ori, args.des, args.overwrite, args.recursive)
+    stacking(args.pattern, args.ori, args.des, args.sort, args.overwrite,
+                args.recursive)
