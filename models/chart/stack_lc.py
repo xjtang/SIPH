@@ -11,6 +11,7 @@
 import os
 import sys
 import argparse
+import numpy as np
 
 from osgeo import gdal
 
@@ -49,7 +50,9 @@ def modislc_stack(pattern, ori, des, overwrite=False, recursive=False):
     log.info('Locating files...')
     try:
         lc_list = get_files(ori, pattern, recursive)
-        lc_list = [os.path.join(x[0], x[1]) for x in lc_list]
+        img_id = [int(x[1][9:16]) for x in lc_list]
+        lc_list = [os.path.join(lc_list[x][0],
+                    lc_list[x][1]) for x in np.argsort(img_id)]
         n = len(lc_list)
     except:
         log.error('Failed to search for {}'.format(pattern))
