@@ -3,7 +3,8 @@
     Args:
         -b (bitshift): how many bits to shift for the first map
         --overwrite: overwrite or not
-        ori: origin
+        map1: map 1
+        map2: map 2
         des: destination
 
 """
