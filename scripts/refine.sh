@@ -30,4 +30,4 @@ done
 
 # submit job
 echo 'Submitting job to refine classification results'
-qsub -j y -N Refine -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.chart.refine ${overwrite}-p $ori $lc $des
+qsub -j y -N Refine -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.chart.refine ${overwrite} $ori $lc $des
