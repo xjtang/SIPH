@@ -19,7 +19,7 @@ while [[ $# > 0 ]]; do
 	InArg="$1"
 	case $InArg in
 		-b)
-			bitshift=$2
+			bit=$2
 			shift
 			;;
 		-s)
