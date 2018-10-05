@@ -12,6 +12,7 @@
 import os
 import sys
 import argparse
+import numpy as np
 
 from osgeo import gdal
 
@@ -63,7 +64,7 @@ def compare_maps(map1, map2, des, bitshift=3, stable=True, overwrite=False):
     # compare maps
     log.info('Comparing maps')
     try:
-        array3 = array1.astype(int32) * (10**bitshift) + array2.astype(int32)
+        array3 = array1.astype(np.int32) * (10**bitshift) + array2.astype(np.int32)
         if stable:
             array3[array1==array2] = 0
         if geo['nodata'] != 'NA':
