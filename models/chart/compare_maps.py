@@ -2,6 +2,7 @@
 
     Args:
         -b (bitshift): how many bits to shift for the first map
+        -s (stable): convert stable to 0 or not
         --overwrite: overwrite or not
         map1: map 1
         map2: map 2
@@ -18,7 +19,7 @@ from ...common import log, get_files, manage_batch
 from ...io import stack2array, stackGeo, array2stack
 
 
-def compare_maps(map1, map2, des, bitshift=3, overwrite=False):
+def compare_maps(map1, map2, des, bitshift=3, stable=True, overwrite=False):
     """ compare MODIS land cover maps
 
     Args:
@@ -26,6 +27,7 @@ def compare_maps(map1, map2, des, bitshift=3, overwrite=False):
         map2 (str): path and filename of second map
         des (str): place to save output map
         bitshift (int): how many bits to shift the first map class
+        stable (bool): convert stable to 0 or not
         overwrite (bool): overwrite or not
 
     Returns:
@@ -62,7 +64,8 @@ def compare_maps(map1, map2, des, bitshift=3, overwrite=False):
     log.info('Comparing maps')
     try:
         array3 = array1 * (10**bitshift) + array2
-        array3[array1==array2] = 0
+        if stable:
+            array3[array1==array2] = 0
         if geo['nodata'] != 'NA':
             array3[array1==geo['nodata']] = 255
             array3[array2==geo['nodata']] = 255
@@ -89,6 +92,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-b', '--bitshift', action='store', type=int,
                         dest='bit', default=3, help='how many bit to shift')
+    parser.add_argument('-s', '--stable', action='store_true',
+                        help='stable to 0 or not')
     parser.add_argument('--overwrite', action='store_true',
                         help='overwrite or not')
     parser.add_argument('map1', default='./', help='map1')
@@ -102,8 +107,11 @@ if __name__ == '__main__':
     log.info('Map 2 from {}'.format(args.map2))
     log.info('Saving as {}'.format(args.des))
     log.info('Bit shift: {}'.format(args.bit))
+    if args.stable:
+        log.info('Convert stable to 0.')
     if args.overwrite:
         log.info('Overwriting old files.')
 
     # run function to compare maps
-    compare_maps(args.map1, args.map2, args.des, args.bit, args.overwrite)
+    compare_maps(args.map1, args.map2, args.des, args.bit, args.stable,
+                    args.overwrite)
