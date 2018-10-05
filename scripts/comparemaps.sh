@@ -12,7 +12,7 @@
 # default values
 bit=3
 overwrite=''
-recursive=''
+stable=''
 
 # parse input arguments
 while [[ $# > 0 ]]; do
@@ -21,6 +21,9 @@ while [[ $# > 0 ]]; do
 		-b)
 			bitshift=$2
 			shift
+			;;
+		-s)
+			stable='-s '
 			;;
 		--overwrite)
 			overwrite='--overwrite '
@@ -35,4 +38,4 @@ while [[ $# > 0 ]]; do
 done
 
 # submit jobs
-qsub -j y -N CompareMap -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.chart.compare_maps ${overwrite}-b $bit $map1 $map2 $des
+qsub -j y -N CompareMap -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.chart.compare_maps ${overwrite}${stable}-b $bit $map1 $map2 $des
