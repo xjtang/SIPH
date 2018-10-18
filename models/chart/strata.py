@@ -57,12 +57,13 @@ def create_strata(ori, des, overwrite=False):
 
     # writing output
     log.info('Writing output...')
-    try:
+    #try:
+    if True:
         array2stack(strata.astype(np.int8), geo, des, ['strata'], 255,
-                    gdal.GDT_Int8, overwrite)
-    except:
-        log.error('Failed to write output to {}'.format(des))
-        return 4
+                    gdal.GDT_Byte, overwrite)
+    #except:
+    #    log.error('Failed to write output to {}'.format(des))
+    #    return 4
 
     # done
     log.info('Process completed.')
