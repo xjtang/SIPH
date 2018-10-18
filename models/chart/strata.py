@@ -50,7 +50,7 @@ def create_strata(ori, des, overwrite=False):
     # statifying
     log.info('Start creating strata...')
     try:
-        strata = reclassify(strata, cons.CHARTSCHEME)
+        strata = reclassify(array, cons.CHARTSCHEME)
     except:
         log.error('Failed to create strata.')
         return 3
