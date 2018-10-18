@@ -40,7 +40,7 @@ def refine_results(ori, lc, des, overwrite=False):
         return 1
 
     # read input image
-    log.info('Reading input maps.')
+    log.info('Reading input maps...')
     try:
         r = stack2array(ori)
         lc = stack2array(lc)
@@ -58,9 +58,8 @@ def refine_results(ori, lc, des, overwrite=False):
         return 2
 
     # refine classification results
-    log.info('Refining maps')
-    if True:
-    #try:
+    log.info('Refining maps...')
+    try:
         (lines, samples, nband) = r.shape
         for i in range(0,lines):
             for j in range(0, samples):
@@ -96,12 +95,12 @@ def refine_results(ori, lc, des, overwrite=False):
             progress = show_progress(i, lines, 5)
             if progress >= 0:
                 log.info('{}% done.'.format(progress))
-    #except:
-    #    log.error('Failed to refine results.')
-    #    return 3
+    except:
+        log.error('Failed to refine results.')
+        return 3
 
     # write output
-    log.info('Writing output: {}'.format(des))
+    log.info('Writing output...')
     try:
         array2stack(r, geo, des, 'NA', 255, gdal.GDT_Int16, overwrite)
     except:

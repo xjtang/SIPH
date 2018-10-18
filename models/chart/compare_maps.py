@@ -45,7 +45,7 @@ def compare_maps(map1, map2, des, bitshift=3, stable=True, overwrite=False):
         return 1
 
     # read input image
-    log.info('Reading input maps.')
+    log.info('Reading input maps...')
     try:
         array1 = stack2array(map1, 1)
         array2 = stack2array(map2, 1)
@@ -62,7 +62,7 @@ def compare_maps(map1, map2, des, bitshift=3, stable=True, overwrite=False):
         return 2
 
     # compare maps
-    log.info('Comparing maps')
+    log.info('Comparing maps...')
     try:
         array3 = array1.astype(np.int32) * (10**bitshift) + array2.astype(np.int32)
         if stable:
@@ -75,7 +75,7 @@ def compare_maps(map1, map2, des, bitshift=3, stable=True, overwrite=False):
         return 3
 
     # write output
-    log.info('Writing output: {}'.format(des))
+    log.info('Writing output...')
     try:
         array2stack(array3, geo, des, ['Change'], 255, gdal.GDT_Int32,
                     overwrite)
