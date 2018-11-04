@@ -65,6 +65,7 @@ def refine_results(ori, lc, des, overwrite=False):
             for j in range(0, samples):
                 p = r[i, j, :]
                 plc = lc[i, j, :]
+                plc_label = np.bincount(plc).argmax()
                 # deel with unclassified
                 if max(p == 0) == 1:
                     uclc = plc[p == 0]
@@ -92,6 +93,33 @@ def refine_results(ori, lc, des, overwrite=False):
                         else:
                             p[p == 0] = p[p != 0][-1]
                     r[i, j, :] = p
+
+                # fix short plantation in beginning
+                if p[2] != 18:
+                    if p[0] == 18:
+                        p[0] = p[2]
+                    if p[1] == 18:
+                        p[1] = p[2]
+                    r[i, j, :] = p
+
+                # fix mangrove in south
+                if sum(p == 25) > 12:
+                    if sum(plc == 11) > 12:
+                        r[i, j, :] = 19
+
+                # fix grass and barren in north
+                if sum(plc == 10) + sum(plc == 16) > 12:
+                    if sum(p == 12) > 10:
+                        r[i, j, :] = 10
+                    elif sum(p == 13) > 10:
+                        r[i, j, :] = 16
+                    elif sum(p == 17) > 10:
+                        r[i, j, :] = plc_label
+                    elif sum(p == 18) > 10:
+                        r[i, j, :] = 9
+                    elif sum(p == 25) > 10:
+                        r[i, j, :] = plc_label
+
             progress = show_progress(i, lines, 5)
             if progress >= 0:
                 log.info('{}% done.'.format(progress))
