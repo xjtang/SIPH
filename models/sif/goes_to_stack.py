@@ -25,7 +25,7 @@ def goes_to_stack(pattern, ori, des, overwrite=False, recursive=False,
     """ converting GOES images to stacked images
 
     Args:
-        pattern (str): searching pattern, e.g. *B01.jp2
+        pattern (str): searching pattern, e.g. *.nc
         ori (str): place to look for inputs
         des (str): place to save outputs
         overwrite (bool): overwrite or not
