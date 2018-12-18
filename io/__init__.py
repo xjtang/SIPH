@@ -1,7 +1,7 @@
 """ Module for io libarary
 """
 from .datafile import csv2list, csv2dict, hdr2geo, nc2array, list2csv
-from .sif import sifn2ln, sif2stack, sif2grid, sifn2date
+from .sif import sifn2ln, sif2stack, sif2grid, sifn2date, tpm2stack, tn2ln
 from .goes import gn2ln, goes2stack
 from .viirs import viirs2gtif, viirsQA, vn2ln, viirsGeo
 from .stack import stack2array, stackGeo, array2stack, stackMerge, stack2table
@@ -60,5 +60,7 @@ __all__ = [
     'yatsm2records',
     'yatsm2pixels',
     'list2csv',
-    'modisvicmg2stack'
+    'modisvicmg2stack',
+    'tpm2stack',
+    'tn2ln'
 ]

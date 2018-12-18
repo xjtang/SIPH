@@ -383,8 +383,170 @@ def sifn2date(fn):
     fn = os.path.splitext(fn)[0]
     fn = fn.split('_')
     if fn[-1] == 'all':
-            d = fn[6].split('.')[1]
-            doy = date_to_doy(int(d[0:4]), int(d[4:6]), int(d[6:8]))
+        d = fn[6].split('.')[1]
+        doy = date_to_doy(int(d[0:4]), int(d[4:6]), int(d[6:8]))
     else:
         doy = date_to_doy(int(fn[9][0:4]), int(fn[9][4:6]), int(fn[9][6:8]))
     return doy
+
+
+def tpm2stack(_file, des, overwrite=False, verbose=False):
+    """ read TROPOMI sif product and convert to stack image
+
+    Args:
+        _file (str): path to input SIF file
+        des (str): place to save output
+        overwrite (bool): overwrite or not
+        verbose (bool): verbose or not
+
+    Returns:
+        0: successful
+        1: error due to des
+        2: error in reading input
+        3: error in generating mask band
+        4: error in cleaning up data
+        5: error in writing output
+
+    """
+    # check if output exists, if not try to create one
+    if not os.path.exists(des):
+        log.warning('{} does not exist, trying to create one.'.format(des))
+        try:
+            os.makedirs(des)
+        except:
+            log.error('Cannot create output folder {}'.format(des))
+            return 1
+
+    # read input netCDF
+    if verbose:
+        log.info('Reading input: {}'.format(_file))
+    try:
+        sif = np.ma.filled(nc2array(_file, 3))
+        sif_dc = np.ma.filled(nc2array(_file, 4))
+        sif_rel = np.ma.filled(nc2array(_file, 5))
+        sif_err = np.ma.filled(nc2array(_file, 6))
+        sif_dc_err = np.ma.filled(nc2array(_file, 7))
+        sif_rel_err = np.ma.filled(nc2array(_file, 8))
+        nob = np.ma.filled(nc2array(_file, 9))
+        lat = enlarge2(nc2array(_file, 1), 1800, 1).T
+        lon = enlarge2(nc2array(_file, 0), 900, 1)
+        nday = sif.shape[0]
+    except:
+        log.error('Failed to read input {}'.format(_file))
+        return 2
+
+    # create geo info
+    if verbose:
+        log.info('Creating geo information...')
+    geo = {'proj': cons.SIF_PROJ}
+    geo['geotrans'] = (-180, 0.2, 0, -90, 0, 0.2)
+    geo['lines'] = 900
+    geo['samples'] = 1800
+    geo['bands'] = 8
+    geo['nodata'] = cons.NODATA
+
+    # generate mask band
+    if verbose:
+        log.info('Generating mask band...')
+    try:
+        mask = (sif <= cons.SIF_NODATA)
+    except:
+        log.error('Failed to generate mask band.')
+        return 3
+
+    # clean up data
+    if verbose:
+        log.info('Cleaning up data...')
+    try:
+        sif[sif <= cons.SIF_NODATA] = cons.NODATA / cons.SIF_SF
+        sif_dc[sif_dc <= cons.SIF_NODATA] = cons.NODATA / cons.SIF_SF
+        sif_rel[sif_rel <= cons.SIF_NODATA] = cons.NODATA / cons.SIF_SF
+        sif_err[sif_err <= cons.SIF_NODATA] = cons.NODATA / cons.SIF_SF
+        sif_dc_err[sif_dc_err <= cons.SIF_NODATA] = cons.NODATA / cons.SIF_SF
+        sif_rel_err[sif_rel_err <= cons.SIF_NODATA] = cons.NODATA / cons.SIF_SF
+        nob[nob <= cons.SIF_NODATA] = cons.NODATA / cons.SIF_SF
+
+        sif = (sif * cons.SIF_SF).astype(np.int16)
+        sif_dc = (sif_dc * cons.SIF_SF).astype(np.int16)
+        sif_rel = (sif_rel * cons.SIF_SF).astype(np.int16)
+        sif_err = (sif_err * cons.SIF_SF).astype(np.int16)
+        sif_dc_err = (sif_dc_err * cons.SIF_SF).astype(np.int16)
+        sif_rel_err = (sif_rel_err * cons.SIF_SF).astype(np.int16)
+        nob = (nob * cons.SIF_SF).astype(np.int16)
+        lat = (lat * 100).astype(np.int16)
+        lon = (lon * 100).astype(np.int16)
+    except:
+        log.error('Failed to clean up data.')
+        return 4
+
+    # write output
+    if verbose:
+        log.info('Writing output: {}'.format(des))
+    count = 0
+    for day in range(0, nday):
+        try:
+            # initialize output
+            des2 = os.path.join(des,
+                        '{}.tif'.format(tn2ln(os.path.basename(_file), day)))
+            _driver = gdal.GetDriverByName('GTiff')
+            output = _driver.Create(des2, geo['samples'], geo['lines'], 8,
+                                    gdal.GDT_Int16)
+            output.SetProjection(geo['proj'])
+            output.SetGeoTransform(geo['geotrans'])
+            # set nodata value
+            for i in range(1,9):
+                output.GetRasterBand(i).SetNoDataValue(cons.NODATA)
+
+            # write output
+            output.GetRasterBand(1).WriteArray(sif[0,:,:])
+            output.GetRasterBand(2).WriteArray(sif_dc[0,:,:])
+            output.GetRasterBand(3).WriteArray(sif_rel[0,:,:])
+            output.GetRasterBand(4).WriteArray(sif_err[0,:,:])
+            output.GetRasterBand(5).WriteArray(sif_dc_err[0,:,:])
+            output.GetRasterBand(6).WriteArray(sif_rel_err[0,:,:])
+            output.GetRasterBand(7).WriteArray(nob[0,:,:])
+            output.GetRasterBand(8).WriteArray(mask[0,:,:])
+
+            # assign band name
+            output.GetRasterBand(1).SetDescription('SIF')
+            output.GetRasterBand(2).SetDescription('SIF Length-of-day Corrected')
+            output.GetRasterBand(3).SetDescription('SIF Relative')
+            output.GetRasterBand(4).SetDescription('SIF Error')
+            output.GetRasterBand(5).SetDescription('SIF DC Error')
+            output.GetRasterBand(6).SetDescription('SIF Rel Error')
+            output.GetRasterBand(7).SetDescription('Count')
+            output.GetRasterBand(8).SetDescription('Mask')
+
+            count = count + 1
+        except:
+            log.error('Failed to write output to {}'.format(des))
+
+    # done
+    if count > 0:
+        if verbose:
+            log.info('Process completed.')
+        return 0
+    else:
+        if verbose:
+            log.info('Nothing processed.')
+        return 5
+
+
+def tn2ln(tn, dom=1):
+    """ convert TROPOMI style file name to Landsat style
+        file name only, regardless of file type extension
+        e.g. TROPO_SIF_08-2018.nc
+             to TPM020DGE2018001SIF01 (TPM 020 DGE yyyyddd SIF vv)
+
+    Args:
+        fn (str): TROPOMI style file name
+        dom (int): day of month
+
+    Returns:
+        ln (str): Landsat style file name
+
+    """
+    tn = os.path.splitext(tn)[0]
+    tn = tn.split('_')
+    d = date_to_doy(int(tn[2][3:7]), int(tn[2][0:2]), dom)
+    return 'TPM020DGE{}SIF01'.format(d)
