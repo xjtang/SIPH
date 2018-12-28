@@ -427,9 +427,7 @@ def tpm2stack(_file, des, overwrite=False, verbose=False):
         sif_err = np.ma.filled(nc2array(_file, 6))
         sif_dc_err = np.ma.filled(nc2array(_file, 7))
         sif_rel_err = np.ma.filled(nc2array(_file, 8))
-        nob = np.ma.filled(nc2array(_file, 9))
-        lat = enlarge2(nc2array(_file, 1), 1800, 1).T
-        lon = enlarge2(nc2array(_file, 0), 900, 1)
+        nob = np.ma.filled(nc2array(_file, 10))
         nday = sif.shape[0]
     except:
         log.error('Failed to read input {}'.format(_file))
@@ -464,7 +462,7 @@ def tpm2stack(_file, des, overwrite=False, verbose=False):
         sif_err[sif_err <= cons.SIF_NODATA] = cons.NODATA / cons.SIF_SF
         sif_dc_err[sif_dc_err <= cons.SIF_NODATA] = cons.NODATA / cons.SIF_SF
         sif_rel_err[sif_rel_err <= cons.SIF_NODATA] = cons.NODATA / cons.SIF_SF
-        nob[nob <= cons.SIF_NODATA] = cons.NODATA / cons.SIF_SF
+        nob[nob <= cons.SIF_NODATA] = cons.NODATA
 
         sif = (sif * cons.SIF_SF).astype(np.int16)
         sif_dc = (sif_dc * cons.SIF_SF).astype(np.int16)
@@ -472,9 +470,7 @@ def tpm2stack(_file, des, overwrite=False, verbose=False):
         sif_err = (sif_err * cons.SIF_SF).astype(np.int16)
         sif_dc_err = (sif_dc_err * cons.SIF_SF).astype(np.int16)
         sif_rel_err = (sif_rel_err * cons.SIF_SF).astype(np.int16)
-        nob = (nob * cons.SIF_SF).astype(np.int16)
-        lat = (lat * 100).astype(np.int16)
-        lon = (lon * 100).astype(np.int16)
+        nob = nob.astype(np.int16)
     except:
         log.error('Failed to clean up data.')
         return 4
