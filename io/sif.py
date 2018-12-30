@@ -494,14 +494,14 @@ def tpm2stack(_file, des, overwrite=False, verbose=False):
                 output.GetRasterBand(i).SetNoDataValue(cons.NODATA)
 
             # write output
-            output.GetRasterBand(1).WriteArray(sif[0,:,:])
-            output.GetRasterBand(2).WriteArray(sif_dc[0,:,:])
-            output.GetRasterBand(3).WriteArray(sif_rel[0,:,:])
-            output.GetRasterBand(4).WriteArray(sif_err[0,:,:])
-            output.GetRasterBand(5).WriteArray(sif_dc_err[0,:,:])
-            output.GetRasterBand(6).WriteArray(sif_rel_err[0,:,:])
-            output.GetRasterBand(7).WriteArray(nob[0,:,:])
-            output.GetRasterBand(8).WriteArray(mask[0,:,:])
+            output.GetRasterBand(1).WriteArray(sif[day,:,:])
+            output.GetRasterBand(2).WriteArray(sif_dc[day,:,:])
+            output.GetRasterBand(3).WriteArray(sif_rel[day,:,:])
+            output.GetRasterBand(4).WriteArray(sif_err[day,:,:])
+            output.GetRasterBand(5).WriteArray(sif_dc_err[day,:,:])
+            output.GetRasterBand(6).WriteArray(sif_rel_err[day,:,:])
+            output.GetRasterBand(7).WriteArray(nob[day,:,:])
+            output.GetRasterBand(8).WriteArray(mask[day,:,:])
 
             # assign band name
             output.GetRasterBand(1).SetDescription('SIF')
