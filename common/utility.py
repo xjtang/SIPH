@@ -13,7 +13,7 @@ from calendar import isleap
 from datetime import date
 
 
-def date_to_doy(year,month,day,day_only=False):
+def date_to_doy(year, month, day, day_only=False):
     """ convert date to day-of-year
 
     Args:
