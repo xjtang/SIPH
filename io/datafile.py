@@ -1,11 +1,41 @@
 """ Module for IO of non-image files
 """
+import os
 import csv
 import ast
 
 from netCDF4 import Dataset
 
 from ..common import log
+
+
+def chkExist(des, folder=False):
+    """ check if file or folder exist
+
+    Args:
+        des (str): destination
+        folder (bool): folder or not
+
+    Returns:
+        0: successful
+        1: output already exists
+        2: can't create folder
+
+    """
+    if folder:
+        if not os.path.exists(des):
+            log.warning('{} does not exist, trying to create one.'.format(des))
+            try:
+                os.makedirs(des)
+            except:
+                log.error('Cannot create output folder {}'.format(des))
+                return 2
+    else:
+        if os.path.isfile(des):
+            log.error('{} already exists.'.format(os.path.basename(des)))
+            return 1
+    return 0
+
 
 
 def list2csv(_data, _file, overwrite=False):

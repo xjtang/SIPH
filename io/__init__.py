@@ -1,6 +1,6 @@
 """ Module for io libarary
 """
-from .datafile import csv2list, csv2dict, hdr2geo, nc2array, list2csv
+from .datafile import csv2list, csv2dict, hdr2geo, nc2array, list2csv, chkExist
 from .sif import sifn2ln, sif2stack, sif2grid, sifn2date, tpm2stack, tn2ln
 from .goes import gn2ln, goes2stack
 from .viirs import viirs2gtif, viirsQA, vn2ln, viirsGeo
@@ -62,5 +62,6 @@ __all__ = [
     'list2csv',
     'modisvicmg2stack',
     'tpm2stack',
-    'tn2ln'
+    'tn2ln',
+    'chkExist'
 ]
