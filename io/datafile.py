@@ -3,6 +3,7 @@
 import os
 import csv
 import ast
+import numpy as np
 
 from netCDF4 import Dataset
 
@@ -129,6 +130,32 @@ def csv2dict(_file, fixType=True):
 
     # done
     return table
+
+
+def csv2ndarray(_file, header=True):
+    """ read a csv file based table to a numpy array
+
+    Args:
+        _file (str): path to input text file
+        header (bool): first line header or not
+
+    Returns:
+        array (ndarray): the numpy array
+
+    """
+    # read csv as list
+    table = csv2list(_file)
+    if not header:
+        table = ['field{}'.format(x+1) for x in range(0, len(table[0]))] + table
+
+    # convert list to numpy ndarray
+    _type = np.array([type(x) for x in table[1]])
+    _type[_type==str] = object
+    array = np.array([tuple(x) for x in table[1:]],
+                dtype=[(table[0][i], _type[i]) for i in range(len(table[0]))])
+
+    # done
+    return array
 
 
 def hdr2geo(_file):
