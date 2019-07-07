@@ -105,6 +105,10 @@ def refine_results(ori, lc, des, overwrite=False):
                             p[p == 0] = p[p != 0][-1]
                     r[i, j, :] = p
 
+                if sum((p == 13) & (plc == 16)) >= 5:
+                    p[(p==13)&(plc==1)] = 16
+                    r[i, j, :] = p
+
             progress = show_progress(i, lines, 5)
             if progress >= 0:
                 log.info('{}% done.'.format(progress))
