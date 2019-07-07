@@ -5,7 +5,7 @@
         rate: regrowth rate image
         year1: regrowth start year image
         year2: regrowth end year image
-        biomass: biomassi image
+        biomass: biomass image
         des: destination
 
 """
