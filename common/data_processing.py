@@ -110,12 +110,20 @@ def tablize(array):
         table (ndarray): output table
 
     """
-    table = np.zeros((array.shape[0] * array.shape[1], 3), array.dtype)
+    if len(array.shape) == 3:
+        table = np.zeros((array.shape[0] * array.shape[1], array.shape[2] + 2),
+                                                                    array.dtype)
+    else:
+        table = np.zeros((array.shape[0] * array.shape[1], 3), array.dtype)
     for i in range(0, array.shape[0]):
         table[(array.shape[1] * i):(array.shape[1] * (i + 1)), 0] = i
         table[(array.shape[1] * i):(array.shape[1] * (i + 1)), 1] = range(0,
                                                                 array.shape[1])
-        table[(array.shape[1] * i):(array.shape[1] * (i + 1)), 2] = array[i, :]
+        if len(array.shape) == 3:
+            for j in range(0, array.shape[2]):
+                table[(array.shape[1]*i):(array.shape[1]*(i+1)),j+2] = array[i,:,j]
+        else:
+            table[(array.shape[1] * i):(array.shape[1] * (i+1)), 2] = array[i,:]
     return table
 
 
