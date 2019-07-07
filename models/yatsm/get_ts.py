@@ -1,11 +1,10 @@
-""" Module for grabing time series of a bunch of stacked images
+""" Module for grabing time series of one pixel from YATSM cache file
 
     Args:
-        -d (date): start and end of date string in filename
         --overwrite: overwrite or not
         x: pixel location, x
         y: pixel location, y
-        ori: origin
+        ori: origin of config yaml file
         des: destination
 
 """

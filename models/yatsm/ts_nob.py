@@ -15,8 +15,8 @@ import argparse
 import yaml
 import numpy as np
 
-from ..io import stack2array, stackGeo, array2stack, csv2list
-from ..common import log, get_files
+from ...io import stack2array, stackGeo, array2stack, csv2list
+from ...common import log, get_files
 
 
 def get_ts_nob(img, ori, des, yearly=False, grow=False, overwrite=False):

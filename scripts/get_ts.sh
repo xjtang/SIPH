@@ -32,4 +32,4 @@ while [[ $# > 0 ]]; do
 done
 
 # submit jobs
-qsub -j y -N GetTS -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.tools.get_ts ${overwrite} $x $y $ori $des
+qsub -j y -N GetTS -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.yatsm.get_ts ${overwrite} $x $y $ori $des
