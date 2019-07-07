@@ -80,6 +80,7 @@ def regrow(pattern, ori, des, overwrite=False, recursive=False):
             array = stack2array(img[0], 1, np.int8)
             array[(array == 1) & (result[:, :, 0] == 5)] = 5
             array[(array == 5) & (result[:, :, 0] == 1)] = 1
+            array[(array == 1) & (result[:, :, 0] == 2)] = 5
 
             result[((array == 1) & (result[:, :, 0] == 255)), ] = (1, 255, 255)
             result[((array == 5) & (result[:, :, 0] == 255)), ] = (5, i, 255)
@@ -89,7 +90,7 @@ def regrow(pattern, ori, des, overwrite=False, recursive=False):
             result[((array == 5) & (result[:, :, 0] == 2)), ] = (5, i, 255)
 
             result[((array != 5) & (result[:, :, 0] == 5)), 0:3:2] = (4, i)
-            result[((array != 1) & (result[:, :, 0] == 1)), ] = (3, 255, i)
+            result[((array != 1) & (result[:, :, 0] == 1)), ] = (3, 255, 255)
 
         result[(result[:, :, 1] == 0), 0] = 6
     except:
