@@ -87,6 +87,8 @@ def refine_results(ori, lc, des, overwrite=False):
                             p[p == 0] = 25
                         elif p_label in [6, 7]:
                             p[p == 0] = 10
+                        elif p_label == 1:
+                            p[p == 0] = 2
                         else:
                             p[p == 0] = p_label
                     # uc in the beginning
@@ -97,6 +99,8 @@ def refine_results(ori, lc, des, overwrite=False):
                             p[p == 0] = 25
                         elif p_label in [6, 7]:
                             p[p == 0] = 10
+                        elif p_label == 1:
+                            p[p == 0] = 2
                         else:
                             p[p == 0] = p[p != 0][0]
                     # uc in the end
@@ -107,6 +111,8 @@ def refine_results(ori, lc, des, overwrite=False):
                             p[p == 0] = 25
                         elif p_label in [6, 7]:
                             p[p == 0] = 10
+                        elif p_label == 1:
+                            p[p == 0] = 2
                         else:
                             p[p == 0] = p[p != 0][-1]
                     r[i, j, :] = p
