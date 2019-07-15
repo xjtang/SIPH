@@ -42,8 +42,9 @@ def tracking(pattern, ori, des, mask='NA', overwrite=False, recursive=False):
     cls = [0, 1, 2, 3, 4, 5, 6, 7, 15]
     lbl = 'NS,Forest,Grass,Urban,Pasture,Regrow,Water,Other,NA'
     # check if output exists
-    if chkExist(des) > 0:
-        return 1
+    if not overwrite:
+        if chkExist(des) > 0:
+            return 1
 
     # locate files
     log.info('Locating files...')
@@ -69,7 +70,7 @@ def tracking(pattern, ori, des, mask='NA', overwrite=False, recursive=False):
     # initialize output
     log.info('Initializing output...')
     try:
-        result = np.zeros((n, len(cls)), np.int16)
+        result = np.zeros((n, len(cls)), np.int32)
     except:
         log.error('Failed to initialize output.')
         return 5
