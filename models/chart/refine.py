@@ -121,8 +121,13 @@ def refine_results(ori, lc, des, overwrite=False):
                     p[(p==13)&(plc==16)] = 16
                     r[i, j, :] = p
 
-                if sum((p == 13) & (plc == 12)) >= 5:
-                    p[(p==13)&(plc==12)] = 12
+                if sum((p == 13) & (plc != 13)) >= 8:
+                    if plc_label == 7:
+                        p[(p==13)&(plc!=13)] = 10
+                    elif plc_label == 10:
+                        p[(p==13)&(plc!=13)] = 12
+                    elif plc_label == 12:
+                        p[(p==13)&(plc!=13)] = 12
                     r[i, j, :] = p
 
             progress = show_progress(i, lines, 5)
