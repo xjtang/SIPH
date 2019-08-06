@@ -95,10 +95,13 @@ def reverse_classify(pattern, ori, lc, des, _start=2000, overwrite=False,
             py = get_int(yatsm[1])[0]
             log.info('Processing line {}'.format(py))
             pixels = yatsm2pixels(os.path.join(yatsm[0], yatsm[1]))
+            others = np.load(os.path.join(yatsm[0], yatsm[1]))
             for pixel in pixels:
                 px = pixel[0]['px']
                 reved.append(rev_class(pixel, lc_stack[py, px, :], _start))
-            np.savez(os.path.join(des, 'yatsm_r{}.npz'.format(py)), record=reved)
+            np.savez(os.path.join(des, 'yatsm_r{}.npz'.format(py)),
+                        record=reved, classes=others['classes'],
+                        version=others['version', metadata=others['metadata']])
             count += 1
         except:
             log.warning('Failed to process line {} pixel {}.'.format(py, px))
