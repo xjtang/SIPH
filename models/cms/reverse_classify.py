@@ -90,7 +90,8 @@ def reverse_classify(pattern, ori, lc, des, _start=2000, overwrite=False,
     py, px = (-1, -1)
     log.info('Start reverse classifying pixels...')
     for yatsm in yatsm_list:
-        try:
+        if True:
+        #try:
             reved = []
             py = get_int(yatsm[1])[0]
             log.info('Processing line {}'.format(py))
@@ -100,9 +101,9 @@ def reverse_classify(pattern, ori, lc, des, _start=2000, overwrite=False,
                 reved.append(rev_class(pixel, lc_stack[py, px, :], _start))
             np.savez(os.path.join(des, 'yatsm_r{}.npz'.format(py)), reved)
             count += 1
-        except:
-            log.warning('Failed to process line {} pixel {}.'.format(py, px))
-            continue
+        #except:
+        #    log.warning('Failed to process line {} pixel {}.'.format(py, px))
+        #    continue
 
     # done
     log.info('Process completed.')
@@ -125,19 +126,19 @@ def rev_class(pixel, lc, lc_start):
     for i, x in enumerate(pixel):
         ts_start = split_doy(ordinal_to_doy(x['start']))
         ts_end = split_doy(ordinal_to_doy(x['end']))
-        lc_end = _start + len(pixel) - 1
+        lc_end = lc_start + len(pixel) - 1
         _class = []
         _weight = []
         for y in range(ts_start[0], ts_end[0] + 1):
-            if y in range(lc_start[0], lc_end[1] + 1):
-                _class.append(lc[y - lc_start[0]])
+            if y in range(lc_start, lc_end + 1):
+                _class.append(lc[y - lc_start])
             else:
                 _class.append(-9999)
             nday = 365
-            if y == _start[0]:
-                nday -= _start[1]
-            if y == _end[0]:
-                nday -= 365 - _end[1]
+            if y == ts_start[0]:
+                nday -= ts_start[1]
+            if y == ts_end[0]:
+                nday -= 365 - ts_end[1]
             if nday >= 270:
                 _weight.append(100)
             elif nday < 90:
