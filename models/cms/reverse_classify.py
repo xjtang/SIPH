@@ -90,8 +90,7 @@ def reverse_classify(pattern, ori, lc, des, _start=2000, overwrite=False,
     py, px = (-1, -1)
     log.info('Start reverse classifying pixels...')
     for yatsm in yatsm_list:
-        if True:
-        #try:
+        try:
             reved = []
             py = get_int(yatsm[1])[0]
             log.info('Processing line {}'.format(py))
@@ -101,9 +100,9 @@ def reverse_classify(pattern, ori, lc, des, _start=2000, overwrite=False,
                 reved.append(rev_class(pixel, lc_stack[py, px, :], _start))
             np.savez(os.path.join(des, 'yatsm_r{}.npz'.format(py)), reved)
             count += 1
-        #except:
-        #    log.warning('Failed to process line {} pixel {}.'.format(py, px))
-        #    continue
+        except:
+            log.warning('Failed to process line {} pixel {}.'.format(py, px))
+            continue
 
     # done
     log.info('Process completed.')
