@@ -54,5 +54,5 @@ done
 echo 'Total jobs to submit is' $njob
 for i in $(seq 1 $njob); do
     echo 'Submitting job no.' $i 'out of' $njob
-    qsub -j y -N CHART_$i -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.chart.reverse_classify ${overwrite}${recursive}-p $pattern -b $i $njob -s $start $ori $lc $des
+    qsub -j y -N CHART_$i -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.cms.reverse_classify ${overwrite}${recursive}-p $pattern -b $i $njob -s $start $ori $lc $des
 done
