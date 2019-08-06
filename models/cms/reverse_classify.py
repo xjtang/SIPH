@@ -101,7 +101,7 @@ def reverse_classify(pattern, ori, lc, des, _start=2000, overwrite=False,
                 reved.append(rev_class(pixel, lc_stack[py, px, :], _start))
             np.savez(os.path.join(des, 'yatsm_r{}.npz'.format(py)),
                         record=reved, classes=others['classes'],
-                        version=others['version', metadata=others['metadata']])
+                        version=others['version'])
             count += 1
         except:
             log.warning('Failed to process line {} pixel {}.'.format(py, px))
