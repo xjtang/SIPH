@@ -19,7 +19,7 @@ import numpy as np
 
 from ...common import (log, get_files, manage_batch, enlarge, get_int,
                         ordinal_to_doy, ndarray_append, split_doy)
-from ...io import stackGeo, stack2array, yatsm2pixels
+from ...io import stackGeo, stack2array, yatsm2pixels, chkExist
 
 
 def reverse_classify(pattern, ori, lc, des, _start=2000, overwrite=False,
@@ -46,8 +46,8 @@ def reverse_classify(pattern, ori, lc, des, _start=2000, overwrite=False,
 
     """
     # check if output exists, if not try to create one
-    if not overwrite:
-        if chkExist(des, True) > 0:
+    if chkExist(des, True) > 0:
+        if not overwrite:
             return 1
 
     # locate files
