@@ -99,6 +99,7 @@ def reverse_classify(pattern, ori, lc, des, _start=2000, overwrite=False,
             for pixel in pixels:
                 px = pixel[0]['px']
                 reved.append(rev_class(pixel, lc_stack[py, px, :], _start))
+            reved = np.array(reved)
             if 'classes' in others.keys():
                 np.savez(os.path.join(des, 'yatsm_r{}.npz'.format(py)),
                             record=reved, classes=others['version'],
