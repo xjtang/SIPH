@@ -126,8 +126,12 @@ def rev_class(x, lc, lc_start):
     ts_start = split_doy(ordinal_to_doy(x['start']))
     ts_end = split_doy(ordinal_to_doy(x['end']))
     lc_end = lc_start + len(lc) - 1
-    if ts_end <= lc_end:
-        return lc[ts_end - lc_start + 1]
+    if (((ts_end <= lc_end) & (ts_end >= lc_start)) |
+        ((ts_start <= lc_end) & (ts_start >= lc_start))):
+        new = lc[ts_end - lc_start + 1]
+        if new != x['class']:
+            log.info('Changed from {} to {}'.format(x['class'], new))
+        return new
     else:
         return x['class']
 
