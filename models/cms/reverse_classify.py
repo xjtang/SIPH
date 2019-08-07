@@ -69,7 +69,7 @@ def reverse_classify(pattern, ori, lc, des, _start=2000, overwrite=False,
     log.info('Reading stacked anual land cover maps: {}'.format(lc))
     try:
         geo = stackGeo(lc)
-        lc_stack = stack2array(lc)
+        lc_stack = stack2array(lc, 0, np.int8)
         if lc_stack.shape[0] < n:
             log.error('Number of lines do not match: {}'.format([n,
                                                             lc_stack.shape[0]]))
@@ -90,27 +90,20 @@ def reverse_classify(pattern, ori, lc, des, _start=2000, overwrite=False,
     py, px = (-1, -1)
     log.info('Start reverse classifying pixels...')
     for yatsm in yatsm_list:
-        try:
-            reved = []
+        if True:
+        #try:
             py = get_int(yatsm[1])[0]
             log.info('Processing line {}'.format(py))
-            pixels = yatsm2pixels(os.path.join(yatsm[0], yatsm[1]))
-            others = np.load(os.path.join(yatsm[0], yatsm[1]))
-            for pixel in pixels:
-                px = pixel[0]['px']
-                reved.append(rev_class(pixel, lc_stack[py, px, :], _start))
-            reved = np.array(reved)
-            if 'classes' in others.keys():
-                np.savez(os.path.join(des, 'yatsm_r{}.npz'.format(py)),
-                            record=reved, classes=others['version'],
-                            version=others['version'])
-            else:
-                np.savez(os.path.join(des, 'yatsm_r{}.npz'.format(py)),
-                            record=reved, version=others['version'])
+            records = np.load(os.path.join(yatsm[0], yatsm[1]))['record']
+            for record in records:
+                px = record['px']
+                record['class'] = rev_class(record, lc_stack[py, px, :], _start)
+            np.savez(os.path.join(des, 'yatsm_r{}.npz'.format(py)),
+                        record=records)
             count += 1
-        except:
-            log.warning('Failed to process line {} pixel {}.'.format(py, px))
-            continue
+        #except:
+        #    log.warning('Failed to process line {} pixel {}.'.format(py, px))
+        #    continue
 
     # done
     log.info('Process completed.')
@@ -118,11 +111,11 @@ def reverse_classify(pattern, ori, lc, des, _start=2000, overwrite=False,
     return 0
 
 
-def rev_class(pixel, lc, lc_start):
-    """ blend MODIS land cover product with YATSM results on pixel level
+def rev_class(x, lc, lc_start):
+    """ reverse classify YATSM record
 
     Args:
-        pixel (list, ndarray): YATSM records of a pixel
+        x (ndarray): YATSM record
         lc (list, int): annual land cover classes of a pixel
         lc_start (int): start year of annual land cover
 
@@ -130,53 +123,13 @@ def rev_class(pixel, lc, lc_start):
         pixel (list, ndarray): pixel with land cover modified
 
     """
-    for i, x in enumerate(pixel):
-        ts_start = split_doy(ordinal_to_doy(x['start']))
-        ts_end = split_doy(ordinal_to_doy(x['end']))
-        lc_end = lc_start + len(pixel) - 1
-        _class = []
-        _weight = []
-        for y in range(ts_start[0], ts_end[0] + 1):
-            if y in range(lc_start, lc_end + 1):
-                _class.append(lc[y - lc_start])
-            else:
-                _class.append(-9999)
-            nday = 365
-            if y == ts_start[0]:
-                nday -= ts_start[1]
-            if y == ts_end[0]:
-                nday -= 365 - ts_end[1]
-            if nday >= 270:
-                _weight.append(100)
-            elif nday < 90:
-                _weight.append(1)
-            else:
-                _weight.append(51)
-        pixel[i]['class'] = get_class(_class, _weight)
-    return pixel
-
-
-def get_class(_class, _weight):
-    """ figure our class of time segment based on annual class and weight
-
-    Args:
-        _class (list, int): annual class
-        _weight (list, int): weight of annual class
-
-    Returns:
-        class2 (int): class of the segment
-
-    """
-    c_class = []
-    c_weight = []
-    for i, x in enumerate(_class):
-        if x not in c_class:
-            c_class.append(x)
-            c_weight.append(_weight[i])
-        else:
-            c_weight[c_class.index(x)] += _weight[i]
-    class2 = c_class[np.argmax(c_weight)]
-    return class2
+    ts_start = split_doy(ordinal_to_doy(x['start']))
+    ts_end = split_doy(ordinal_to_doy(x['end']))
+    lc_end = lc_start + len(lc) - 1
+    if ts_end <= lc_end:
+        return lc[ts_end - lc_start + 1]
+    else:
+        return x['class']
 
 
 if __name__ == '__main__':
