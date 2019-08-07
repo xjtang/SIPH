@@ -90,26 +90,26 @@ def reverse_classify(pattern, ori, lc, des, _start=2000, overwrite=False,
     py, px = (-1, -1)
     log.info('Start reverse classifying pixels...')
     for yatsm in yatsm_list:
-        if True:
-        #try:
+        try:
             reved = []
             py = get_int(yatsm[1])[0]
             log.info('Processing line {}'.format(py))
             pixels = yatsm2pixels(os.path.join(yatsm[0], yatsm[1]))
             others = np.load(os.path.join(yatsm[0], yatsm[1]))
-            if 'classes' in others.keys():
-                classes = others['classes']
-            else:
-                classes = []
             for pixel in pixels:
                 px = pixel[0]['px']
                 reved.append(rev_class(pixel, lc_stack[py, px, :], _start))
-            np.savez(os.path.join(des, 'yatsm_r{}.npz'.format(py)),
-                        record=reved, classes=classes, version=others['version'])
+            if 'classes' in others.keys():
+                np.savez(os.path.join(des, 'yatsm_r{}.npz'.format(py)),
+                            record=reved, classes=others['version'],
+                            version=others['version'])
+            else:
+                np.savez(os.path.join(des, 'yatsm_r{}.npz'.format(py)),
+                            record=reved, version=others['version'])
             count += 1
-        #except:
-        #    log.warning('Failed to process line {} pixel {}.'.format(py, px))
-        #    continue
+        except:
+            log.warning('Failed to process line {} pixel {}.'.format(py, px))
+            continue
 
     # done
     log.info('Process completed.')
