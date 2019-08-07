@@ -123,12 +123,14 @@ def rev_class(x, lc, lc_start):
         pixel (list, ndarray): pixel with land cover modified
 
     """
-    ts_start = split_doy(ordinal_to_doy(x['start']))
-    ts_end = split_doy(ordinal_to_doy(x['end']))
+    ts_start = split_doy(ordinal_to_doy(x['start']))[0]
+    ts_end = split_doy(ordinal_to_doy(x['end']))[0]
     lc_end = lc_start + len(lc) - 1
     if (((ts_end <= lc_end) & (ts_end >= lc_start)) |
         ((ts_start <= lc_end) & (ts_start >= lc_start))):
         new = lc[ts_end - lc_start + 1]
+        if new == 0:
+            new = x['class']
         if new != x['class']:
             log.info('Changed from {} to {}'.format(x['class'], new))
         return new
