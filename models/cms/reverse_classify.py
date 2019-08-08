@@ -130,10 +130,6 @@ def rev_class(x, lc, lc_start):
         new = lc[ts_end - lc_start]
         if new == 0:
             new = x['class']
-        if new != x['class']:
-            log.info('Changed from {} to {}'.format(x['class'], new))
-            log.info('{} {} {} {}'.format(ts_start, ts_end, lc_start, lc_end))
-            log.info('{}'.format(lc))
         return new
     else:
         return x['class']
