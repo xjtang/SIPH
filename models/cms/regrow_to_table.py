@@ -29,8 +29,11 @@ def regrow2csv(ori, des, overwrite=False):
         3: error writing output
 
     """
-    lbl = 'Fr,Flr,Fd,Ff,Fn,str,end,b03,b04,b05,b06,b07,b08,b09,b10,b11,b12,b13,b14,b15,b16'
-    _fmt = '%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d'
+    lbl = 'rg, agb15, start, end'
+    _fmt = '%d,%d,%d,%d'
+    # lbl = 'Fr,Flr,Fd,Ff,Fn,str,end,b03,b04,b05,b06,b07,b08,b09,b10,b11,b12,b13,b14,b15,b16'
+    # _fmt = '%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d'
+
     # check if output exists
     if chkExist(des) > 0:
         return 1
@@ -50,7 +53,7 @@ def regrow2csv(ori, des, overwrite=False):
         table = []
         for i in range(0, geo['lines']):
             for j in range(0, geo['samples']):
-                if array[i, j, 0] > 0:
+                if array[i, j, 0] == 5:
                     table.append(array[i, j, :])
         table = np.array(table, np.int16)
     except:
