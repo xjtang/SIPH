@@ -295,7 +295,7 @@ if __name__ == '__main__':
             sys.exit(1)
         if args.product not in ['MOD09GA', 'MYD09GA', 'MOD09GQ', 'MYD09GQ',
                                 'MOD13Q1', 'MOD13A1', 'MCD43A4', 'MCD43C4',
-                                'MCD12Q1', 'MCD12C1']:
+                                'MCD12Q1', 'MCD12C1', 'MOD09Q1']:
             log.error('Invalid product.')
             sys.exit(1)
     else:
