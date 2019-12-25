@@ -16,7 +16,7 @@ import argparse
 
 from ...common import log, get_files, manage_batch
 from ...io import (modisvi2stack, modislc2stack, nbar2stack, pheno2stack,
-                    nbarcmg2stack, modisvicmg2stack)
+                    nbarcmg2stack, modisvicmg2stack, MOD09Q12stack)
 
 
 def modis_product_preprocess(pattern, ori, des, product, overwrite=False,
@@ -94,6 +94,9 @@ def modis_product_preprocess(pattern, ori, des, product, overwrite=False,
                 count += 1
         elif product == 'nbarcmg':
             if nbarcmg2stack(os.path.join(img[0], img[1]), des, overwrite) == 0:
+                count += 1
+        elif product == '8day':
+            if MOD09Q12stack(os.path.join(img[0], img[1]), des, overwrite) == 0:
                 count += 1
         else:
             log.error('Unsupported product {}'.format(product))

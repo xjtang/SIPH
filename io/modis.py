@@ -1243,3 +1243,137 @@ def nbarcmg2stack(nbar, des, overwrite=False, verbose=False):
     if verbose:
         log.info('Process completed.')
     return 0
+
+
+def MOD09Q12stack(MOD09Q1, des, overwrite=False, verbose=False):
+    """ convert MOD09Q1 to Geotiff
+
+    Args:
+        MOD09Q1 (str): path to input MOD09Q1 file
+        des (str): path to output
+        overwrite (bool): overwrite or not
+        verbose (bool): verbose or not
+
+    Returns:
+        0: successful
+        1: error due to des
+        2: error in reading input
+        3: error in calculation
+        4: error in writing output
+
+    """
+    # set destinations
+    des_q1 = os.path.join(des,'{}.tif'.format(mn2ln(os.path.basename(MOD09Q1))))
+
+    # check if output already exists
+    if (not overwrite) and os.path.isfile(des_q1):
+        log.error('{} already exists.'.format(os.path.basename(des_q1)))
+        return 1
+
+    # read input image
+    if verbose:
+        log.info('Reading input: {}'.format(MOD09Q1))
+    try:
+        mq1_img = gdal.Open(MOD09Q1, gdal.GA_ReadOnly)
+        mq1_sub = mq1_img.GetSubDatasets()
+        mq1_red = gdal.Open(mq1_sub[0][0], gdal.GA_ReadOnly)
+        mq1_nir = gdal.Open(mq1_sub[1][0], gdal.GA_ReadOnly)
+        mq1_sta = gdal.Open(mq1_sub[2][0], gdal.GA_ReadOnly)
+        mq1_qa = gdal.Open(mq1_sub[3][0], gdal.GA_ReadOnly)
+    except:
+        log.error('Failed to read input {}'.format(MOD09Q1))
+        return 2
+
+    # read geo info
+    if verbose:
+        log.info('Reading geo information...')
+    try:
+        mq1_geo = stackGeo(mq1_sub[0][0])
+    except:
+        log.error('Failed to read geo info.')
+        return 2
+
+    # read actual data
+    if verbose:
+        log.info('Reading actual data...')
+    try:
+        red = mq1_red.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        nir = mq1_nir.GetRasterBand(1).ReadAsArray().astype(np.int16)
+        sta = mq1_sta.GetRasterBand(1).ReadAsArray().astype(np.uint16)
+        qa = mq1_qa.GetRasterBand(1).ReadAsArray().astype(np.int16)
+    except:
+        log.error('Failed to read data.')
+        return 2
+
+    # calculate NDVI
+    if verbose:
+        log.info('Calculating NDVI...')
+    try:
+        ndvi = ((nir-red) / (nir+red) * cons.SCALE_FACTOR).astype(np.int16)
+        ndvi[(nir+red) == 0] = 0
+    except:
+        log.error('Failed to calculate NDVI.')
+        return 3
+
+    # generate mask band
+    if verbose:
+        log.info('Generating mask band...')
+    try:
+        mask = (np.mod(sta, 2) |
+                (np.mod(np.right_shift(sta, 1), 2) == 0) |
+                np.mod(np.right_shift(sta, 2), 2) |
+                np.mod(np.right_shift(sta, 9), 2) |
+                np.mod(np.right_shift(sta, 10), 2) |
+                np.mod(np.right_shift(sta, 11), 2) |
+                np.mod(np.right_shift(sta, 12), 2) |
+                np.mod(np.right_shift(sta, 13), 2) |
+                np.mod(np.right_shift(sta, 15), 2)) > 0
+        _total = np.sum(mask)
+        _size = np.shape(mask)
+        if verbose:
+            log.info('{}% masked'.format(_total/(_size[0]*_size[1])*100))
+    except:
+        log.error('Failed to generate mask band.')
+        return 3
+
+    # write output
+    if verbose:
+        log.info('Writing output: {}'.format(des_q1))
+    try:
+        # initialize output
+        _driver = gdal.GetDriverByName('GTiff')
+        output = _driver.Create(des_q1, mq1_geo['samples'], mq1_geo['lines'], 9,
+                                gdal.GDT_Int16)
+        output.SetProjection(mq1_geo['proj'])
+        output.SetGeoTransform(mq1_geo['geotrans'])
+        output.GetRasterBand(1).SetNoDataValue(cons.NODATA)
+        output.GetRasterBand(2).SetNoDataValue(cons.NODATA)
+        output.GetRasterBand(3).SetNoDataValue(cons.NODATA)
+        output.GetRasterBand(4).SetNoDataValue(cons.NODATA)
+        # write output
+        output.GetRasterBand(1).WriteArray(red)
+        output.GetRasterBand(2).WriteArray(nir)
+        output.GetRasterBand(3).WriteArray(ndvi)
+        output.GetRasterBand(4).WriteArray(mask)
+        # assign band name
+        output.GetRasterBand(1).SetDescription('MOD 8_Day 250m Red')
+        output.GetRasterBand(2).SetDescription('MOD 8_Day 250m NIR')
+        output.GetRasterBand(3).SetDescription('MOD 8_day 250m NDVI')
+        output.GetRasterBand(4).SetDescription('MOD 8_day 250m Mask')
+    except:
+        log.error('Failed to write output to {}'.format(des_ga))
+        return 4
+
+    # close files
+    if verbose:
+        log.info('Closing files...')
+    mq1_img = None
+    mq1_red = None
+    mq1_nir = None
+    mq1_qa = None
+    mq1_sta = None
+
+    # done
+    if verbose:
+        log.info('Process completed.')
+    return 0

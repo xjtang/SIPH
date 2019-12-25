@@ -12,7 +12,8 @@ from .hls import hls2stack, hlsQA, hn2ln, ln2tn
 from .mask import mn2ln, bit2mask, mask2array, mask2strata
 from .sentinel import sen2stack, sn2ln
 from .modis import (modis2stack, modis2composite, modisvi2stack, modislc2stack,
-                    nbar2stack, pheno2stack, nbarcmg2stack, modisvicmg2stack)
+                    nbar2stack, pheno2stack, nbarcmg2stack, modisvicmg2stack,
+                    MOD09Q12stack)
 from .image import stack2image, addTextToImage
 
 
@@ -65,5 +66,6 @@ __all__ = [
     'tpm2stack',
     'tn2ln',
     'chkExist',
-    'csv2ndarray'
+    'csv2ndarray',
+    'MOD09Q12stack'
 ]
