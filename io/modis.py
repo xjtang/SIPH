@@ -1342,8 +1342,8 @@ def MOD09Q12stack(MOD09Q1, des, overwrite=False, verbose=False):
     try:
         # initialize output
         _driver = gdal.GetDriverByName('GTiff')
-        output = _driver.Create(des_q1, mq1_geo['samples'], mq1_geo['lines'], 9,
-                                gdal.GDT_Int16, options=['COMPRESS=PACKBITS'])
+        output = _driver.Create(des_q1, mq1_geo['samples'], mq1_geo['lines'], 4,
+                                gdal.GDT_Int16, options=['COMPRESS=LZW'])
         output.SetProjection(mq1_geo['proj'])
         output.SetGeoTransform(mq1_geo['geotrans'])
         output.GetRasterBand(1).SetNoDataValue(cons.NODATA)
