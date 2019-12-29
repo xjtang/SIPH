@@ -1299,7 +1299,7 @@ def MOD09Q12stack(MOD09Q1, des, overwrite=False, verbose=False):
     try:
         red = mq1_red.GetRasterBand(1).ReadAsArray().astype(np.int16)
         nir = mq1_nir.GetRasterBand(1).ReadAsArray().astype(np.int16)
-        sta = mq1_sta.GetRasterBand(1).ReadAsArray().astype(np.uint16)
+        sta = mq1_sta.GetRasterBand(1).ReadAsArray().astype(np.int16)
         qa = mq1_qa.GetRasterBand(1).ReadAsArray().astype(np.int16)
     except:
         log.error('Failed to read data.')
