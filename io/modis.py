@@ -1319,8 +1319,8 @@ def MOD09Q12stack(MOD09Q1, des, overwrite=False, verbose=False):
     if verbose:
         log.info('Generating mask band...')
     try:
-        mask = (np.mod(sta, 2) |
-                (np.mod(np.right_shift(sta, 1), 2) == 0) |
+        mask = ((np.mod(sta, 4) == 1) |
+                (np.mod(sta, 4) == 2) |
                 np.mod(np.right_shift(sta, 2), 2) |
                 np.mod(np.right_shift(sta, 9), 2) |
                 np.mod(np.right_shift(sta, 10), 2) |
