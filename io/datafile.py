@@ -10,7 +10,7 @@ from netCDF4 import Dataset
 from ..common import log
 
 
-def chkExist(des, folder=False):
+def chkExist(des, folder=False, overwrite=False):
     """ check if file or folder exist
 
     Args:
@@ -32,7 +32,7 @@ def chkExist(des, folder=False):
                 log.error('Cannot create output folder {}'.format(des))
                 return 2
     else:
-        if os.path.isfile(des):
+        if (not overwrite) and os.path.isfile(des):
             log.error('{} already exists.'.format(os.path.basename(des)))
             return 1
     return 0
