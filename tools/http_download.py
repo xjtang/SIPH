@@ -130,8 +130,10 @@ def locate_data(url, sensor, collection, product, tile, year, day):
                         day_string = '{}.03.05'.format(i)
                     else:
                         day_string = '{}.03.06'.format(i)
+                    doy_string = '{}065'.format(i)
                 else:
                     day_string = '{}.01.01'.format(i)
+                    doy_string = '{}001'.format(i)
                 link = '{}{}/'.format(url, day_string)
                 req = urllib.Request(link)
                 response = urllib.urlopen(req)
@@ -142,10 +144,11 @@ def locate_data(url, sensor, collection, product, tile, year, day):
             # search for image name
             if product[-2] == 'C':
                 pattern = re.compile('{}\.A{}\.{:03}\..{{13}}\.{}'.format(
-                                        product, i, collection, fmt))
+                                        product, doy_string, collection, fmt))
             else:
                 pattern = re.compile('{}\.A{}001\.h{:02}v{:02}\.{:03}\..{{13}}\.{}'.format(
-                                        product, i, tile[0], tile[1], collection, fmt))
+                                        product, doy_string, tile[0], tile[1],
+                                        collection, fmt))
             m = re.search(pattern, page)
             if m:
                 url_list.append('{}{}'.format(link, m.group()))
