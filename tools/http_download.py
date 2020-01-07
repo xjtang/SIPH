@@ -146,7 +146,7 @@ def locate_data(url, sensor, collection, product, tile, year, day):
                 pattern = re.compile('{}\.A{}\.{:03}\..{{13}}\.{}'.format(
                                         product, doy_string, collection, fmt))
             else:
-                pattern = re.compile('{}\.A{}001\.h{:02}v{:02}\.{:03}\..{{13}}\.{}'.format(
+                pattern = re.compile('{}\.A{}\.h{:02}v{:02}\.{:03}\..{{13}}\.{}'.format(
                                         product, doy_string, tile[0], tile[1],
                                         collection, fmt))
             m = re.search(pattern, page)
