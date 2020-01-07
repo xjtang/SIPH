@@ -125,7 +125,13 @@ def locate_data(url, sensor, collection, product, tile, year, day):
         for i in range(2001, dt.now().year):
             # read html page
             try:
-                day_string = '{}.01.01'.format(i)
+                if product == 'MOD44B':
+                    if isleap(i):
+                        day_string = '{}.03.05'.format(i)
+                    else:
+                        day_string = '{}.03.06'.format(i)
+                else:
+                    day_string = '{}.01.01'.format(i)
                 link = '{}{}/'.format(url, day_string)
                 req = urllib.Request(link)
                 response = urllib.urlopen(req)
