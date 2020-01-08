@@ -272,6 +272,7 @@ def mn2ln(mn):
 
     """
     mn = mn.split('.')
+    mn[0] += 'X'
     if mn[0][5] == 'C':
         return '{}CMG005{}{}{}'.format(mn[0][0:3], mn[1][1:], mn[2][-1],
                                         mn[0][3:])
@@ -767,7 +768,7 @@ def modislc2stack(LC, des, mergeclass=False, overwrite=False, verbose=False):
 
     # write output
     if verbose:
-        log.info('Writing output: {}'.format(lc_vi))
+        log.info('Writing output: {}'.format(des_lc))
     try:
         # initialize output
         _driver = gdal.GetDriverByName('GTiff')
@@ -784,7 +785,7 @@ def modislc2stack(LC, des, mergeclass=False, overwrite=False, verbose=False):
         else:
             output.GetRasterBand(1).SetDescription('MODIS Land Cover IGBP')
     except:
-        log.error('Failed to write output to {}'.format(lc_vi))
+        log.error('Failed to write output to {}'.format(des_lc))
         return 4
 
     # close files
@@ -1372,6 +1373,102 @@ def MOD09Q12stack(MOD09Q1, des, overwrite=False, verbose=False):
     mq1_nir = None
     mq1_qa = None
     mq1_sta = None
+
+    # done
+    if verbose:
+        log.info('Process completed.')
+    return 0
+
+
+def MOD44B2stack(vcf, des, overwrite=False, verbose=False):
+    """ read MODIS VCF product and convert to geotiff
+
+    Args:
+        vcf (str): path to input MOD44B file
+        des (str): path to output
+        overwrite (bool): overwrite or not
+        verbose (bool): verbose or not
+
+    Returns:
+        0: successful
+        1: error due to des
+        2: error in reading input
+        3: error in cleaning up
+        4: error in writing output
+
+    """
+    # set destinations
+    des_vcf = os.path.join(des,'{}.tif'.format(mn2ln(os.path.basename(vcf))))
+
+    # check if output already exists
+    if (not overwrite) and os.path.isfile(des_vcf):
+        log.error('{} already exists.'.format(os.path.basename(des_vcf)))
+        return 1
+
+    # read input image
+    if verbose:
+        log.info('Reading input: {}'.format(vcf))
+    try:
+        vcf_img = gdal.Open(vcf, gdal.GA_ReadOnly)
+        vcf_sub = vcf_img.GetSubDatasets()
+        vcf_ptc = gdal.Open(vcf_sub[0][0], gdal.GA_ReadOnly)
+    except:
+        log.error('Failed to read input {}'.format(vcf))
+        return 2
+
+    # read geo info
+    if verbose:
+        log.info('Reading geo information...')
+    try:
+        vcf_geo = stackGeo(vcf_sub[0][0])
+    except:
+        log.error('Failed to read geo info.')
+        return 2
+
+    # read actual data
+    if verbose:
+        log.info('Reading actual data...')
+    try:
+        ptc = vcf_ptc.GetRasterBand(1).ReadAsArray().astype(np.int8)
+    except:
+        log.error('Failed to read data.')
+        return 2
+
+    # clean up data
+    if verbose:
+        log.info('Cleaning up...')
+    try:
+        ptc[ptc == 200] = 0
+        ptc[ptc == 253] = 255
+    except:
+        log.error('Failed to clean up.')
+        return 3
+
+    # write output
+    if verbose:
+        log.info('Writing output: {}'.format(des_vcf))
+    try:
+        # initialize output
+        _driver = gdal.GetDriverByName('GTiff')
+        output = _driver.Create(des_vcf, vcf_geo['samples'], vcf_geo['lines'],
+                                1, gdal.GDT_Byte)
+        output.SetProjection(vcf_geo['proj'])
+        output.SetGeoTransform(vcf_geo['geotrans'])
+        output.GetRasterBand(1).SetNoDataValue(255)
+        output.GetRasterBand(1).WriteArray(ptc)
+        output.GetRasterBand(1).SetDescription('MODIS VCF PTC')
+    except:
+        log.error('Failed to write output to {}'.format(des_vcf))
+        return 4
+
+    # close files
+    if verbose:
+        log.info('Closing files...')
+    vcf_img = None
+    vcf_sub = None
+    vcf_ptc = None
+    vcf_geo = None
+    ptc = None
 
     # done
     if verbose:

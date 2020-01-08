@@ -13,7 +13,7 @@ from .mask import mn2ln, bit2mask, mask2array, mask2strata
 from .sentinel import sen2stack, sn2ln
 from .modis import (modis2stack, modis2composite, modisvi2stack, modislc2stack,
                     nbar2stack, pheno2stack, nbarcmg2stack, modisvicmg2stack,
-                    MOD09Q12stack)
+                    MOD09Q12stack, MOD44B2stack)
 from .image import stack2image, addTextToImage
 
 
@@ -67,5 +67,6 @@ __all__ = [
     'tn2ln',
     'chkExist',
     'csv2ndarray',
-    'MOD09Q12stack'
+    'MOD09Q12stack',
+    'MOD44B2stack'
 ]
