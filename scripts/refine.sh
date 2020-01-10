@@ -6,6 +6,7 @@
 #		--overwrite overwrite
 #		ori: origin
 #   lc: MODIS land cover stack
+#		vcf: MODIS vcf stack
 #		des: destination
 
 # default values
@@ -22,7 +23,8 @@ while [[ $# > 0 ]]; do
 		*)
       ori=$1
       lc=$2
-			des=$3
+			vcf=$3
+			des=$4
 			break
 	esac
 	shift
@@ -30,4 +32,4 @@ done
 
 # submit job
 echo 'Submitting job to refine classification results'
-qsub -j y -N Refine -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.chart.refine ${overwrite} $ori $lc $des
+qsub -j y -N Refine -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.chart.refine ${overwrite} $ori $lc $vcf $des
