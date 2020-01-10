@@ -106,7 +106,7 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                                 p[p == 0] = p[p != 0][0]
                         # uc in the end
                         elif p[-1] == 0:
-                            if p_label == in[13, 25]:
+                            if p_label in [13, 25]:
                                 p[p == 0] = p_label
                             else:
                                 p[p == 0] = p[p != 0][-1]
@@ -134,7 +134,18 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                     # stable class check check
                     if len(np.unique(p)) == 1:
                         p_class = np.unique(p)[0]
-                        if p_class in [2, 12, 9]:
+                        if p_class in [2, 4, 5, 12, 9]:
+                            mvcf = pvcf.mean()
+                            if mvcf >= 50:
+                                if plc_label <= 5:
+                                    p_label = plc_label
+                                else:
+                                    p_label = 4
+                            elif mvcf >= 20:
+                                p_label = 9
+                            else:
+                                p_label = 12
+                        r[i, j, :] = p_label
 
             progress = show_progress(i, lines, 5)
             if progress >= 0:
