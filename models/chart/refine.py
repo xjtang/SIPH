@@ -69,83 +69,82 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
             for j in range(0, samples):
                 p = r[i, j, :]
 
-                if p.max() == 255:
-                    plc = np.zeros(nband, np.int8)
-                    plc[0:18] = lc[i, j, :]
-                    plc[18] = lc[i, j, -1]
-                    for k in range(0, len(plc)):
-                        plc[k] = m2c[plc[k]]
-                    plc_label = np.bincount(plc).argmax()
+                plc = np.zeros(nband, np.int8)
+                plc[0:18] = lc[i, j, :]
+                plc[18] = lc[i, j, -1]
+                for k in range(0, len(plc)):
+                    plc[k] = m2c[plc[k]]
+                plc_label = np.bincount(plc).argmax()
 
-                    pvcf = np.zeros(nband, np.int8)
-                    pvcf[0:18] = vcf[i, j, 1:]
-                    pvcf[18] = vcf[i, j, -1]
+                pvcf = np.zeros(nband, np.int8)
+                pvcf[0:18] = vcf[i, j, 1:]
+                pvcf[18] = vcf[i, j, -1]
 
-                    # fix short plantation in beginning
-                    if p[3] != 18:
-                        if p[0] == 18:
-                            p[0] = p[3]
-                        if p[1] == 18:
-                            p[1] = p[3]
-                        if p[2] == 18:
-                            p[2] = p[3]
-                        r[i, j, :] = p
+                # fix short plantation in beginning
+                if p[3] != 18:
+                    if p[0] == 18:
+                        p[0] = p[3]
+                    if p[1] == 18:
+                        p[1] = p[3]
+                    if p[2] == 18:
+                        p[2] = p[3]
+                    r[i, j, :] = p
 
-                    # deel with unclassified
-                    if max(p == 0) == 1:
-                        uclc = plc[p == 0]
-                        p_label = np.bincount(uclc).argmax()
-                        # mostly uc
-                        if sum(p == 0) > 8:
+                # deel with unclassified
+                if max(p == 0) == 1:
+                    uclc = plc[p == 0]
+                    p_label = np.bincount(uclc).argmax()
+                    # mostly uc
+                    if sum(p == 0) > 8:
+                        p[p == 0] = p_label
+                    # uc in the beginning
+                    elif (sum(p == 0) <= 3) & (p[0] == 0):
+                        if p_label in [13, 25]:
                             p[p == 0] = p_label
-                        # uc in the beginning
-                        elif (sum(p == 0) <= 3) & (p[0] == 0):
-                            if p_label in [13, 25]:
-                                p[p == 0] = p_label
-                            else:
-                                p[p == 0] = p[p != 0][0]
-                        # uc in the end
-                        elif p[-1] == 0:
-                            if p_label in [13, 25]:
-                                p[p == 0] = p_label
-                            else:
-                                p[p == 0] = p[p != 0][-1]
-                        r[i, j, :] = p
+                        else:
+                            p[p == 0] = p[p != 0][0]
+                    # uc in the end
+                    elif p[-1] == 0:
+                        if p_label in [13, 25]:
+                            p[p == 0] = p_label
+                        else:
+                            p[p == 0] = p[p != 0][-1]
+                    r[i, j, :] = p
 
-                    # urban barren fix
-                    if sum((p == 13) & (plc == 16)) >= 5:
-                        p[(p==13)&(plc==16)] = 16
-                        r[i, j, :] = p
-                    # urban grassland fix
-                    if sum((p == 13) & (plc == 10)) >= 5:
-                        p[(p==13)&(plc==10)] = 10
-                        r[i, j, :] = p
+                # urban barren fix
+                if sum((p == 13) & (plc == 16)) >= 5:
+                    p[(p==13)&(plc==16)] = 16
+                    r[i, j, :] = p
+                # urban grassland fix
+                if sum((p == 13) & (plc == 10)) >= 5:
+                    p[(p==13)&(plc==10)] = 10
+                    r[i, j, :] = p
 
-                    # urban check 2
-                    if sum((p == 13) & (plc != 13)) >= 8:
-                        if plc_label == 10:
-                            p[(p==13)&(plc!=13)] = 10
-                        elif plc_label == 10:
-                            p[(p==13)&(plc!=13)] = 12
-                        elif plc_label == 12:
-                            p[(p==13)&(plc!=13)] = 12
-                        r[i, j, :] = p
+                # urban check 2
+                if sum((p == 13) & (plc != 13)) >= 8:
+                    if plc_label == 10:
+                        p[(p==13)&(plc!=13)] = 10
+                    elif plc_label == 10:
+                        p[(p==13)&(plc!=13)] = 12
+                    elif plc_label == 12:
+                        p[(p==13)&(plc!=13)] = 12
+                    r[i, j, :] = p
 
-                    # stable class check check
-                    if len(np.unique(p)) == 1:
-                        p_class = np.unique(p)[0]
-                        if p_class in [2, 4, 5, 12, 9]:
-                            mvcf = pvcf.mean()
-                            if mvcf >= 50:
-                                if plc_label <= 5:
-                                    p_label = plc_label
-                                else:
-                                    p_label = 4
-                            elif mvcf >= 20:
-                                p_label = 9
+                # stable class check check
+                if len(np.unique(p)) == 1:
+                    p_class = np.unique(p)[0]
+                    if p_class in [2, 4, 5, 12, 9]:
+                        mvcf = pvcf.mean()
+                        if mvcf >= 50:
+                            if plc_label <= 5:
+                                p_label = plc_label
                             else:
-                                p_label = 12
-                        r[i, j, :] = p_label
+                                p_label = 4
+                        elif mvcf >= 20:
+                            p_label = 9
+                        else:
+                            p_label = 12
+                    r[i, j, :] = p_label
 
             progress = show_progress(i, lines, 5)
             if progress >= 0:

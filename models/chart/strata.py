@@ -85,7 +85,8 @@ def create_strata(map1, map2, des, overwrite=False):
     # writing output
     log.info('Writing output...')
     try:
-        array2stack(result, geo, des, ['strata'], 255, gdal.GDT_Byte, overwrite)
+        array2stack(result, geo, des, ['strata'], 255, gdal.GDT_Byte, overwrite,
+                    'GTiff', ['COMPRESS=LZW'])
     except:
         log.error('Failed to write output to {}'.format(des))
         return 4
