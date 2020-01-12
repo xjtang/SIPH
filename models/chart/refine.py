@@ -157,7 +157,8 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
     # write output
     log.info('Writing output...')
     try:
-        array2stack(r, geo, des, 'NA', 255, gdal.GDT_Int16, overwrite)
+        array2stack(r, geo, des, 'NA', 255, gdal.GDT_Int16, overwrite, 'GTiff',
+                    ['COMPRESS=LZW'])
     except:
         log.error('Failed to write output to {}'.format(des))
         return 4
