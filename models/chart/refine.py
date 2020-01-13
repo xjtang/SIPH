@@ -144,7 +144,7 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                             p_label = 9
                         else:
                             p_label = 12
-                    r[i, j, :] = p_label
+                        r[i, j, :] = p_label
 
             progress = show_progress(i, lines, 5)
             if progress >= 0:
