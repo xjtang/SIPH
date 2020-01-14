@@ -63,7 +63,8 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
 
     # refine classification results
     log.info('Refining maps...')
-    try:
+    if True:
+    #try:
         (lines, samples, nband) = r.shape
         for i in range(0,lines):
             for j in range(0, samples):
@@ -109,6 +110,11 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                             p[p == 0] = p_label
                         else:
                             p[p == 0] = p[p != 0][-1]
+                    # single uc
+                    elif sum(p == 0) < 3:
+                        for k in range(0, len(p)):
+                            if p[k] == 0:
+                                p[k] == p[k-1]
                     r[i, j, :] = p
 
                 # urban barren fix
@@ -132,26 +138,41 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
 
                 # stable class check check
                 if len(np.unique(p)) == 1:
+                    mvcf = pvcf.mean()
                     p_class = np.unique(p)[0]
-                    if p_class in [2, 4, 5, 12, 9]:
-                        mvcf = pvcf.mean()
-                        if mvcf >= 50:
+                    if p_class == 9:
+                        if mvcf >= 40:
                             if plc_label <= 5:
                                 p_label = plc_label
                             else:
                                 p_label = 4
-                        elif mvcf >= 20:
+                        elif mvcf < 10:
+                            p_label = 12
+                        else:
+                            p_label = 9
+                        r[i, j, :] = p_label
+                    elif p_class == 12:
+                        if mvcf >= 20:
                             p_label = 9
                         else:
                             p_label = 12
+                        r[i, j, :] = p_label
+                    elif p_class == 18:
+                        p_label = 18
+                        if (plc_label <= 2) & (mvcf >= 50):
+                            p_label = 2
+                        if (plc_label == 12) & (mvcf <= 10):
+                            p_label = 12
+                        if (plc_label == 9) & (mvcf <= 30):
+                            p_label = 9
                         r[i, j, :] = p_label
 
             progress = show_progress(i, lines, 5)
             if progress >= 0:
                 log.info('{}% done.'.format(progress))
-    except:
-        log.error('Failed to refine results.')
-        return 3
+    #except:
+    #    log.error('Failed to refine results.')
+    #    return 3
 
     # write output
     log.info('Writing output...')
