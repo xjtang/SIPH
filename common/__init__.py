@@ -9,6 +9,7 @@ from .data_processing import (enlarge, crop, mirror, sidebyside, reclassify,
 from .image_processing import (apply_mask, result2mask, apply_stretch,
                                 nodata_mask, clean_up, thematic_map, nchange)
 from .result_processing import ts2class, ts2doc, ts2dod, ts2map
+from .accuracy import conf_mat, accuracy_assessment, numeric_example
 
 
 __all__ = [
@@ -41,5 +42,8 @@ __all__ = [
     'enlarge2',
     'ts2map',
     'split_doy',
-    'ndarray_append'
+    'ndarray_append',
+    'conf_mat',
+    'accuracy_assessment',
+    'numeric_example'
 ]
