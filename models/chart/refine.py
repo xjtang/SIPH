@@ -140,21 +140,30 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                     mvcf = pvcf.mean()
                     p_class = np.unique(p)[0]
                     if p_class == 9:
-                        if mvcf >= 40:
+                        if mvcf >= 60:
                             if plc_label <= 5:
                                 p_label = plc_label
                             else:
                                 p_label = 4
-                        elif mvcf < 10:
-                            p_label = 12
+                        elif mvcf >= 40:
+                            if plc_label == 2:
+                                p_label = 2
                         else:
                             p_label = 9
                         r[i, j, :] = p_label
                     elif p_class == 12:
-                        if mvcf >= 20:
+                        if plc_label == 13:
+                            p_label = 13
+                        elif plc_label == 9:
                             p_label = 9
+                        elif plc_label not in [10, 12]:
+                            if mvcf >= 20:
+                                p_label = 9
                         else:
-                            p_label = 12
+                            if mvcf >= 30:
+                                p_label = 9
+                            else:
+                                p_label = 12
                         r[i, j, :] = p_label
                     elif p_class == 18:
                         p_label = 18
