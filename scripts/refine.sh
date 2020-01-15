@@ -32,4 +32,4 @@ done
 
 # submit job
 echo 'Submitting job to refine classification results'
-qsub -j y -N Refine -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.chart.refine ${overwrite} $ori $lc $vcf $des
+qsub -l mem_total=94G -j y -N Refine -V -b y cd /projectnb/landsat/users/xjtang/documents/';' python -m SIPH.models.chart.refine ${overwrite} $ori $lc $vcf $des
