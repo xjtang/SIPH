@@ -75,6 +75,7 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                 for k in range(0, len(plc)):
                     plc[k] = m2c[plc[k]]
                 plc_label = np.bincount(plc).argmax()
+                plcn = len(np.unique(plc))
 
                 pvcf = np.zeros(nband, np.int8)
                 pvcf[0:18] = vcf[i, j, 1:]
@@ -141,13 +142,23 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                     p_class = np.unique(p)[0]
                     if p_class == 9:
                         if mvcf >= 60:
-                            if plc_label <= 5:
-                                p_label = plc_label
+                            if plcn == 1:
+                                if plc_label <= 5:
+                                    p_label = plc_label
+                                else:
+                                    p_label = 4
                             else:
-                                p_label = 4
+                                if plc_label in [2, 4, 5, 8]:
+                                    p_label = 18
                         elif mvcf >= 40:
-                            if plc_label == 2:
-                                p_label = 2
+                            if plcn == 1:
+                                if plc_label <= 5:
+                                    p_label = plc_label
+                                else:
+                                    p_label = 4
+                        elif mvcf <= 15:
+                            if plc_label == 12:
+                                p_label = 12
                         else:
                             p_label = 9
                         r[i, j, :] = p_label
@@ -157,13 +168,15 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                         elif plc_label == 9:
                             p_label = 9
                         elif plc_label not in [10, 12]:
-                            if mvcf >= 20:
+                            if mvcf >= 15:
                                 p_label = 9
                         else:
-                            if mvcf >= 30:
+                            if mvcf >= 22:
                                 p_label = 9
                             else:
                                 p_label = 12
+                        if max(plc == 13) == 1:
+                            p_label = 13
                         r[i, j, :] = p_label
                     elif p_class == 18:
                         p_label = 18
