@@ -254,6 +254,19 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
         log.error('Failed to refine results.')
         return 3
 
+    # write output
+    log.info('Writing output...')
+    try:
+        array2stack(r, geo, des, 'NA', 255, gdal.GDT_Int16, overwrite, 'GTiff',
+                    ['COMPRESS=LZW'])
+    except:
+        log.error('Failed to write output to {}'.format(des))
+        return 4
+
+    # done
+    log.info('Process completed.')
+    return 0
+
 
 def toSta(x1, x2):
     C2S = [0,1,1,0,1,1,0,0,3,3,4,5,2,6,2,0,7,2,9,5,5,2,0,0,0,8]
@@ -275,20 +288,6 @@ def toSta(x1, x2):
         else:
             y = 15
     return y
-
-
-    # write output
-    log.info('Writing output...')
-    try:
-        array2stack(r, geo, des, 'NA', 255, gdal.GDT_Int16, overwrite, 'GTiff',
-                    ['COMPRESS=LZW'])
-    except:
-        log.error('Failed to write output to {}'.format(des))
-        return 4
-
-    # done
-    log.info('Process completed.')
-    return 0
 
 
 if __name__ == '__main__':
