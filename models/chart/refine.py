@@ -80,6 +80,7 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                 pvcf = np.zeros(nband, np.int8)
                 pvcf[0:18] = vcf[i, j, 1:]
                 pvcf[18] = vcf[i, j, -1]
+                psta = toSta(p[2], p[13])
 
                 # fix short plantation in beginning
                 if p[3] != 18:
@@ -136,7 +137,7 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                         p[(p==13)&(plc!=13)] = 12
                     r[i, j, :] = p
 
-                # stable class check check
+                # stable class check
                 if len(np.unique(p)) == 1:
                     mvcf = pvcf.mean()
                     p_class = np.unique(p)[0]
@@ -188,12 +189,93 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                             p_label = 9
                         r[i, j, :] = p_label
 
+                # stable class check 2
+                mvcf = pvcf.mean()
+                p_class = np.unique(p)[0]
+                p_label = -1
+                if psta == 1:
+                    if plc_label == 9:
+                        p_label = 9
+                elif psta == 3:
+                    if (plc_label <= 5) & (mvcf >= 20):
+                        p_label = plc_label
+                elif psta == 5:
+                    if (plc_label == 2) & (mvcf >= 50) & (p_class == 20):
+                        p_label = 2
+                    if (plc_label == 9) & (mvcf < 30) & (p_class == 19):
+                        p_label = 18
+                elif psta == 7:
+                    if (plc_label in [10, 16]) & (mvcf >= 5) & (p_class == 16):
+                        p_label = 10
+                elif psta == 9:
+                    if plc_label in [2, 4]:
+                        p_label = plc_label
+                    elif plc_label in [12, 10]:
+                        if mvcf >= 15:
+                            p_label = 12
+                        else:
+                            p_label = 9
+                    elif plc_label == 5:
+                        if mvcf > 45:
+                            p_label = 5
+                        else:
+                            p_label = 9
+                    elif plc_label == 9:
+                        p_label = 9
+                elif psta == 10:
+                    if plcn == 1:
+                        p_label = 12
+                elif psta == 11:
+                    if plcn == 1:
+                        if plc_label in [2, 4, 5]:
+                            p_label = plc_label
+                        elif plc_label in [12, 10]:
+                            p_label = 12
+                        elif plc_label in [8, 9]:
+                            p_label = 9
+                elif psta == 15:
+                    if plc_label in [2, 4, 5]:
+                        p_label = plc_label
+                    elif (p[2] == 18) & (p[13] == 2):
+                        p_label = plc_label
+                    elif (plc_label == 12) & (plcn == 1):
+                        p_label = 12
+                    elif plc_label in [8, 9]:
+                        p_label = 9
+                    elif (plcn < 3) & (p[2] == 18) & (p[13] == 9):
+                        p_label = 9
+                if p_label > 0:
+                    r[i, j, :] = p_label
+
             progress = show_progress(i, lines, 5)
             if progress >= 0:
                 log.info('{}% done.'.format(progress))
     except:
         log.error('Failed to refine results.')
         return 3
+
+
+def toSta(x1, x2):
+    C2S = [0,1,1,0,1,1,0,0,3,3,4,5,2,6,2,0,7,2,9,5,5,2,0,0,0,8]
+    if x1 == x2:
+        y = C2S[x1]
+    else:
+        L1C = C2S[x1]
+        L2C = C2S[x2]
+        if ((L2C == 2) & (L1C != 2)):
+            y = 10
+        elif L2C == 9:
+            y = 11
+        elif L2C == 6:
+            y = 12
+        elif ((L1C in [1, 3]) & (L2C in [4, 5, 7, 8])):
+            y = 13
+        elif ((L1C in [2, 4, 5, 6, 7, 8]) & (L2C in [1, 3])):
+            y = 14
+        else:
+            y = 15
+    return y
+
 
     # write output
     log.info('Writing output...')
