@@ -80,7 +80,9 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                 pvcf = np.zeros(nband, np.int8)
                 pvcf[0:18] = vcf[i, j, 1:]
                 pvcf[18] = vcf[i, j, -1]
-                psta = toSta(p[2], p[13])
+
+                mvcf = pvcf.mean()
+                p_class = np.unique(p)[0]
 
                 # fix short plantation in beginning
                 if p[3] != 18:
@@ -139,8 +141,7 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
 
                 # stable class check
                 if len(np.unique(p)) == 1:
-                    mvcf = pvcf.mean()
-                    p_class = np.unique(p)[0]
+                    p_label = -1
                     if p_class == 9:
                         if mvcf >= 60:
                             if plcn == 1:
@@ -162,7 +163,6 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                                 p_label = 12
                         else:
                             p_label = 9
-                        r[i, j, :] = p_label
                     elif p_class == 12:
                         if plc_label == 13:
                             p_label = 13
@@ -178,7 +178,6 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                                 p_label = 12
                         if max(plc == 13) == 1:
                             p_label = 13
-                        r[i, j, :] = p_label
                     elif p_class == 18:
                         p_label = 18
                         if (plc_label <= 2) & (mvcf >= 50):
@@ -187,12 +186,15 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                             p_label = 12
                         if (plc_label == 9) & (mvcf <= 30):
                             p_label = 9
+                    if p_label > 0:
                         r[i, j, :] = p_label
 
                 # stable class check 2
-                mvcf = pvcf.mean()
-                p_class = np.unique(p)[0]
                 p_label = -1
+                p = r[i, j, :]
+                psta = toSta(p[2], p[13])
+                p_class = p[0]
+
                 if psta == 1:
                     if plc_label == 9:
                         p_label = 9
