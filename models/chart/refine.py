@@ -189,66 +189,6 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                     if p_label > 0:
                         r[i, j, :] = p_label
 
-                # stable class check 2
-                p_label = -1
-                p = r[i, j, :]
-                psta = toSta(p[2], p[13])
-                p_class = p[0]
-
-                if psta == 1:
-                    if plc_label == 9:
-                        p_label = 9
-                elif psta == 3:
-                    if (plc_label <= 5) & (mvcf >= 20):
-                        p_label = plc_label
-                elif psta == 5:
-                    if (plc_label == 2) & (mvcf >= 50) & (p_class == 20):
-                        p_label = 2
-                    if (plc_label == 9) & (mvcf < 30) & (p_class == 19):
-                        p_label = 18
-                elif psta == 7:
-                    if (plc_label in [10, 16]) & (mvcf >= 5) & (p_class == 16):
-                        p_label = 10
-                elif psta == 9:
-                    if plc_label in [2, 4]:
-                        p_label = plc_label
-                    elif plc_label in [12, 10]:
-                        if mvcf >= 15:
-                            p_label = 12
-                        else:
-                            p_label = 9
-                    elif plc_label == 5:
-                        if mvcf > 45:
-                            p_label = 5
-                        else:
-                            p_label = 9
-                    elif plc_label == 9:
-                        p_label = 9
-                elif psta == 10:
-                    if plcn == 1:
-                        p_label = 12
-                elif psta == 11:
-                    if plcn == 1:
-                        if plc_label in [2, 4, 5]:
-                            p_label = plc_label
-                        elif plc_label in [12, 10]:
-                            p_label = 12
-                        elif plc_label in [8, 9]:
-                            p_label = 9
-                elif psta == 15:
-                    if plc_label in [2, 4, 5]:
-                        p_label = plc_label
-                    elif (p[2] == 18) & (p[13] == 2):
-                        p_label = plc_label
-                    elif (plc_label == 12) & (plcn == 1):
-                        p_label = 12
-                    elif plc_label in [8, 9]:
-                        p_label = 9
-                    elif (plcn < 3) & (p[2] == 18) & (p[13] == 9):
-                        p_label = 9
-                if p_label > 0:
-                    r[i, j, :] = p_label
-
             progress = show_progress(i, lines, 5)
             if progress >= 0:
                 log.info('{}% done.'.format(progress))
