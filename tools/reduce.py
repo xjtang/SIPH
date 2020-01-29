@@ -18,7 +18,7 @@ from ..common import log
 from ..io import stackGeo, stack2array, array2stack, chkExist
 
 
-def reducing(ori, des, method='mean', overwrite=False):
+def reducing(ori, des, method='mean', subset=[0,0], overwrite=False):
     """ stack raster layers
 
     Args:
@@ -43,7 +43,8 @@ def reducing(ori, des, method='mean', overwrite=False):
     log.info('Reading input: {}'.format(ori))
     try:
         geo = stackGeo(ori)
-        stack = stack2array(ori)
+        stack = stack2array(ori, [x for x in range(subset[0], subset[1]+1)])
+        log.info('Total bands: {}'.format(stack.shape[2]))
     except:
         log.error('Failed to read input from: {}'.format(ori))
         return 2
@@ -85,6 +86,8 @@ if __name__ == '__main__':
     parser.add_argument('-m', '--method', action='store', type=str,
                         dest='method', default='mean',
                         help='reducing method')
+    parser.add_argument('-s', '--subset', action='store', type=int, nargs=2,
+                        dest='sub', default=[0,0], help='subset bands')
     parser.add_argument('--overwrite', action='store_true',
                         help='overwrite or not')
     parser.add_argument('ori', default='./', help='origin')
@@ -95,9 +98,11 @@ if __name__ == '__main__':
     log.info('Start reducing...')
     log.info('Input stack: {}'.format(args.ori))
     log.info('Reducing method: {}.'.format(args.method))
+    if max(args.sub) > 0:
+        log.info('Reading band {} to {}.'.format(args.sub[0], args.sub[1]))
     log.info('Saving as {}'.format(args.des))
     if args.overwrite:
         log.info('Overwriting old file.')
 
     # run function to reduce
-    reducing(args.ori, args.des, args.method, args.overwrite)
+    reducing(args.ori, args.des, args.method, args.sub, args.overwrite)
