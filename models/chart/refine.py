@@ -123,150 +123,100 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                     r[i, j, :] = p
 
                 # urban check 2
-                if sum((p == 13) & (plc != 13)) >= 8:
-                    if plc_label == 10:
-                        p[(p == 13) & (plc != 13)] = 10
-                    elif plc_label == 10:
-                        p[(p == 13) & (plc != 13)] = 12
-                    elif plc_label == 12:
-                        p[(p == 13) & (plc != 13)] = 12
-                    r[i, j, :] = p
-
-                # stable class check
-                if len(np.unique(p)) == 1:
-                    p_label = -1
-                    if p_class == 9:
-                        if mvcf >= 60:
-                            if plcn == 1:
-                                if plc_label <= 5:
-                                    p_label = m2c[plc_label]
-                                else:
-                                    p_label = 4
-                            else:
-                                if plc_label in [2, 4, 5, 8]:
-                                    p_label = 18
-                        elif mvcf >= 40:
-                            if plcn == 1:
-                                if plc_label <= 5:
-                                    p_label = m2c[plc_label]
-                                else:
-                                    p_label = 4
-                        elif mvcf <= 15:
-                            if plc_label == 12:
-                                p_label = 12
-                        else:
-                            p_label = 9
-                    elif p_class == 12:
-                        if plc_label == 13:
-                            p_label = 13
-                        elif plc_label == 9:
-                            p_label = 9
-                        elif plc_label not in [10, 12]:
-                            if mvcf >= 15:
-                                p_label = 9
-                        else:
-                            if mvcf >= 22:
-                                p_label = 9
-                            else:
-                                p_label = 12
-                        if max(plc == 13) == 1:
-                            p_label = 13
-                    elif p_class == 18:
-                        p_label = 18
-                        if (plc_label <= 2) & (mvcf >= 50):
-                            p_label = 2
-                        if (plc_label == 12) & (mvcf <= 10):
-                            p_label = 12
-                        if (plc_label == 9) & (mvcf <= 30):
-                            p_label = 9
-                    if p_label > 0:
-                        r[i, j, :] = p_label
+                #if sum((p == 13) & (plc != 13)) >= 8:
+                #    if plc_label == 10:
+                #        p[(p == 13) & (plc != 13)] = 10
+                #    elif plc_label == 10:
+                #        p[(p == 13) & (plc != 13)] = 12
+                #    elif plc_label == 12:
+                #        p[(p == 13) & (plc != 13)] = 12
+                #    r[i, j, :] = p
 
                 # refinement 2
-                p = r[i, j, :]
-                psta = toSta(p[0], p[-1])
-                p_label = -1
-                if psta == 3:
-                    if (plc_label in [2, 4, 5]):
-                        p_label = m2c[plc_label]
-                elif psta == 6:
-                    if (plc_label == 10) & (plcn == 1):
-                        p_label = 10
-                elif psta == 7:
-                    if (plc_label == 10) & (mvcf > 10) & (plcn == 1):
-                        p_label = 10
-                elif psta == 9:
-                    if (plc_label in [2, 4]) & (mvcf >= 40):
-                        p_label = m2c[plc_label]
-                    if (plc_label == 12) & (plcn == 1):
-                        p_label = 12
-                    if (plc_label in [8, 9]):
-                        if plcn == 1:
-                            p_label = 9
-                        if (plcn == 2) & (mvcf <= 20):
-                            p_label = 9
-                elif psta == 10:
-                    if (plc_label == 10) & (plcn == 1):
-                        p_label = 12
-                    if (plc_label == 12) & (plcn <= 2):
-                        p_label = 12
-                    if (plc_label == 9) & (plcn == 1):
-                        p_label = 9
-                    if (plc_label == 2) & (mvcf > 40) & (p[-1] == 12):
-                        p[p == 12] = 18
-                elif psta == 11:
-                    if (plc_label == 2) & (p[0] in [2, 9]) & (p[-1] == 18):
-                        if plcn == 1:
-                            p_label = 2
-                        if (plcn == 2) & (mvcf >= 45):
-                            p_label = 2
-                    if (plc_label in [10, 12]) & (p[-1] == 18):
-                        if (plcn <= 2) & (mvcf <= 10) & (p[0] in [12, 9]):
-                            p_label = 12
-                        if (plcn >= 3):
-                            p[p == 18] = 12
-                    if (plc_label == 8):
-                        if (plcn == 1):
-                            p_label = 9
-                        if (plcn == 2) & (mvcf < 40):
-                            p_label = 9
-                elif psta == 12:
-                    if (plc_label == 13) & (plcn == 1):
-                        if (mvcf <= 5) & (p[0] == 12):
-                            p_label = 13
-                        if (mvcf > 10) & (p[0] == 17):
-                            p_label = 13
-                elif psta == 13:
-                    if (plc_label == 11) & (plcn <= 2):
-                        p_label = 19
-                    if (plc_label == 2) & (plcn <= 2) & (mvcf > 40) & (p[0] == 2):
-                        p_label = 2
-                elif psta == 14:
-                    if (plc_label in [10, 12]) & (p[0] in [10, 12]):
-                        if mvcf < 15:
-                            p_label = 12
-                        else:
-                            p_label = 9
-                    if (plc_label in [8, 9]) & (p[0] in [10, 12]):
-                        p_label = 9
-                elif psta == 15:
-                    if (plcn == 1) & (p[0] in [12, 17]) & (p[-1] in [12, 17]):
-                        p_label = p[0]
-                    if (plcn <= 2) & (p[0] == 18) & (p[-1] in [2, 9]):
-                        if (plc_label in [2, 4]) & (mvcf >= 40):
-                            p_label = plc_label
-                        if (plc_label == 8) & (mvcf >= 45):
-                            p_label = 2
-                        if (plc_label in [8, 9]) & (mvcf < 45):
-                            p_label = 9
-                        if (plc_label in [12, 10]) & (mvcf > 20):
-                            p_label = 9
-                    if (mvcf > 40) & (plcn <= 2) & (p[0] == 9) & (p[-1] == 2):
-                        p_label = 9
-                    if (p[0] in [10, 16]) & (p[-1] in [10, 16]):
-                        p_label = np.bincount(p).argmax()
-                if p_label > 0:
-                    r[i, j, :] = p_label
+                # p = r[i, j, :]
+                # psta = toSta(p[0], p[-1])
+                # p_label = -1
+                # if psta == 3:
+                #     if (plc_label < 5):
+                #         p_label = m2c[plc_label]
+                # elif psta == 6:
+                #     if (plc_label == 10) & (plcn == 1):
+                #         p_label = 10
+                # elif psta == 7:
+                #     if (plc_label == 10) & (mvcf > 10) & (plcn == 1):
+                #         p_label = 10
+                # elif psta == 9:
+                #     if (plc_label in [2, 4]) & (mvcf >= 40):
+                #         p_label = m2c[plc_label]
+                #     if (plc_label == 12) & (plcn == 1):
+                #         p_label = 12
+                #     if (plc_label in [8, 9]):
+                #         if plcn == 1:
+                #             p_label = 9
+                #         if (plcn == 2) & (mvcf <= 20):
+                #             p_label = 9
+                # elif psta == 10:
+                #     if (plc_label == 10) & (plcn == 1):
+                #         p_label = 12
+                #     if (plc_label == 12) & (plcn <= 2):
+                #         p_label = 12
+                #     if (plc_label == 9) & (plcn == 1):
+                #         p_label = 9
+                #     if (plc_label == 2) & (mvcf > 40) & (p[-1] == 12):
+                #         p[p == 12] = 18
+                # elif psta == 11:
+                #     if (plc_label == 2) & (p[0] in [2, 9]) & (p[-1] == 18):
+                #         if plcn == 1:
+                #             p_label = 2
+                #         if (plcn == 2) & (mvcf >= 45):
+                #             p_label = 2
+                #     if (plc_label in [10, 12]) & (p[-1] == 18):
+                #         if (plcn <= 2) & (mvcf <= 10) & (p[0] in [12, 9]):
+                #             p_label = 12
+                #         if (plcn >= 3):
+                #             p[p == 18] = 12
+                #     if (plc_label == 8):
+                #         if (plcn == 1):
+                #             p_label = 9
+                #         if (plcn == 2) & (mvcf < 40):
+                #             p_label = 9
+                # elif psta == 12:
+                #     if (plc_label == 13) & (plcn == 1):
+                #         if (mvcf <= 5) & (p[0] == 12):
+                #             p_label = 13
+                #         if (mvcf > 10) & (p[0] == 17):
+                #             p_label = 13
+                # elif psta == 13:
+                #     if (plc_label == 11) & (plcn <= 2):
+                #         p_label = 19
+                #     if (plc_label == 2) & (plcn <= 2) & (mvcf > 40) & (p[0] == 2):
+                #         p_label = 2
+                # elif psta == 14:
+                #     if (plc_label in [10, 12]) & (p[0] in [10, 12]):
+                #         if mvcf < 15:
+                #             p_label = 12
+                #         else:
+                #             p_label = 9
+                #     if (plc_label in [8, 9]) & (p[0] in [10, 12]):
+                #         p_label = 9
+                # elif psta == 15:
+                #     if (plcn == 1) & (p[0] in [12, 17]) & (p[-1] in [12, 17]):
+                #         p_label = p[0]
+                #     if (plcn <= 2) & (p[0] == 18) & (p[-1] in [2, 9]):
+                #         if (plc_label in [2, 4]) & (mvcf >= 40):
+                #             p_label = plc_label
+                #         if (plc_label == 8) & (mvcf >= 45):
+                #             p_label = 2
+                #         if (plc_label in [8, 9]) & (mvcf < 45):
+                #             p_label = 9
+                #         if (plc_label in [12, 10]) & (mvcf > 20):
+                #             p_label = 9
+                #     if (mvcf > 40) & (plcn <= 2) & (p[0] == 9) & (p[-1] == 2):
+                #         p_label = 9
+                #     if (p[0] in [10, 16]) & (p[-1] in [10, 16]):
+                #         p_label = np.bincount(p).argmax()
+                # if p_label > 0:
+                #     r[i, j, :] = p_label
 
             progress = show_progress(i, lines, 5)
             if progress >= 0:
