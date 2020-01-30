@@ -75,7 +75,7 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                 plcn = len(np.unique(plc))
 
                 pvcf = vcf[i, j, 1:17]
-                mvcf = pvcf.mean()
+                mvcf = int(pvcf.mean())
 
                 # fix short plantation in beginning
                 if p[3] != 18:
@@ -137,7 +137,7 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                 psta = toSta(p[2], p[13])
                 p_label = -1
                 if psta == 3:
-                    if (plc_label < 5):
+                    if (plc_label <= 5):
                         p_label = m2c[plc_label]
                 elif psta == 6:
                     if (plc_label == 10) & (plcn == 1):

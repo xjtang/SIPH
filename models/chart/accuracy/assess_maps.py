@@ -42,6 +42,8 @@ class accuracy:
         self.check[:, 1] = self.map
         self.check[:, 2] = self.ref
 
+        self.r = np.genfromtxt(self.input, delimiter=',', dtype=None, names=True)
+
     def saveCF(self, cf):
         np.savetxt(os.path.join(self.wd, 'conf_mat.csv'), cf, delimiter=',',
                     fmt='%d')
