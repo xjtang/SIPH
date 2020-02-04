@@ -34,7 +34,7 @@ def lc2rd(ori, des, overwrite=False):
 
     """
     # check if output already exists
-    if chkExist(des, False, overwrite) > 0
+    if chkExist(des, False, overwrite) > 0:
         return 1
 
     # read input image
@@ -49,10 +49,10 @@ def lc2rd(ori, des, overwrite=False):
     # converting
     log.info('Converting to rooting depth...')
     try:
-        c2r = cons.CLASS2RD
+        C2R = cons.CLASS2RD
         rd = np.zeros(lc.shape, np.int16) - 1
         for x in range(0, len(C2R)):
-            rd[lc == x] == c2r[x]
+            rd[lc == x] = C2R[x]
     except:
         log.error('Failed to convert to rooting depth.')
         return 3

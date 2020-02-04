@@ -272,7 +272,8 @@ def mn2ln(mn):
 
     """
     mn = mn.split('.')
-    mn[0] += 'X'
+    if len(mn[0]) < 7:
+        mn[0] += 'X'
     if mn[0][5] == 'C':
         return '{}CMG005{}{}{}'.format(mn[0][0:3], mn[1][1:], mn[2][-1],
                                         mn[0][3:])
