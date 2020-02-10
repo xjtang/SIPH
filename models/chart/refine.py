@@ -122,16 +122,6 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                     p[(p == 13) & (plc == 10)] = 10
                     r[i, j, :] = p
 
-                # urban check 2
-                #if sum((p == 13) & (plc != 13)) >= 8:
-                #    if plc_label == 10:
-                #        p[(p == 13) & (plc != 13)] = 10
-                #    elif plc_label == 10:
-                #        p[(p == 13) & (plc != 13)] = 12
-                #    elif plc_label == 12:
-                #        p[(p == 13) & (plc != 13)] = 12
-                #    r[i, j, :] = p
-
                 # refinement 2
                 p = r[i, j, :]
                 psta = toSta(p[2], p[13])
