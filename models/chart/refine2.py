@@ -112,7 +112,7 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                     r[i, j, :] = p
 
                 # fix urban to ag
-                if sum(p[0] == 13) & sum(p[-1] == 12):
+                if (p[0] == 13) & (p[-1] == 12):
                     plc_short = np.bincount(plc[p == 13]).argmax()
                     p[p == 13] = m2c[plc_short]
                     r[i, j, :] = p
