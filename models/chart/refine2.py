@@ -77,12 +77,6 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                 pvcf = vcf[i, j, 1:17]
                 mvcf = int(pvcf.mean())
 
-                # fix short urban in beginning
-                if (sum(p[0:3] == 13) >= 2) & (sum(p[3:] == 13) <= 1):
-                    plc_short = np.bincount(plc[0:3]).argmax()
-                    p[p == 13] = m2c[plc_short]
-                    r[i, j, :] = p
-
                 # deel with unclassified
                 if max(p == 0) == 1:
                     uclc = plc[p == 0]
@@ -115,6 +109,12 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                         p[(p == 13) & (plc != 13)] = 10
                     elif plc_label == 12:
                         p[(p == 13) & (plc != 13)] = 12
+                    r[i, j, :] = p
+
+                # fix urban to ag
+                if sum(p[0] == 13) & sum(p[-1] == 12):
+                    plc_short = np.bincount(plc[p == 13]).argmax()
+                    p[p == 13] = m2c[plc_short]
                     r[i, j, :] = p
 
                 # refinement 2
