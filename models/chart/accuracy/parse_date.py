@@ -30,7 +30,7 @@ def parsedate(ori, des, overwrite=False):
         4: error writing output
 
     """
-    _date=['DATE','ED1','ED2','ED3']
+    _date=['DATE','ED1','ED2']
     # check if output already exists if not create one
     if not overwrite:
         if chkExist(des) > 0:
@@ -62,12 +62,11 @@ def parsedate(ori, des, overwrite=False):
 
     # write output
     log.info('Writing output to: {}'.format(des))
-    #try:
-    if True:
+    try:
         np.savetxt(des, r, delimiter=',', fmt='%s')
-    #except:
-    #    log.error('Failed to write output to: {}'.format(des))
-    #    return 4
+    except:
+        log.error('Failed to write output to: {}'.format(des))
+        return 4
 
     # done
     log.info('Process completed.')
