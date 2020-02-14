@@ -7,28 +7,39 @@ from ....common import conf_mat, accuracy_assessment, numeric_example
 
 
 class accuracy:
-    wd = '/Users/xjtang/Applications/GoogleDrive/Temp/chart/mekong/sheets/'
     C2S = [0,1,1,0,1,1,0,0,3,3,4,5,2,6,2,0,7,2,9,5,5,2,0,0,0,8]
     C2M = [0,1,1,0,1,1,0,0,3,3,4,5,2,6,2,0,7,2,2,5,5,2,0,0,0,8]
     C2R = [-1,9,9,8,8,85,-1,-1,12,12,6,20,6,0,6,-1,0,20,85,20,20,0,-1,-1,-1,0]
 
-    def __init__(self, _file):
+    def __init__(self, _file, site='mekong'):
+        if site == 'mekong':
+            self.wd = '/Users/xjtang/Applications/GoogleDrive/Temp/chart/mekong/sheets/'
+            self.sc = np.transpose(np.array(((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+                                    12, 13, 14, 15), (4051455, 3826433, 3372155,
+                                    955536, 145348, 43714, 267604, 1083771,
+                                    1467077, 288310, 914216, 16064, 21603,
+                                    32452, 650649)), dtype='int32'))
+        else:
+            self.wd = '/Users/xjtang/Applications/GoogleDrive/Temp/chart/krishna/sheets/'
+            self.sc = np.transpose(np.array(((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12,
+                                    14, 15), (1415353, 8460949, 819367, 137681,
+                                    57075, 23484, 18369, 99537, 155367, 13795,
+                                    27370, 7522, 30297)), dtype='int32'))
         self.input = os.path.join(self.wd, _file)
+        self.site = site
         self.r = np.genfromtxt(self.input, delimiter=',', dtype=None, names=True)
         self.r2 = self.ref2annual(self.r)
-        self.sc = np.transpose(np.array(((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
-                                13, 14, 15), (4051455, 3826433, 3372155, 955536,
-                                145348, 43714, 267604, 1083771, 1467077, 288310,
-                                914216, 16064, 21603, 32452, 650649)),
-                                dtype='int32'))
         self.map = self.toSta(self.r['map_2003'], self.r['map_2014'])
         self.sta = self.r['STRATUM']
         self.ref = self.toSta(self.r2[:,2], self.r2[:,13])
         self.aa = accuracy_assessment(self.sta, self.ref, self.map, self.sc)
         self.cf = conf_mat(self.ref, self.map)
-
-        self.map2 = self.refine(self.r['map_2003'], self.r['map_2014'],
-                                self.r['lc'], self.r['vcf'], self.r['lcnc'])
+        if site == 'mekong':
+            self.map2 = self.refine(self.r['map_2003'], self.r['map_2014'],
+                                    self.r['lc'], self.r['vcf'], self.r['lcnc'])
+        else:
+            self.map2 = self.refine2(self.r['map_2003'], self.r['map_2014'],
+                                    self.r['lc'], self.r['vcf'], self.r['lcnc'])
         self.aa2 = accuracy_assessment(self.sta, self.ref, self.map2, self.sc)
         self.cf2 = conf_mat(self.ref, self.map2)
 
@@ -65,11 +76,17 @@ class accuracy:
                 if ((L2C == 2) & (L1C != 2)):
                     y[i] = 10
                 elif L2C == 9:
-                    y[i] = 11
+                    if self.site == 'mekong':
+                        y[i] = 11
+                    else:
+                        y[i] = 15
                 elif L2C == 6:
                     y[i] = 12
                 elif ((L1C in [1, 3]) & (L2C in [4, 5, 7, 8])):
-                    y[i] = 13
+                    if self.site == 'mekong':
+                        y[i] = 13
+                    else:
+                        y[i] = 15
                 elif ((L1C in [2, 4, 5, 6, 7, 8]) & (L2C in [1, 3])):
                     y[i] = 14
                 else:
@@ -193,6 +210,61 @@ class accuracy:
                 map2[i] = p_label
         return self.toSta(map1, map2)
 
+    def refine2(self, map1, map2, lc, vcf, nc):
+        m2c = [0,2,2,4,4,5,10,10,9,9,10,11,12,13,12,16,16,25,0,0,0,0,0,0,0,0,0,0,0]
+        for i in range(0, len(map1)):
+            plc_label = lc[i]
+            plcn = nc[i]
+            psta = self.toSta2(map1[i], map2[i])
+            mvcf = vcf[i]
+            p_label = -1
+            if psta == 1:
+                if (plc_label in [8, 9]) & (mvcf < 15) & (map1[i] in [2, 4, 5]):
+                    p_label = 9
+            elif psta == 2:
+                if (plc_label == 10) & (mvcf >= 10) & (map1[i] == 12):
+                    p_label = 9
+                if (plc_label == 13) & (plcn == 1) & (map1[i] == 12):
+                    p_label = 13
+            elif psta == 3:
+                if (plc_label in [2, 4, 5]) & (mvcf >= 20):
+                    p_label = m2c[plc_label]
+                if (plc_label in [8, 9]) & (mvcf > 15):
+                    p_label = 4
+            elif psta == 5:
+                if (plc_label == 12) & (plcn == 1) & (mvcf > 10) & (map1[i] == 11):
+                    p_label = 12
+            elif psta == 8:
+                if (plc_label in [10, 12]):
+                    p_label = 11
+            elif psta == 9:
+                if (plc_label in [8, 9]) & (mvcf >= 40) & (plcn <= 2):
+                    p_label = 4
+            elif psta == 14:
+                if (map1[i] == 12) & (map2[i] == 4):
+                    if mvcf > 15:
+                        p_label = 4
+                    else:
+                        p_label = 9
+                if (map1[i] == 12) & (map2[i] == 9) & (plcn <= 2):
+                    if mvcf < 5:
+                        p_label = 12
+                    else:
+                        p_label = 9
+            elif psta == 15:
+                if (plc_label in [2, 4, 5]) & (plcn <= 2) & (map2[i] in [2, 4, 5]):
+                    p_label = m2c[plc_label]
+                if (plc_label in [12, 10]) & (plcn <= 2) & (map1[i] == 12) & (map2[i] == 10):
+                    p_label = 12
+                if (plc_label == 11) & (plcn <= 2) & (map1[i] == 21):
+                    p_label = 21
+                if (plcn == 1) & (map2[i] == 25):
+                    p_label = 11
+            if p_label > 0:
+                map1[i] = p_label
+                map2[i] = p_label
+        return self.toSta(map1, map2)
+
     def toSta2(self, x1, x2):
         C2S = [0,1,1,0,1,1,0,0,3,3,4,5,2,6,2,0,7,2,9,5,5,2,0,0,0,8]
         if x1 == x2:
@@ -203,11 +275,17 @@ class accuracy:
             if ((L2C == 2) & (L1C != 2)):
                 y = 10
             elif L2C == 9:
-                y = 11
+                if self.site == 'mekong':
+                    y = 11
+                else:
+                    y = 15
             elif L2C == 6:
                 y = 12
             elif ((L1C in [1, 3]) & (L2C in [4, 5, 7, 8])):
-                y = 13
+                if self.site == 'mekong':
+                    y = 13
+                else:
+                    y = 15
             elif ((L1C in [2, 4, 5, 6, 7, 8]) & (L2C in [1, 3])):
                 y = 14
             else:
