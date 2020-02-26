@@ -107,6 +107,13 @@ def refine_results(ori, lc, des, overwrite=False):
                         p[2] = p[3]
                     r[i, j, :] = p
 
+                # mixed urban fix
+                if sum((p == 16) & (plc == 13)) >= 5:
+                    p[(p == 16) & (plc == 13)] = 13
+                    r[i, j, :] = p
+                if sum((p == 10) & (plc == 13)) >= 5:
+                    p[(p == 10) & (plc == 13)] = 13
+                    r[i, j, :] = p
                 # urban barren fix
                 if sum((p == 13) & (plc == 16)) >= 5:
                     p[(p == 13) & (plc == 16)] = 16
