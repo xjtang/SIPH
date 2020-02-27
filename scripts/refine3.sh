@@ -10,7 +10,6 @@
 
 # default values
 overwrite=''
-recursive=''
 
 # parse input arguments
 while [[ $# > 0 ]]; do
