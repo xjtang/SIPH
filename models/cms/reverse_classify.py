@@ -90,7 +90,8 @@ def reverse_classify(pattern, ori, lc, des, _start=2000, overwrite=False,
     py, px = (-1, -1)
     log.info('Start reverse classifying pixels...')
     for yatsm in yatsm_list:
-        try:
+        if True:
+        #try:
             py = get_int(yatsm[1])[0]
             log.info('Processing line {}'.format(py))
             records = np.load(os.path.join(yatsm[0], yatsm[1]))['record']
@@ -100,9 +101,9 @@ def reverse_classify(pattern, ori, lc, des, _start=2000, overwrite=False,
             np.savez(os.path.join(des, 'yatsm_r{}.npz'.format(py)),
                         record=records)
             count += 1
-        except:
-            log.warning('Failed to process line {} pixel {}.'.format(py, px))
-            continue
+        #except:
+        #    log.warning('Failed to process line {} pixel {}.'.format(py, px))
+        #    continue
 
     # done
     log.info('Process completed.')
@@ -125,14 +126,15 @@ def rev_class(x, lc, lc_start):
     ts_start = split_doy(ordinal_to_doy(x['start']))[0]
     ts_end = split_doy(ordinal_to_doy(x['end']))[0]
     lc_end = lc_start + len(lc) - 1
-    if (((ts_end <= lc_end) & (ts_end >= lc_start)) |
-        ((ts_start <= lc_end) & (ts_start >= lc_start))):
+    if ((ts_end <= lc_end) & (ts_end >= lc_start)):
         new = lc[ts_end - lc_start]
-        if new == 0:
-            new = x['class']
-        return new
+    elif ((ts_start <= lc_end) & (ts_start >= lc_start)):
+        new = lc[ts_start - lc_start]
     else:
         return x['class']
+    if new == 0:
+        new = x['class']
+    return new
 
 
 if __name__ == '__main__':
