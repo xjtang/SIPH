@@ -63,7 +63,8 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
 
     # refine classification results
     log.info('Refining maps...')
-    try:
+    if True:
+    #try:
         (lines, samples, nband) = r.shape
         for i in range(0,lines):
             for j in range(0, samples):
@@ -78,7 +79,7 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
 
                 pvcf = np.zeros(19, dtype=int)
                 pvcf[0:18] = vcf[i, j, 1:19]
-                pvcf[19] = vcf[i, j, -1]
+                pvcf[18] = vcf[i, j, -1]
                 mvcf = int(pvcf.mean())
 
                 # fix short plantation in beginning
@@ -215,9 +216,9 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
             progress = show_progress(i, lines, 5)
             if progress >= 0:
                 log.info('{}% done.'.format(progress))
-    except:
-        log.error('Failed to refine results.')
-        return 3
+    #except:
+    #    log.error('Failed to refine results.')
+    #    return 3
 
     # write output
     log.info('Writing output...')
