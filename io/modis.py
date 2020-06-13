@@ -445,12 +445,13 @@ def modisvi2stack(VI, des, overwrite=False, verbose=False):
     if verbose:
         log.info('Generating mask band...')
     try:
-        mask = (np.mod(np.right_shift(qa, 1), 2) |
-                (np.mod(np.right_shift(qa, 2), 16) > 1) |
-                np.mod(np.right_shift(qa, 8), 2) |
-                np.mod(np.right_shift(qa, 10), 2) |
-                np.mod(np.right_shift(qa, 14), 2) |
-                np.mod(np.right_shift(qa, 15), 2)) > 0
+        mask = (qa!=0)
+        #mask = (np.mod(np.right_shift(qa, 1), 2) |
+        #        (np.mod(np.right_shift(qa, 2), 16) > 1) |
+        #        np.mod(np.right_shift(qa, 8), 2) |
+        #        np.mod(np.right_shift(qa, 10), 2) |
+        #        np.mod(np.right_shift(qa, 14), 2) |
+        #        np.mod(np.right_shift(qa, 15), 2)) > 0
         _total = np.sum(mask)
         _size = np.shape(mask)
         if verbose:
