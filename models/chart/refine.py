@@ -111,7 +111,7 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                         else:
                             p[p == 0] = p[p != 0][-1]
                     # single uc
-                elif sum(p == 0) <= 10:
+                    elif sum(p == 0) <= 10:
                         for k in range(0, len(p)):
                             if p[k] == 0:
                                 p[k] = p[k - 1]
