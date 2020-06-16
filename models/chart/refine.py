@@ -95,11 +95,8 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                 if max(p == 0) == 1:
                     uclc = plc[p == 0]
                     p_label = m2c[np.bincount(uclc).argmax()]
-                    # mostly uc
-                    if sum(p == 0) > 10:
-                        p[p == 0] = p_label
                     # uc in the beginning
-                    elif (p[0] == 0):
+                    if (p[0] == 0):
                         if p_label in [13, 25]:
                             p[p == 0] = p_label
                         else:
@@ -110,6 +107,9 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                             p[p == 0] = p_label
                         else:
                             p[p == 0] = p[p != 0][-1]
+                    # mostly uc
+                    elif sum(p == 0) > 10:
+                        p[p == 0] = p_label
                     # single uc
                     elif sum(p == 0) <= 10:
                         for k in range(0, len(p)):
