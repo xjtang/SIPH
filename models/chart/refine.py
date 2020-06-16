@@ -63,7 +63,8 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
 
     # refine classification results
     log.info('Refining maps...')
-    try:
+    if True:
+    #try:
         (lines, samples, nband) = r.shape
         for i in range(0,lines):
             for j in range(0, samples):
@@ -96,7 +97,10 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                     uclc = plc[p == 0]
                     p_label = m2c[np.bincount(uclc).argmax()]
                     # uc in the beginning
-                    if (p[0] == 0):
+                    # mostly uc
+                    if sum(p == 0) > 15:
+                        p[p == 0] = p_label
+                    elif (p[0] == 0):
                         if p_label in [13, 25]:
                             p[p == 0] = p_label
                         else:
@@ -108,10 +112,10 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                         else:
                             p[p == 0] = p[p != 0][-1]
                     # mostly uc
-                    elif sum(p == 0) > 10:
+                    elif sum(p == 0) > 5:
                         p[p == 0] = p_label
                     # single uc
-                    elif sum(p == 0) <= 10:
+                    elif sum(p == 0) <= 5:
                         for k in range(0, len(p)):
                             if p[k] == 0:
                                 p[k] = p[k - 1]
@@ -215,9 +219,9 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
             progress = show_progress(i, lines, 5)
             if progress >= 0:
                 log.info('{}% done.'.format(progress))
-    except:
-        log.error('Failed to refine results.')
-        return 3
+    #except:
+    #    log.error('Failed to refine results.')
+    #    return 3
 
     # write output
     log.info('Writing output...')
