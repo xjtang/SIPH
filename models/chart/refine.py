@@ -187,7 +187,7 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                 elif psta == 13:
                     if (plc_label == 11) & (plcn <= 2):
                         p_label = 19
-                    if (plc_label == 2) & (plcn <= 2) & (mvcf > 40) & (p[2] == 2):
+                    if (plc_label == 2) & (plcn <= 2) & (mvcf > 40) & (p[2] == 2) & (p[13] != 25):
                         p_label = 2
                 elif psta == 14:
                     if (plc_label in [10, 12]) & (p[2] in [10, 12]):
