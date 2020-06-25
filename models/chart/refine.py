@@ -36,7 +36,7 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
         4: error writing output
 
     """
-    doRefine = False
+    doRefine = True
     m2c = [0,2,2,4,4,5,10,10,9,9,10,11,12,13,12,16,16,25,0,0,0,0,0,0,0,0,0,0,0]
     # check if output already exists
     if (not overwrite) and os.path.isfile(des):
