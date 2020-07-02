@@ -133,7 +133,7 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                 # refinement 2
                 if doRefine:
                     p = r[i, j, :]
-                    psta = toSta(p[2], p[13])
+                    psta = toSta(p[2], p[-2])
                     p_label = -1
                     if psta == 3:
                         if (plc_label <= 5):
