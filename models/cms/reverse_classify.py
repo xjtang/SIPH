@@ -133,9 +133,12 @@ def rev_class(x, lc, lc_start):
         b = len(lc) - (lc_end - ts_end)
     else:
         b = len(lc)
-    if lc_end - ts_start >= 2:
-        return np.bincount(lc[a:b]).argmax()
-    else:
+    try:
+        if lc_end - ts_start >= 2:
+            return np.bincount(lc[a:b]).argmax()
+        else:
+            return x['class']
+    except:
         return x['class']
 
 
