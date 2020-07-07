@@ -132,9 +132,9 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
 
                 # last 4 fix
                 if p[15] != p[14]:
-                    if (p[14] in [20, 17, 21, 25, 13, 11, 19, 10, 16]) & (p[15] in [18,9]):
+                    if (p[14] in [20,17,21,25,13,11,19,10,16]) & (p[15] in [18,9]):
                         p[15:] = p[14]
-                    if p[14] in [18,9] & p[15] in [18,9]:
+                    if (p[14] in [18,9]) & (p[15] in [18,9]):
                         p[15:] = p[14]
 
                 # refinement 2
