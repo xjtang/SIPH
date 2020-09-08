@@ -63,7 +63,8 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
 
     # refine classification results
     log.info('Refining maps...')
-    try:
+    if True:
+    #try:
         (lines, samples, nband) = r.shape
         for i in range(0,lines):
             for j in range(0, samples):
@@ -71,14 +72,14 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                 p_class = np.unique(p)[0]
 
                 plc = np.zeros(19, dtype=int)
-                plc[0:18] = lc[i, j, 0:18]
-                plc[18] = lc[i, j, -1]
+                plc[0:19] = lc[i, j, 0:19]
+                #plc[18] = lc[i, j, -1]
                 plc_label = np.bincount(plc).argmax()
                 plcn = len(np.unique(plc))
 
                 pvcf = np.zeros(19, dtype=int)
-                pvcf[0:18] = vcf[i, j, 1:19]
-                pvcf[18] = vcf[i, j, -1]
+                pvcf[0:19] = vcf[i, j, 0:19]
+                #pvcf[18] = vcf[i, j, -1]
                 mvcf = int(pvcf.mean())
 
                 # deel with unclassified
@@ -173,9 +174,9 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
             progress = show_progress(i, lines, 5)
             if progress >= 0:
                 log.info('{}% done.'.format(progress))
-    except:
-        log.error('Failed to refine results.')
-        return 3
+    #except:
+    #    log.error('Failed to refine results.')
+    #    return 3
 
     # write output
     log.info('Writing output...')
