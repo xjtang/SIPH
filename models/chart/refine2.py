@@ -70,11 +70,15 @@ def refine_results(ori, lc, vcf, des, overwrite=False):
                 p = r[i, j, :]
                 p_class = np.unique(p)[0]
 
-                plc = lc[i, j, 0:16]
+                plc = np.zeros(19, dtype=int)
+                plc[0:18] = lc[i, j, 0:18]
+                plc[18] = lc[i, j, -1]
                 plc_label = np.bincount(plc).argmax()
                 plcn = len(np.unique(plc))
 
-                pvcf = vcf[i, j, 1:17]
+                pvcf = np.zeros(19, dtype=int)
+                pvcf[0:18] = vcf[i, j, 1:19]
+                pvcf[18] = vcf[i, j, -1]
                 mvcf = int(pvcf.mean())
 
                 # deel with unclassified
