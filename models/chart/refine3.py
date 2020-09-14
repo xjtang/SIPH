@@ -67,7 +67,7 @@ def refine_results(ori, lc, des, overwrite=False):
                 p = r[i, j, :]
                 p_class = np.unique(p)[0]
 
-                plc = lc[i, j, 0:16]
+                plc = lc[i, j, 0:19]
                 plc_label = np.bincount(plc).argmax()
                 plcn = len(np.unique(plc))
 
