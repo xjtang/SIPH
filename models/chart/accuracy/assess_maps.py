@@ -8,8 +8,9 @@ from ....common import conf_mat, accuracy_assessment, numeric_example
 
 class accuracy:
     C2S = [0,1,1,0,1,1,0,0,3,3,4,5,2,6,2,0,7,2,9,5,5,2,0,0,0,8]
-    C2M = [0,1,1,0,1,1,0,0,3,3,4,5,2,6,2,0,7,2,2,5,5,2,0,0,0,8]
+    S2P = [0,1,1,0,1,1,0,0,3,3,4,5,2,6,2,0,7,2,2,5,5,2,0,0,0,8]
     C2R = [-1,9,9,8,8,85,-1,-1,12,12,6,20,6,0,6,-1,0,20,85,20,20,0,-1,-1,-1,0]
+    M2C = [0,2,2,4,4,5,10,10,9,9,10,11,12,13,12,16,16,25,0,0,0,0,0,0,0,0,0,0,0]
 
     def __init__(self, _file, site='mekong'):
         if site == 'mekong':
@@ -29,16 +30,16 @@ class accuracy:
         self.site = site
         self.r = np.genfromtxt(self.input, delimiter=',', dtype=None, names=True)
         self.r2 = self.ref2annual(self.r)
-        self.map = self.toSta(self.r['map_2003'], self.r['map_2014'])
+        self.map = self.toSta(self.r['map_2001'], self.r['map_2016'])
         self.sta = self.r['STRATUM']
-        self.ref = self.toSta(self.r2[:,2], self.r2[:,13])
+        self.ref = self.toSta(self.r2[:, 1], self.r2[:, 16])
         self.aa = accuracy_assessment(self.sta, self.ref, self.map, self.sc)
         self.cf = conf_mat(self.ref, self.map)
         if site == 'mekong':
-            self.map2 = self.refine(self.r['map_2003'], self.r['map_2014'],
+            self.map2 = self.refine(self.r['map_2001'], self.r['map_2016'],
                                     self.r['lc'], self.r['vcf'], self.r['lcnc'])
         else:
-            self.map2 = self.refine2(self.r['map_2003'], self.r['map_2014'],
+            self.map2 = self.refine2(self.r['map_2001'], self.r['map_2016'],
                                     self.r['lc'], self.r['vcf'], self.r['lcnc'])
         self.aa2 = accuracy_assessment(self.sta, self.ref, self.map2, self.sc)
         self.cf2 = conf_mat(self.ref, self.map2)
@@ -48,12 +49,36 @@ class accuracy:
         self.aa3 = accuracy_assessment(self.sta, self.ref3, self.map3, self.sc)
         self.cf3 = conf_mat(self.ref3, self.map3)
 
+        self.map4 = self.toSta(self.r['map_2003'], self.r['map_2014'], True)
+        self.ref4 = self.toSta(self.r2[:, 2], self.r2[:, 13], True)
+        self.aa4 = accuracy_assessment(self.sta, self.ref4, self.map4, self.sc)
+        self.cf4 = conf_mat(self.ref4, self.map4)
+
         self.check = np.zeros((len(self.map), 3), np.int16)
         self.check[:, 0] = self.r['SID']
         self.check[:, 1] = self.map
         self.check[:, 2] = self.ref
 
         self.r = np.genfromtxt(self.input, delimiter=',', dtype=None, names=True)
+
+    def aaa(self, _class='sub'):
+        x = np.zeros((2, 19))
+        for i in range(0, 19):
+            _map = self.r['map_{}'.format(2001 + i)]
+            _ref = self.r2[:, i]
+            if _class == 'rd':
+                _map = self.toRootDepth(_map)
+                _ref = self.toRootDepth(_ref)
+            elif _class == 'pc':
+                _map = self.toParent(_map)
+                _ref = self.toParent(_ref)
+            elif _class == 'ct':
+                _map = self.toSta(_map, _map, True)
+                _ref = self.toSta(_ref, _ref, True)
+            aa = accuracy_assessment(self.sta, _ref, _map, self.sc)
+            x[0,i] = aa['oval_acc'][0]
+            x[1,i] = aa['oval_acc'][1]
+        return x
 
     def saveCF(self, cf):
         np.savetxt(os.path.join(self.wd, 'conf_mat.csv'), cf, delimiter=',',
@@ -65,7 +90,18 @@ class accuracy:
                     delimiter=',', fmt='%d')
         return 0
 
-    def toSta(self, x1, x2):
+    def saveaaa(self, _aaa, _file='aaa'):
+        np.savetxt(os.path.join(self.wd, '{}.csv'.format(_file)), _aaa,
+                    delimiter=',')
+        return 0
+
+    def toParent(self, x):
+        y = np.zeros(len(x), dtype='int8')
+        for i in range(0, len(x)):
+            y[i] = self.S2P[x[i]]
+        return y
+
+    def toSta(self, x1, x2, CT=False):
         y = np.zeros(len(x1), dtype='int8')
         for i in range(0, len(x1)):
             if x1[i] == x2[i]:
@@ -91,16 +127,13 @@ class accuracy:
                     y[i] = 14
                 else:
                     y[i] = 15
-        return y
-
-    def toParent(self, x):
-        y = np.zeros(len(x), dtype='int8')
-        for i in range(0, len(x)):
-            y[i] = self.C2M[x[i]]
+        if CT:
+            y[y == 3] = 1
+            y[y == 9] = 1
         return y
 
     def ref2annual(self, x):
-        y = np.zeros((len(x), 16), dtype='int8')
+        y = np.zeros((len(x), 19), dtype='int8')
         for i in range(0, len(x)):
             y[i, :] = x[i]['CID1']
             if x[i]['ED1'] > 0:
@@ -120,7 +153,6 @@ class accuracy:
         return y
 
     def refine(self, map1, map2, lc, vcf, nc):
-        m2c = [0,2,2,4,4,5,10,10,9,9,10,11,12,13,12,16,16,25,0,0,0,0,0,0,0,0,0,0,0]
         for i in range(0, len(map1)):
             plc_label = lc[i]
             plcn = nc[i]
@@ -180,7 +212,7 @@ class accuracy:
             elif psta == 13:
                 if (plc_label == 11) & (plcn <= 2):
                     p_label = 19
-                if (plc_label == 2) & (plcn <= 2) & (mvcf > 40) & (map1[i] == 2):
+                if (plc_label == 2) & (plcn <= 2) & (mvcf > 40) & (map1[i] == 2) & (map2[i] != 25):
                     p_label = 2
             elif psta == 14:
                 if (plc_label in [10, 12]) & (map1[i] in [10, 12]):
@@ -211,7 +243,6 @@ class accuracy:
         return self.toSta(map1, map2)
 
     def refine2(self, map1, map2, lc, vcf, nc):
-        m2c = [0,2,2,4,4,5,10,10,9,9,10,11,12,13,12,16,16,25,0,0,0,0,0,0,0,0,0,0,0]
         for i in range(0, len(map1)):
             plc_label = lc[i]
             plcn = nc[i]
@@ -228,7 +259,7 @@ class accuracy:
                     p_label = 13
             elif psta == 3:
                 if (plc_label in [2, 4, 5]) & (mvcf >= 20):
-                    p_label = m2c[plc_label]
+                    p_label = self.M2C[plc_label]
                 if (plc_label in [8, 9]) & (mvcf > 15):
                     p_label = 4
             elif psta == 5:
@@ -253,7 +284,7 @@ class accuracy:
                         p_label = 9
             elif psta == 15:
                 if (plc_label in [2, 4, 5]) & (plcn <= 2) & (map2[i] in [2, 4, 5]):
-                    p_label = m2c[plc_label]
+                    p_label = self.M2C[plc_label]
                 if (plc_label in [12, 10]) & (plcn <= 2) & (map1[i] == 12) & (map2[i] == 10):
                     p_label = 12
                 if (plc_label == 11) & (plcn <= 2) & (map1[i] == 21):
@@ -265,13 +296,12 @@ class accuracy:
                 map2[i] = p_label
         return self.toSta(map1, map2)
 
-    def toSta2(self, x1, x2):
-        C2S = [0,1,1,0,1,1,0,0,3,3,4,5,2,6,2,0,7,2,9,5,5,2,0,0,0,8]
+    def toSta2(self, x1, x2, CT=False):
         if x1 == x2:
-            y = C2S[x1]
+            y = self.C2S[x1]
         else:
-            L1C = C2S[x1]
-            L2C = C2S[x2]
+            L1C = self.C2S[x1]
+            L2C = self.C2S[x2]
             if ((L2C == 2) & (L1C != 2)):
                 y = 10
             elif L2C == 9:
@@ -290,4 +320,7 @@ class accuracy:
                 y = 14
             else:
                 y = 15
+        if CT:
+            if y in [3, 9]:
+                y = 1
         return y
