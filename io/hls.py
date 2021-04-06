@@ -108,20 +108,20 @@ def hls2stack(hls, des, sensor='S30', _hdr=True, overwrite=False, verbose=False)
             break
 
         # generate mask band
-        if verbose:
-            log.info('Generating mask band...')
-        try:
-            fmask = True
-            mask = hlsQA(QA, fmask)
-            if not fmask:
-                _total = np.sum(mask)
-                _size = np.shape(mask)
-                if verbose:
-                    log.info('{}% masked'.format(_total/(_size[0]*_size[1])*100))
-        except:
-            _error = 4
-            log.error('Failed to generate mask band.')
-            break
+        #if verbose:
+        #    log.info('Generating mask band...')
+        #try:
+        #    fmask = True
+        #    mask = hlsQA(QA, fmask)
+        #    if not fmask:
+        #        _total = np.sum(mask)
+        #        _size = np.shape(mask)
+        #        if verbose:
+        #            log.info('{}% masked'.format(_total/(_size[0]*_size[1])*100))
+        #except:
+        #    _error = 4
+        #    log.error('Failed to generate mask band.')
+        #    break
 
         # clean up data
         if verbose:
@@ -136,7 +136,7 @@ def hls2stack(hls, des, sensor='S30', _hdr=True, overwrite=False, verbose=False)
             swir1[invalid] = cons.NODATA
             swir2[invalid] = cons.NODATA
             cirrus[invalid] = cons.NODATA
-            mask[invalid] = cons.MASK_NODATA
+            QA[invalid] = cons.MASK_NODATA
         except:
             _error = 5
             log.error('Failed to clean up data.')
@@ -165,7 +165,7 @@ def hls2stack(hls, des, sensor='S30', _hdr=True, overwrite=False, verbose=False)
             output.GetRasterBand(5).WriteArray(swir1)
             output.GetRasterBand(6).WriteArray(swir2)
             output.GetRasterBand(7).WriteArray(cirrus)
-            output.GetRasterBand(8).WriteArray(mask)
+            output.GetRasterBand(8).WriteArray(QA)
 
             # assign band name
             output.GetRasterBand(1).SetDescription('{} {} Blue'.format(sensor,
@@ -182,7 +182,7 @@ def hls2stack(hls, des, sensor='S30', _hdr=True, overwrite=False, verbose=False)
                                                                     BANDS[5]))
             output.GetRasterBand(7).SetDescription('{} {} Cirrus'.format(sensor,
                                                                     BANDS[6]))
-            output.GetRasterBand(8).SetDescription('{} {} Fmask'.format(sensor,
+            output.GetRasterBand(8).SetDescription('{} {} QA'.format(sensor,
                                                                     BANDS[7]))
         except:
             _error = 6
